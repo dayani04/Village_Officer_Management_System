@@ -1,0 +1,72 @@
+/* Styling for Navbar */
+.navbar-header {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #fff;
+    border-bottom: 2px solid #9C284F;
+  }
+  
+  .flag-logo {
+    width: 50px;
+    height: auto;
+    margin-right: 10px;
+  }
+  
+  .emblem-logo {
+    width: 50px;
+    height: auto;
+    margin-right: 10px;
+  }
+  
+  .navbar-title {
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .navbar-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .navbar-title h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: normal;
+  }
+  
+  .navbar-title h5 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: lighter;
+    color: #333;
+  }
+  
+  .navbar-menu {
+    background-color: #9C284F;
+    padding: 10px 0;
+  }
+  
+  .navbar-menu ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .navbar-menu li {
+    margin: 0 15px;
+  }
+  
+  .navbar-menu a {
+    color: white;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bold;
+  }
+  
+  .navbar-menu a:hover {
+    text-decoration: underline;
+  }
+  
