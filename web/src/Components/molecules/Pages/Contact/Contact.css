@@ -1,0 +1,50 @@
+
+  .contact-container {
+    text-align: center;
+    background-color: #fcf6f5;
+    margin-top: 50px;
+    margin-left: 420px;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    border: 2px solid #ebc3ce;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  }
+  
+  .contact-container h1 {
+    margin-bottom: 20px;
+    font-size: 36px;
+    color: #C75B7A;
+    font-weight: 900;
+  }
+  
+  .contact-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 15px 0;
+  }
+  
+  .contact-item img.icon {
+    width: 50px;
+    height: 50px;
+    margin-right: 10px;
+  }
+  
+  .contact-item span {
+    font-size: 18px;
+    color: #333;
+  }
+  
+  .contact-item a {
+    color: #333;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  
+  .contact-item a:hover {
+    text-decoration: underline;
+  }
+  
