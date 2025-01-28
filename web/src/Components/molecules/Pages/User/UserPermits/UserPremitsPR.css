@@ -1,0 +1,122 @@
+/* General container for the page */
+.user-permit-pr-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f9fa; /* Light background */
+    padding: 20px;
+  }
+  
+  /* Form title styling */
+  .permit-pr-form-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 170px;
+    padding-top: 40px;
+  
+  }
+  
+  .language-permit-pr-selector {
+    position: absolute; /* Position the container */
+    top: 20px; /* Distance from the top */
+    right: 20px; /* Distance from the right */
+    display: flex; /* Keep buttons aligned in a row */
+    gap: 10px; /* Space between buttons */
+  }
+  
+  .language-permit-pr-btn {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .language-permit-pr-btn:hover {
+    background-color: #34495e;
+  }
+  
+  
+  /* Form styling */
+  .permit-pr-form-content {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    padding: 30px;
+    margin-bottom: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .file-permit-pr-upload-section {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .file-permit-pr-input-field {
+    display: none;
+  }
+  
+  .file-permit-pr-info {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .file-permit-pr-name {
+    font-weight: bold;
+  }
+  
+  .file-permit-pr-download-link {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .file-permit-pr-download-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Buttons styling */
+  .upload-permit-pr-btn,
+  .delete-permit-pr-btn,
+  .submit-permit-pr-btn,
+  .back-permit-pr-btn,
+  .next-permit-pr-btn {
+    background-color: #921940;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+  }
+  
+  .upload-permit-pr-btn:hover,
+  .delete-permit-pr-btn:hover,
+  .back-permit-pr-btn:hover,
+  .submit-permit-pr-btn:hover,
+  .next-permit-pr-btn:hover {
+    background-color: #7a1632;
+  }
+  
+  .navigation-permit-pr-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .permit-pr-form-content {
+      width: 90%;
+      padding: 20px;
+    }
+  }
+  

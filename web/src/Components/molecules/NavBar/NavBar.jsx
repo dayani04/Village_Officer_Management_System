@@ -27,7 +27,7 @@ function NavBar() {
       <nav className="navbar-menu">
         <ul>
           <li><a href="#home">Home</a></li>
-          <li><a href="#login">Login</a></li>
+          <li><a href="/UserLogin">Login</a></li>
           <li><a href="#about">About Us</a></li>
         </ul>
       </nav>

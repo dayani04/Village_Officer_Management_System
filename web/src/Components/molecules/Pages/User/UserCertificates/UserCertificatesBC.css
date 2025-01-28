@@ -1,0 +1,122 @@
+/* General container for the page */
+.user-certificates-bc-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f8f9fa; /* Light background */
+    padding: 20px;
+  }
+  
+  /* Form title styling */
+  .certificates-bc-form-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2c3e50;
+    margin-bottom: 170px;
+    padding-top: 60px;
+  
+  }
+  
+  .language-certificates-bc-selector {
+    position: absolute; /* Position the container */
+    top: 20px; /* Distance from the top */
+    right: 20px; /* Distance from the right */
+    display: flex; /* Keep buttons aligned in a row */
+    gap: 10px; /* Space between buttons */
+  }
+  
+  .language-certificates-bc-btn {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .language-certificates-bc-btn:hover {
+    background-color: #34495e;
+  }
+  
+  
+  /* Form styling */
+  .certificates-bc-form-content {
+    width: 100%;
+    max-width: 400px;
+    background-color: white;
+    padding: 30px;
+    margin-bottom: 200px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .file-certificates-bc-upload-section {
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  
+  .file-certificates-bc-input-field {
+    display: none;
+  }
+  
+  .file-certificates-bc-info {
+    margin-top: 10px;
+    font-size: 14px;
+  }
+  
+  .file-certificates-bc-name {
+    font-weight: bold;
+  }
+  
+  .file-certificates-bc-download-link {
+    color: #007bff;
+    text-decoration: none;
+  }
+  
+  .file-certificates-bc-download-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Buttons styling */
+  .upload-certificates-bc-btn,
+  .delete-certificates-bc-btn,
+  .submit-certificates-bc-btn,
+  .back-certificates-bc-btn,
+  .next-certificates-bc-btn {
+    background-color: #921940;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    width: 100%;
+    cursor: pointer;
+    margin-top: 10px;
+    font-size: 1rem;
+  }
+  
+  .upload-certificates-bc-btn:hover,
+  .delete-certificates-bc-btn:hover,
+  .back-certificates-bc-btn:hover,
+  .submit-certificates-bc-btn:hover,
+  .next-certificates-bc-btn:hover {
+    background-color: #7a1632;
+  }
+  
+  .navigation-certificates-bc-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  /* Responsive design */
+  @media (max-width: 768px) {
+    .certificates-bc-form-content {
+      width: 90%;
+      padding: 20px;
+    }
+  }
+  
