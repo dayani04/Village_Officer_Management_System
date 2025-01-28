@@ -10,34 +10,22 @@ const Footer = () => {
           <section>
             <div className="row">
               <div className="col-md-3 col-lg-3 col-xl-3 mx-auto mt-3">
-                <h6 className="text-uppercase mb-4 font-weight-bold">Company name</h6>
-                <p>
-                  Here you can use rows and columns to organize your footer
-                  content. Lorem ipsum dolor sit amet, consectetur adipisicing
-                  elit.
-                </p>
+                <h6 className="text-uppercase mb-4 font-weight-bold">ශ්‍රී ලංකා ග්‍රාම සේවක</h6>
+                <h6 className="text-uppercase mb-4 font-weight-bold">கிராம அதிகாரி</h6>
+                <h6 className="text-uppercase mb-4 font-weight-bold">Village officers of sri lanka</h6>
               </div>
 
               <hr className="w-100 clearfix d-md-none" />
 
-              <div className="col-md-2 col-lg-2 col-xl-2 mx-auto mt-3">
-                <h6 className="text-uppercase mb-4 font-weight-bold">Products</h6>
-                <p><a href="#!" className="text-white">MDBootstrap</a></p>
-                <p><a href="#!" className="text-white">MDWordPress</a></p>
-                <p><a href="#!" className="text-white">BrandFlow</a></p>
-                <p><a href="#!" className="text-white">Bootstrap Angular</a></p>
+              <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
+                <h6 className="text-uppercase mb-4 font-weight-bold">Usefull Links</h6>
+                <p><a href="AboutUs" className="text-white">About Us</a></p>
+                <p><a href="#!" className="text-white">Privacy Policy</a></p>
+                <p><a href="ContactUs" className="text-white">Contact Details</a></p>
+                <p><a href="VillageOfficerDashBoard" className="text-white">Help</a></p>
               </div>
 
-              <hr className="w-100 clearfix d-md-none" />
-
-              <div className="col-md-3 col-lg-2 col-xl-2 mx-auto mt-3">
-                <h6 className="text-uppercase mb-4 font-weight-bold">Useful links</h6>
-                <p><a href="#!" className="text-white">Your Account</a></p>
-                <p><a href="#!" className="text-white">Become an Affiliate</a></p>
-                <p><a href="#!" className="text-white">Shipping Rates</a></p>
-                <p><a href="#!" className="text-white">Help</a></p>
-              </div>
-
+           
               <hr className="w-100 clearfix d-md-none" />
 
               <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
@@ -56,17 +44,11 @@ const Footer = () => {
             <div className="row d-flex align-items-center">
               <div className="col-md-7 col-lg-8 text-center text-md-start">
                 <div className="p-3">
-                  © 2024 Copyright: 
-                  <a className="text-white" href="https://mdbootstrap.com/"> MDBootstrap.com</a>
+                  © 2024 Copyright
                 </div>
               </div>
 
-              <div className="col-md-5 col-lg-4 ml-lg-0 text-center text-md-end">
-                <a href="https://png.pngtree.com/element_our/sm/20180520/sm_5b01251200ff5.jpg" className="btn btn-outline-light btn-floating m-1" role="button"><i className="fab fa-facebook-f"></i></a>
-                <a href="#!" className="btn btn-outline-light btn-floating m-1" role="button"><i className="fab fa-twitter"></i></a>
-                <a href="#!" className="btn btn-outline-light btn-floating m-1" role="button"><i className="fab fa-google"></i></a>
-                <a href="#!" className="btn btn-outline-light btn-floating m-1" role="button"><i className="fab fa-instagram"></i></a>
-              </div>
+            
             </div>
           </section>
         </div>

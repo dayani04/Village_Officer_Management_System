@@ -6,7 +6,7 @@ body {
        box-sizing: border-box;
   height: 100%;
   width: 100%; 
-  background: DAD4B5;
+  background: F4D9D0;
   font-family: 'Roboto', sans-serif;
   font-weight: 400;
 }
@@ -37,6 +37,7 @@ h1.heading {
 @media (min-width: 450px) {
   h1.heading {
     font-size: 3.55em;
+    
   }
 }
 @media (min-width: 760px) {
@@ -52,10 +53,11 @@ h1.heading {
 } 
 .card {
   display: block; 
+  background-color: #fcf6f5;
     margin-bottom: 20px;
     height: 650px;
     line-height: 1.42857143;
-    background-color:DAD4B5;
+    background-color:D9ABAB;
     border-radius: 2px;
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12); 
     transition: box-shadow .25s; 
@@ -80,20 +82,23 @@ h1.heading {
 .card-content {
   padding:15px;
   text-align:left;
+  
 }
 .card-title {
   margin-top:0px;
   font-weight: 700;
   font-size: 1.65em;
+  
 }
 .card-title1{
     margin-top:0px;
     font-weight: 700;
     font-size: 1.40em;
+    
 }
 
 .card-title a {
-  color: #000;
+  color: #C75B7A;
   text-decoration: none !important;
 }
 .card-read-more {
@@ -104,4 +109,10 @@ h1.heading {
   padding:10px;
   font-weight:600;
   text-transform: uppercase
+}
+
+.header{
+  font-weight: 1500;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  color: #C75B7A;
 }
