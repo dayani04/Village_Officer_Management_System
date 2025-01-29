@@ -4,10 +4,20 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import sinhalaLady from './sinhalaLady.jpg';
 import tamilLady from './tamilLady.avif';
 import welcomee from './welcomee.jpg';
+import Carousel from './Carousel';
+import About from './About';
+import Services from './Services';
+import Teams from './Team';
 
 const Home = () => {
   return (
+    <>
+     <Carousel/> <br></br> <br></br> <br></br> 
+     <About/> <br></br> <br></br> <br></br> 
+
+     
     <section className="wrapper">
+     
       <div className="container-fostrap">
         <div className="content">
           <div className="container">
@@ -99,14 +109,17 @@ const Home = () => {
                       Welcome to all of you. Most of the services you need to meet village workers can be done easily through this website. Once you have registered on the website, you can press the login button and enter your required details and do your work very easily.
                     </p>
                   </div>
-                  
                 </div>
               </div>
+              <br/>
+              <br/>
+             <Services/>
             </div>
           </div>
         </div>
       </div>
     </section>
+    </>
   );
 }
 

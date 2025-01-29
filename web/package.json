@@ -13,7 +13,10 @@
     "react-i18next": "^15.4.0",
     "react-router-dom": "^7.1.1",
     "react-scripts": "5.0.1",
-    "sweetalert2": "^11.15.10"
+    "react-slick": "^0.30.3",
+    "slick-carousel": "^1.8.1",
+    "sweetalert2": "^11.15.10",
+    "typescript": "^5.7.3"
   },
   "scripts": {
     "start": "react-scripts start",
