@@ -9,7 +9,7 @@
     font-family: Arial, sans-serif;
   }
   
-  .container {
+  .containerA {
     display: flex;
     justify-content: space-between;
     padding: 20px;
@@ -34,7 +34,7 @@
     height: auto;
   }
   
-  .card1 {
+  .cardA {
     background-color: #fcf6f5;
     padding: 20px;
     border-radius: 10px;
@@ -42,7 +42,7 @@
     height: 340px;
   }
 
-  .card2 {
+  .cardB {
     background-color: #fcf6f5;
     padding: 20px;
     border-radius: 10px;
@@ -50,24 +50,24 @@
     height: 450px;
   }
   
-  .card1 h3 {
+  .cardA h3 {
     margin-bottom: 10px;
     color: #C75B7A;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   }
   
-  .card1 p {
+  .cardA p {
     font-size: 14px;
     color: #333;
   }
 
-  .card2 h3 {
+  .cardB h3 {
     margin-bottom: 10px;
     color: #C75B7A;
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   }
   
-  .card2 p {
+  .cardB p {
     font-size: 14px;
     color: #333;
   }
