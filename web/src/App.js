@@ -5,9 +5,7 @@ import Footer from  './Components/molecules/Footer/Footer';
 import Home from './Components/molecules/Pages/Home/Home';
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
-import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficerDashBoard/VillageOfficerDashBoard';
-import SecretaryDashBoard from './Components/molecules/Pages/SecretaryDashBoard/SecretaryDashBoard';
-import AddVillagers from './Components/molecules/Pages/AddVillagers/AddVillagers';
+import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficerDashBoard/VillageOfficerDashBoard'
 
 function App() {
   return (
@@ -19,8 +17,6 @@ function App() {
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
-        <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
-        <Route path="AddVillagers" element={<AddVillagers/>} />
         </Routes>
       </BrowserRouter>
       <Footer/>
