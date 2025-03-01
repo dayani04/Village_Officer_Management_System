@@ -1,12 +1,12 @@
 import React from 'react';
-import './AddVillagers.css'; 
+import './AddVillageOfficers.css';
 
-const AddVillagers = () => {
+const AddVillagerOfficer = () => {
   return (
     <div>
       <div className="containerAV">
         <div className="cta-form">
-          <h2>Add Villagers</h2>
+          <h2>Add Villager Officer</h2>
           
         </div>
         <form className="form">
@@ -89,10 +89,25 @@ const AddVillagers = () => {
             Election Numbers
             </label>
           </div>
+          <div className="form-group">
+            <input
+              type="text"
+              placeholder="Subject"
+              className="form__input"
+              id="subject"
+            />
+            <label htmlFor="subject" className="form__label">
+            Alive Status
+            </label>
+            
+          </div>
 
           <div className="form-group">
-            <button type="button" class="btn btn-primary btn-lg">Add</button>
-          </div>
+  <button type="button" className="btn btn-lg" style={{ backgroundColor: "#921940", borderColor: "#921940" , color: "white"}}>
+    Add
+  </button>
+</div>
+
         </form>
       </div>
       
@@ -100,4 +115,4 @@ const AddVillagers = () => {
   );
 };
 
-export default AddVillagers;
+export default AddVillagerOfficer;

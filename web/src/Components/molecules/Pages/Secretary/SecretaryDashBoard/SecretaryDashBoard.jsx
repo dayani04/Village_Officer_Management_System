@@ -3,7 +3,7 @@ import './SecretaryDashBoard.css';
 
 const SecretaryDashBoard = () => {
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-containerS">
       <div className="sidebar">
         <h2>Secretary Dashboard</h2>
         <ul>
