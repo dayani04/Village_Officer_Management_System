@@ -34,6 +34,16 @@ import IDCardVillagerDetails from './Components/molecules/Pages/VillageOfficer/I
 import RequestsForAllowance from './Components/molecules/Pages/VillageOfficer/RequestsForAllowance/RequestsForAllowance';
 import RequestsForCertificate from './Components/molecules/Pages/VillageOfficer/RequestsForCertificate/RequestsForCertificate';
 import CertificateVillagerDetails from './Components/molecules/Pages/VillageOfficer/CertificateVillagerDetails/CertificateVillagerDetails';
+import AddVillageOfficerS from './Components/molecules/Pages/Secretary/AddVillageOfficerS/AddVillageOfficerS';
+import RemoveVillageOfficerS from './Components/molecules/Pages/Secretary/RemoveVillageOfficerS/RemoveVillageOfficerS';
+import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
+import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
+import ElectionVillagerDetailS from './Components/molecules/Pages/Secretary/ElectionVillagerDetailS/ElectionVillagerDetailS';
+import RequestsForIDCardsS from './Components/molecules/Pages/Secretary/RequestsForIDCardsS/RequestsForIDCardsS';
+import IDCardVillagerDetailsS from './Components/molecules/Pages/Secretary/IDCardVillagerDetailsS/IDCardVillagerDetailsS';
+import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/RequestsForAllowanceS/RequestsForAllowanceS';
+import AllowanceVillagerDetailsS from './Components/molecules/Pages/Secretary/AllowanceVillagerDetailsS/AllowanceVillagerDetailsS';
+
 
 function App() {
   return (
@@ -73,6 +83,16 @@ function App() {
         <Route path="/RequestsForCertificate" element={<RequestsForCertificate/>}/>
         <Route path="/RequestsForAllowance" element={<RequestsForAllowance/>}/>
         <Route path="/CertificateVillagerDetails" element={<CertificateVillagerDetails/>}/>
+        <Route path="/AddVillageOfficerS" element={<AddVillageOfficerS/>}/>
+        <Route path="/RemoveVillageOfficerS" element={<RemoveVillageOfficerS/>}/>
+        <Route path="/VillageOfficers" element={<VillageOfficers/>}/>
+        <Route path="/RequestsForElectionListS" element={<RequestsForElectionListS/>}/>
+        <Route path="/ElectionVillagerDetailS" element={<ElectionVillagerDetailS/>}/> 
+        <Route path="/RequestsForIDCardsS" element={<RequestsForIDCardsS/>}/>
+        <Route path="/IDCardVillagerDetailsS" element={<IDCardVillagerDetailsS/>}/>
+        <Route path="/RequestsForAllowanceS" element={<RequestsForAllowanceS/>}/>
+        <Route path="/AllowanceVillagerDetailsS" element={<AllowanceVillagerDetailsS/>}/>
+        
 
         </Routes>
       </BrowserRouter>
