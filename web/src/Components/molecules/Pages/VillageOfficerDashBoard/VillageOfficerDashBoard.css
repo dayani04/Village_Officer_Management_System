@@ -1,78 +1,88 @@
+/* Sidebar */
+.sidebarV {
+  margin-top: 50px;
+  width: 280px;
+  background-color: #9C284F;
+  color: white;
+  padding: 20px;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  height: 175vh;
+}
 
-.sidebar {
-    margin-top: 50px;
-    width: 280px;
-    background-color: #9C284F;
-    color: white;
-    padding: 20px;
-    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-    height: 140vh;
-    
-  }
-  
-  .sidebar h2 {
-    text-align: center;
-    margin-bottom: 20px;
-  }
-  
-  .sidebar ul {
-    list-style: none;
-    padding: 0;
-  }
-  
-  .sidebar ul li {
-    margin: 15px 0;
-    padding: 10px;
-    cursor: pointer;
-    background-color: #921A40;
-    border-radius: 5px;
-  }
-  
-  .sidebar ul li:hover {
-    background-color: #C75B7A;
-  }
- 
-  .dashboard-container {
-    display: flex;
-  }
-  
- .content {
-    margin-left: 270px; 
-    padding: 20px;
-    flex: 1;
-  }
-  
- 
-  
+.sidebarV h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
 
-  .cards {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 50px;
-    margin-top: 100px;
-    margin-right: 10px;
-  
-  }
-  
-  .card {
-    background-color: #FCF6F5;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    padding: 20px;
-    text-align: center;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 350px;
-    height: 300px;
-  }
-  
-  .card h3 {
-    margin-bottom: 10px;
-    color: #C75B7A;
-  }
-  
-  .card p {
-    font-size: 24px;
-    font-weight: bold;
-    color: #444;
-  }
-  
+/* List styling for navigation */
+.sidebarV ul {
+  list-style: none;
+  padding: 0;
+  color: white;
+}
+
+.sidebarV ul li {
+  margin: 15px 0;
+  padding: 12px 20px;
+  cursor: pointer;
+  background-color: #921A40;
+  border-radius: 5px;
+  text-align: center;
+}
+
+.sidebarV ul li:hover {
+  background-color: #C75B7A;
+}
+
+.sidebarV ul li button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  width: 100%;
+  text-align: center;
+  cursor: pointer;
+}
+
+/* Content area */
+.dashboard-containerV {
+  display: flex;
+}
+
+.contentV {
+  margin-left: 270px; 
+  padding: 20px;
+  flex: 1;
+}
+
+/* Cards section */
+.cardsV {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 50px;
+  margin-top: 100px;
+  margin-right: 10px;
+}
+
+.cardV {
+  background-color: #FCF6F5;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 350px;
+  height: 300px;
+}
+
+.cardV h3 {
+  margin-bottom: 10px;
+  color: #C75B7A;
+}
+
+.cardV p {
+  font-size: 24px;
+  font-weight: bold;
+  color: #444;
+}

@@ -20,7 +20,7 @@ const Footer = () => {
               <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h6 className="text-uppercase mb-4 font-weight-bold">Usefull Links</h6>
                 <p><a href="AboutUs" className="text-white">About Us</a></p>
-                <p><a href="#!" className="text-white">Privacy Policy</a></p>
+                <p><a href="SecretaryDashBoard" className="text-white">Privacy Policy</a></p>
                 <p><a href="ContactUs" className="text-white">Contact Details</a></p>
                 <p><a href="VillageOfficerDashBoard" className="text-white">Help</a></p>
               </div>
@@ -30,10 +30,9 @@ const Footer = () => {
 
               <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h6 className="text-uppercase mb-4 font-weight-bold">Contact</h6>
-                <p><i className="fas fa-home mr-3"></i> New York, NY 10012, US</p>
-                <p><i className="fas fa-envelope mr-3"></i> info@gmail.com</p>
-                <p><i className="fas fa-phone mr-3"></i> + 01 234 567 88</p>
-                <p><i className="fas fa-print mr-3"></i> + 01 234 567 89</p>
+                <p><i className="fas fa-envelope mr-3"></i> villageofficer@gmail.com</p>
+                <p><i className="fas fa-phone mr-3"></i> +94 914 567 890</p>
+                <p><i className="fas fa-print mr-3"></i> +94 914 567 890</p>
               </div>
             </div>
           </section>

@@ -3,6 +3,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'; // Ensure react
 import NavBar from './Components/molecules/NavBar/NavBar'; // Adjust the path if necessary
 import Footer from  './Components/molecules/Footer/Footer';
 import Home from './Components/molecules/Pages/Home/Home';
+import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
+import ContactUs from './Components/molecules/Pages/Contact/Contact';
+import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficerDashBoard/VillageOfficerDashBoard';
+import SecretaryDashBoard from './Components/molecules/Pages/SecretaryDashBoard/SecretaryDashBoard';
+import AddVillagers from './Components/molecules/Pages/AddVillagers/AddVillagers';
 import UserLogin from './Components/molecules/Pages/UserLogin/UserLogin';
 import ForgotPassword from './Components/molecules/Pages/ForgotPassword/ForgotPassword';
 import UserDashboard from './Components/molecules/Pages/User/UserDashboard/UserDashboard';
@@ -17,6 +22,7 @@ import UserCertificates from './Components/molecules/Pages/User/UserCertificates
 import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPermitsID';
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
+
 function App() {
   return (
     <div className="App">
@@ -24,6 +30,11 @@ function App() {
       <BrowserRouter>
         <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="AboutUs" element={<AboutUs/>} />
+        <Route path="ContactUs" element={<ContactUs/>} />
+        <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
+        <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
+        <Route path="AddVillagers" element={<AddVillagers/>} />
         <Route path="/UserLogin" element={<UserLogin/>}/>
         <Route path="/ForgotPassword" element={<ForgotPassword/>}/>
         <Route path="/UserDashboard" element={<UserDashboard/>}/>
@@ -38,6 +49,7 @@ function App() {
         <Route path="/UserPermitsPR" element={< UserPermitsPR/>}/>
         <Route path="/UserPermits" element={<UserPermits/>}/>
         <Route path="/UserPermitsID" element={<UserPermitsID/>}/>
+
         </Routes>
       </BrowserRouter>
       <Footer/>
