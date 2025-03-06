@@ -1,0 +1,45 @@
+/* Common styling for service items */
+.service-item {
+    text-decoration: none;
+    padding: 20px;
+    display: block;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    background-color: #fff;
+  }
+  
+  /* Focus and hover effect */
+  .service-item:hover,
+  .service-item:focus {
+    background-color: #f6d7ef;
+    border-color: #f6d7ef;
+  }
+  
+  /* Custom color for icons */
+  .custom-icon {
+    color: #0d0a0b !important; /* Ensures the color is not overridden */
+    transition: color 0.3s ease;
+  }
+  
+  /* Optional hover effect for icons */
+  .service-item:hover .custom-icon,
+  .service-item:focus .custom-icon {
+    color: #fff;
+  }
+  /* Custom color for service names */
+.service-name {
+    color:#921940; /* Change this to your desired color */
+    transition: color 0.3s ease;
+  }
+  
+  /* Optional: Change the color when hovering over the service item */
+  .service-item:hover .service-name {
+    color: #0d0a0b; /* Change this to a hover color */
+  }
+  
+  /* Optional: Add custom styles to the icons if needed */
+  .custom-icon {
+    color: #921940;
+  }
+  

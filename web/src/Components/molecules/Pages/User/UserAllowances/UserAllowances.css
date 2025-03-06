@@ -1,0 +1,100 @@
+/* General Styling */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+  
+  .user-allowances-container {
+    background-color: white;
+    padding: 20px;
+    max-width: 500px;
+    margin: 40px auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  
+  .form-allowances-title {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  .allowances-form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form-allowances-group {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  label {
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  input,
+  select {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+  }
+  
+  input:focus,
+  select:focus {
+    outline: none;
+    border-color: #921940;
+  }
+  
+  .upload-allowances-button {
+    background-color: #921940;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .upload-allowances-button:hover {
+    background-color: #7a1632;
+  }
+  
+  .submit-allowances-button {
+    background-color: #921940;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .submit-allowances-button:hover {
+    background-color: #7a1632;
+  }
+  .language-allowances-switch{
+    position: absolute; /* Position the container */
+    top: 20px; /* Distance from the top */
+    right: 20px; /* Distance from the right */
+    display: flex; /* Keep buttons aligned in a row */
+    gap: 10px; /* Space between buttons */
+  }
+  
+  .language-allowances-switch button{
+
+     background-color: #2c3e50;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .language-allowances-switch button:hove{
+    background-color: #34495e;
+  }
