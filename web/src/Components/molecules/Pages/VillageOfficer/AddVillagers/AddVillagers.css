@@ -10,16 +10,6 @@
 }
 
 
-h1 {
-  font-size: clamp(1rem, 6vw, 10rem);
-  margin: 15vh 0 2rem;
-}
-
-a {
-  text-decoration: underline;
-  color: #303030;
-}
-
 code {
   font-size: 1rem;
   padding: 0 0.5rem;
@@ -67,7 +57,9 @@ code {
   justify-content: center;
   align-items: center;
   padding: 2rem 2rem 1.5rem;
-  background-color: #D8DBCE;
+  background-color: #fcf6f5;
+  margin-top: 50px;
+  margin-left: 220px;
 }
 
 @media (min-width: 768px) {
@@ -96,6 +88,7 @@ code {
   max-width: 25ch;
   margin: 0 auto;
   text-align: center;
+  color: #921940;
 }
 
 @media (min-width: 768px) {
@@ -114,6 +107,7 @@ code {
 
 .form {
   align-self: center;
+  
 }
 
 .form__input {
@@ -140,7 +134,7 @@ code {
 .form__input:focus + .form__label, 
 .form__input:not(:placeholder-shown) + .form__label {
   transform: translateY(-4.50rem) scale(1);
-  color: #303030;
+  color: #921940;
 }
 
 .form__input::placeholder {
@@ -152,12 +146,12 @@ code {
 }
 
 .form__input:not(:placeholder-shown) {
-  border-top-color: rgba(0, 0, 0, 0.5);
+  border-top-color: #921940;
 }
 
 .form__label {
   font-size: 1rem;
-  color: #909090;
+  color: #921940;
   display: block;
   transform: translate(1.25rem, -2.5rem);
   transform-origin: 0 0;

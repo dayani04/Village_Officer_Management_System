@@ -9,7 +9,7 @@ const VillageOfficerDashBoard = () => {
   return (
     <div className="dashboard-containerV">
       <div className="sidebarV">
-        <h2>Village Officer Dashboard</h2>
+        <p>Village Officer Dashboard</p>
         <ul>
           <li>
             <button onClick={() => navigateTo("MyProfile")}>My Profile</button>
@@ -26,9 +26,7 @@ const VillageOfficerDashBoard = () => {
           <li>
             <button onClick={() => navigateTo("Houses")}>Houses</button>
           </li>
-          <li>
-            <button onClick={() => navigateTo("AddVillagers")}>Add Villagers</button>
-          </li>
+          
           <li>
             <button onClick={() => navigateTo("PermitOwners")}>Permit Owners</button>
           </li>
@@ -48,32 +46,16 @@ const VillageOfficerDashBoard = () => {
             <button onClick={() => navigateTo("RequestsForCertificate")}>Requests For Certificate</button>
           </li>
           <li>
+            <button onClick={() => navigateTo("/")}>Counts</button>
+          </li>
+          <li>
             <button onClick={() => navigateTo("Logout")}>Logout</button>
           </li>
         </ul>
       </div>
 
-      <div className="contentV">
-        <div className="cardsV">
-          <div className="cardV">
-            <h3>Users</h3>
-            <p>1,234</p>
-          </div>
-          <div className="cardV">
-            <h3>Houses</h3>
-            <p>567</p>
-          </div>
-          <div className="cardV">
-            <h3>Permit Owners</h3>
-            <p>89</p>
-          </div>
-          <div className="cardV">
-            <h3>Allowance Owners</h3>
-            <p>42</p>
-          </div>
-        </div>
       </div>
-    </div>
+    
   );
 };
 

@@ -1,0 +1,32 @@
+.villagers-container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background: #fcf6f5;
+    border-radius: 10px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .villagers-container h2 {
+    color: #9C284F;
+    margin-bottom: 15px;
+    margin-left: 140px;
+  }
+  
+  .villagers-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .villagers-table th, .villagers-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+  
+  .villagers-table th {
+    background-color: #9C284F;
+    color: white;
+  }
+  

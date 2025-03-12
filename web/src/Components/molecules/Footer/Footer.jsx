@@ -19,9 +19,9 @@ const Footer = () => {
 
               <div className="col-md-4 col-lg-3 col-xl-3 mx-auto mt-3">
                 <h6 className="text-uppercase mb-4 font-weight-bold">Usefull Links</h6>
-                <p><a href="AboutUs" className="text-white">About Us</a></p>
+                <p><a href="/AboutUs" className="text-white">About Us</a></p>
                 <p><a href="SecretaryDashBoard" className="text-white">Privacy Policy</a></p>
-                <p><a href="ContactUs" className="text-white">Contact Details</a></p>
+                <p><a href="/ContactUs" className="text-white">Contact Details</a></p>
                 <p><a href="VillageOfficerDashBoard" className="text-white">Help</a></p>
               </div>
 

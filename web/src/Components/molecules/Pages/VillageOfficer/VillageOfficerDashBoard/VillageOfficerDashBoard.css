@@ -1,17 +1,19 @@
 /* Sidebar */
 .sidebarV {
   margin-top: 50px;
-  width: 280px;
+  width: 300px;
   background-color: #9C284F;
   color: white;
   padding: 20px;
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  height: 175vh;
+  height: 185vh;
 }
 
-.sidebarV h2 {
+.sidebarV p {
   text-align: center;
   margin-bottom: 20px;
+  font-size: 32px;
+  
 }
 
 /* List styling for navigation */
@@ -54,35 +56,4 @@
   margin-left: 270px; 
   padding: 20px;
   flex: 1;
-}
-
-/* Cards section */
-.cardsV {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 50px;
-  margin-top: 100px;
-  margin-right: 10px;
-}
-
-.cardV {
-  background-color: #FCF6F5;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  width: 350px;
-  height: 300px;
-}
-
-.cardV h3 {
-  margin-bottom: 10px;
-  color: #C75B7A;
-}
-
-.cardV p {
-  font-size: 24px;
-  font-weight: bold;
-  color: #444;
 }
