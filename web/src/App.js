@@ -21,9 +21,33 @@ import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermi
 
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
-import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficerDashBoard/VillageOfficerDashBoard';
-import SecretaryDashBoard from './Components/molecules/Pages/SecretaryDashBoard/SecretaryDashBoard';
-import AddVillagers from './Components/molecules/Pages/AddVillagers/AddVillagers';
+
+import AddVillageOfficerS from './Components/molecules/Pages/Secretary/AddVillageOfficerS/AddVillageOfficerS';
+import AllowanceVillagerDetailsS from './Components/molecules/Pages/Secretary/AllowanceVillagerDetailsS/AllowanceVillagerDetailsS';
+import ElectionVillagerDetailS from './Components/molecules/Pages/Secretary/ElectionVillagerDetailS/ElectionVillagerDetailS';
+import IDCardVillagerDetailsS from './Components/molecules/Pages/Secretary/IDCardVillagerDetailsS/IDCardVillagerDetailsS';
+import RemoveVillageOfficerS from './Components/molecules/Pages/Secretary/RemoveVillageOfficerS/RemoveVillageOfficerS';
+import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/RequestsForAllowanceS/RequestsForAllowanceS';
+import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
+import RequestsForIDCardsS from './Components/molecules/Pages/Secretary/RequestsForIDCardsS/RequestsForIDCardsS';
+import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
+
+import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillageOfficer';
+import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
+import AllowanceOwners from './Components/molecules/Pages/VillageOfficer/AllowanceOwner/AllowanceOwners';
+import AllowanceVillagerDetails from './Components/molecules/Pages/VillageOfficer/AllowanceVillagerDetails/AllowanceVillagerDetails';
+import CertificateVillagerDetails from './Components/molecules/Pages/VillageOfficer/CertificateVillagerDetails/CertificateVillagerDetails';
+import ElectionVillagerDetails from './Components/molecules/Pages/VillageOfficer/ElectionVillagerDetails/ElectionVillagerDetails';
+import Houses from './Components/molecules/Pages/VillageOfficer/Houses/Houses';
+import IDCardVillagerDetails from './Components/molecules/Pages/VillageOfficer/IDCardVillagerDetails/IDCardVillagerDetails';
+import PermitOwners from './Components/molecules/Pages/VillageOfficer/PermitOwners/PermitOwners';
+import RemoveVillager from './Components/molecules/Pages/VillageOfficer/RemoveVillager/RemoveVillager';
+import RequestsForAllowance from './Components/molecules/Pages/VillageOfficer/RequestsForAllowance/RequestsForAllowance';
+import RequestsForCertificate from './Components/molecules/Pages/VillageOfficer/RequestsForCertificate/RequestsForCertificate';
+import RequestsForElectionList from './Components/molecules/Pages/VillageOfficer/RequestsForElectionList/RequestsForElectionList';
+import RequestsForIDCards from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCards';
+import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/VillageOfficerDashBoard';
+import SecretaryDashBoard from './Components/molecules/Pages/Secretary/SecretaryDashBoard/SecretaryDashBoard';
 
 
 function App() {
@@ -50,9 +74,35 @@ function App() {
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
-        <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
-        <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
         <Route path="AddVillagers" element={<AddVillagers/>} />
+
+        <Route path="AddVillageOfficerS" element={<AddVillageOfficerS/>} />
+        <Route path="AllowanceVillagerDetailsS" element={<AllowanceVillagerDetailsS/>} />
+        <Route path="ElectionVillagerDetailS" element={<ElectionVillagerDetailS/>} />
+        <Route path="IDCardVillagerDetailsS" element={<IDCardVillagerDetailsS/>} />
+        <Route path="RemoveVillageOfficerS" element={<RemoveVillageOfficerS/>} />
+        <Route path="RequestsForAllowanceS" element={<RequestsForAllowanceS/>} />
+        <Route path="RequestsForElectionListS" element={<RequestsForElectionListS/>} />
+        <Route path="RequestsForIDCardsS" element={<RequestsForIDCardsS/>} />
+        <Route path="VillageOfficers" element={<VillageOfficers/>} />
+        <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
+
+        <Route path="AddVillagerOfficer" element={<AddVillagerOfficer/>} />
+        <Route path="AddVillagers" element={<AddVillagers/>} />
+        <Route path="AllowanceOwners" element={<AllowanceOwners/>} />
+        <Route path="AllowanceVillagerDetails" element={<AllowanceVillagerDetails/>} />
+        <Route path="CertificateVillagerDetails" element={<CertificateVillagerDetails/>} />
+        <Route path="ElectionVillagerDetails" element={<ElectionVillagerDetails/>} />
+        <Route path="IDCardVillagerDetails" element={<IDCardVillagerDetails/>} />
+        <Route path="PermitOwners" element={<PermitOwners/>} />
+        <Route path="RemoveVillager" element={<RemoveVillager/>} />
+        <Route path="RequestsForAllowance" element={<RequestsForAllowance/>} />
+        <Route path="Houses" element={<Houses/>} />
+        <Route path="RequestsForElectionList" element={<RequestsForElectionList/>} />
+        <Route path="RequestsForCertificate" element={<RequestsForCertificate/>} />
+        <Route path="RequestsForIDCards" element={<RequestsForIDCards/>} />
+        <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
+        
 
         </Routes>
       </BrowserRouter>
