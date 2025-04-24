@@ -1,19 +1,15 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const villagerRouter = require('./src/routes/villager/villagerRoutes');  // Adjust the path if needed
+const express = require("express");
+const dotenv = require("dotenv");
+const villagerRoutes = require("./src/routes/villager/villagerRoutes");
 
-// Environment variables
-require('dotenv').config();
+dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 9000;
 
-app.use(bodyParser.json()); // For parsing JSON request bodies
+app.use(express.json());
+app.use("/api/villagers", villagerRoutes);
 
-// Use the villager routes
-app.use("/api/admin/villager", require("./src/routes/villager/villagerRoutes"));
-app.use('/api/villager', villagerRouter);
-
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
