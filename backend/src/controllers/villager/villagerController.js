@@ -110,7 +110,7 @@ const loginVillager = async (req, res) => {
     }
 
     const token = jwt.sign({ userId: user.Villager_ID }, process.env.JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "1d",
     });
 
     res.json({
@@ -126,7 +126,6 @@ const loginVillager = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 };
-
 const getProfile = async (req, res) => {
   try {
     const user = await User.getVillagerById(req.user.userId);
