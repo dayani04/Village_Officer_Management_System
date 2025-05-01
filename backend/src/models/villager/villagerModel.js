@@ -47,12 +47,30 @@ const addVillager = async (
   return villager_id;
 };
 
-const updateVillager = async (id, full_name, email, phone_no, status) => {
-  const [result] = await pool.query(
-    "UPDATE Villager SET Full_Name = ?, Email = ?, Phone_No = ?, Status = ? WHERE Villager_ID = ?",
-    [full_name, email, phone_no, status, id]
-  );
-  return result.affectedRows > 0;
+const updateVillager = async (id, full_name, email, phone_no, address, regional_division, status) => {
+  try {
+    // Ensure required fields are not null/undefined
+    if (!full_name || !email || !phone_no) {
+      throw new Error("Full_Name, Email, and Phone_No are required");
+    }
+
+    const [result] = await pool.query(
+      "UPDATE Villager SET Full_Name = ?, Email = ?, Phone_No = ?, Address = ?, RegionalDivision = ?, Status = ? WHERE Villager_ID = ?",
+      [
+        full_name,
+        email,
+        phone_no,
+        address || null, // Allow NULL for optional fields
+        regional_division || null,
+        status || "Active",
+        id,
+      ]
+    );
+    return result.affectedRows > 0;
+  } catch (error) {
+    console.error(`Error updating villager ${id}:`, error);
+    throw error;
+  }
 };
 
 const deleteVillager = async (id) => {
