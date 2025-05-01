@@ -58,7 +58,21 @@ export const addVillager = async (newVillager) => {
 // Update a villager (PUT /villagers/:id)
 export const updateVillager = async (villagerId, updatedVillager) => {
   try {
-    const response = await api.put(`/villagers/${villagerId}`, updatedVillager);
+    // Ensure required fields are included
+    const payload = {
+      full_name: updatedVillager.full_name || "",
+      email: updatedVillager.email || "",
+      phone_no: updatedVillager.phone_no || "",
+      address: updatedVillager.address || "",
+      regional_division: updatedVillager.regional_division || "",
+      status: updatedVillager.status || "Active",
+    };
+
+    if (!payload.full_name || !payload.email || !payload.phone_no) {
+      throw new Error("Full Name, Email, and Phone Number are required");
+    }
+
+    const response = await api.put(`/villagers/${villagerId}`, payload);
     return response.data;
   } catch (error) {
     console.error(`Error updating villager ${villagerId}:`, error);
@@ -113,13 +127,29 @@ export const updateVillagerStatus = async (villagerId, status) => {
   }
 };
 
-// Update villager password (PUT /villagers/:id/password)
-export const updateVillagerPassword = async (villagerId, newPassword) => {
+// Request OTP for password change (POST /villagers/:id/request-otp)
+export const requestPasswordOtp = async (villagerId) => {
   try {
-    const response = await api.put(`/villagers/${villagerId}/password`, { newPassword });
+    const response = await api.post(`/villagers/${villagerId}/request-otp`);
     return response.data;
   } catch (error) {
-    console.error(`Error updating password for villager ${villagerId}:`, error);
+    console.error(`Error requesting OTP for villager ${villagerId}:`, error);
     throw error.response ? error.response.data : error.message;
   }
+};
+
+// Verify OTP and update password (POST /villagers/:id/verify-otp)
+export const verifyPasswordOtp = async (villagerId, otp, newPassword) => {
+  try {
+    const response = await api.post(`/villagers/${villagerId}/verify-otp`, { otp, newPassword });
+    return response.data;
+  } catch (error) {
+    console.error(`Error verifying OTP for villager ${villagerId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+// Send confirmation email (mocked, as it’s server-side)
+export const sendConfirmationEmail = async (email) => {
+  return { message: "Email confirmation handled server-side" };
 };

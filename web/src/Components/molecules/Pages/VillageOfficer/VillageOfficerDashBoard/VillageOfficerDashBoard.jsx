@@ -9,7 +9,7 @@ const VillageOfficerDashBoard = () => {
   return (
     <div className="dashboard-containerV">
       <div className="sidebarV">
-        <p>Village Officer Dashboard</p>
+        
         <ul>
           <li>
             <button onClick={() => navigateTo("MyProfile")}>My Profile</button>

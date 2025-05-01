@@ -18,6 +18,7 @@ import UserCertificates from './Components/molecules/Pages/User/UserCertificates
 import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPermitsID';
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
+import UserProfile from './Components/molecules/Pages/User/UserProfile/UserProfile';
 
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
@@ -31,6 +32,7 @@ import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/Reques
 import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
 import RequestsForIDCardsS from './Components/molecules/Pages/Secretary/RequestsForIDCardsS/RequestsForIDCardsS';
 import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
+
 
 import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillageOfficer';
 import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
@@ -71,6 +73,7 @@ function App() {
         <Route path="/UserPermitsPR" element={< UserPermitsPR/>}/>
         <Route path="/UserPermits" element={<UserPermits/>}/>
         <Route path="/UserPermitsID" element={<UserPermitsID/>}/>
+        <Route path="/UserProfile" element={<UserProfile/>}/>
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
@@ -102,6 +105,7 @@ function App() {
         <Route path="RequestsForCertificate" element={<RequestsForCertificate/>} />
         <Route path="RequestsForIDCards" element={<RequestsForIDCards/>} />
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
+   
         
 
         </Routes>

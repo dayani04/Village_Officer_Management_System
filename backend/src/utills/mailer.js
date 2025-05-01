@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require('dotenv').config();
 
-const sendConfirmationEmail = async (newEmail) => {
+const sendConfirmationEmail = async (toEmail, subject, text) => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -13,15 +13,16 @@ const sendConfirmationEmail = async (newEmail) => {
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: newEmail,
-      subject: 'Email Change Confirmation',
-      text: 'You have successfully updated your email address.',
+      to: toEmail,
+      subject: subject,
+      text: text,
     };
 
     await transporter.sendMail(mailOptions);
-    console.log('Confirmation email sent to', newEmail);
+    console.log(`Email sent to ${toEmail}: ${subject}`);
   } catch (error) {
     console.error('Error sending email:', error);
+    throw error;
   }
 };
 

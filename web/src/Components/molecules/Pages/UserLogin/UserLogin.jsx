@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import * as api from '../../../../api/villager';
+import * as villagerApi from '../../../../api/villager';
+import * as villageOfficerApi from '../../../../api/villageOfficer';
+import * as secretaryApi from '../../../../api/secretary';
 import './UserLogin.css';
 
 const LoginForm = () => {
@@ -24,13 +26,21 @@ const LoginForm = () => {
     }
 
     try {
-      if (position === 'developer') { // Villager
-        const response = await api.loginVillager(email, password);
-        // Token is already set in loginVillager via setToken
+      let response;
+      if (position === 'developer') {
+        // Villager login
+        response = await villagerApi.loginVillager(email, password);
         navigate('/UserDashboard', { state: { user: response } });
+      } else if (position === 'manager') {
+        // Village Officer login
+        response = await villageOfficerApi.loginVillageOfficer(email, password);
+        navigate('/VillageOfficerDashboard', { state: { user: response } });
+      } else if (position === 'designer') {
+        // Secretary login
+        response = await secretaryApi.loginSecretary(email, password);
+        navigate('/SecretaryDashboard', { state: { user: response } });
       } else {
-        // Placeholder for Village Officer and Secretary
-        setError('Login for Village Officer and Secretary is not implemented yet.');
+        setError('Invalid position selected.');
       }
     } catch (err) {
       setError(err.error || 'Login failed. Please check your credentials.');
