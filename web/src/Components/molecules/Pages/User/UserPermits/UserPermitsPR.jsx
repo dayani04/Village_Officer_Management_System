@@ -1,80 +1,107 @@
-import React, { useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import './UserPremitsPR.css';
+import React, { useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { LanguageContext } from "../../context/LanguageContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+import "./UserPremitsPR.css";
 
 const UserPermitsPR = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Handle file selection
+  // Get form data from UserPermits
+  const { formData = { email: "", type: "" } } = location.state || {};
+
+  // Detailed logging of received state
+  console.log("Received state in UserPermitsPR:", {
+    email: formData.email,
+    type: formData.type,
+  });
+
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(uploadedFile.type)) {
+        Swal.fire({
+          icon: "error",
+          title: t("uploadRequiredTitlePR"),
+          text: t("invalidFileType"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
       setFile(uploadedFile);
+      console.log("Selected police report:", {
+        name: uploadedFile.name,
+        type: uploadedFile.type,
+        size: uploadedFile.size,
+      });
     }
   };
 
-  // Trigger file input click
   const handleFileClick = () => {
-    document.getElementById('file-upload').click();
+    document.getElementById("file-upload").click();
   };
 
-  // Handle file deletion
   const handleDelete = () => {
     setFile(null);
   };
 
-  // Navigate to the previous page
   const handleBack = () => {
-    navigate('/UserPermits');
+    navigate("/UserPermits");
   };
 
-  // Navigate to the next page with validation
   const handleNext = () => {
     if (!file) {
       Swal.fire({
-        title: t('uploadRequiredTitlePR'), // Translation key for validation error
-        text: t('uploadRequiredMessagePR'), // Translation key for file required message
-        icon: 'error',
-        confirmButtonText: t('ok'),
+        icon: "error",
+        title: t("uploadRequiredTitlePR"),
+        text: t("uploadRequiredMessagePR"),
+        confirmButtonText: t("ok"),
       });
       return;
     }
 
-    // Navigate to the next page if validation passes
-    navigate('/UserPermitsID');
+    console.log("Navigating to UserPermitsID with:", {
+      email: formData.email,
+      type: formData.type,
+      policeReport: { name: file.name, type: file.type, size: file.size },
+    });
+    navigate("/UserPermitsID", { state: { formData, policeReport: file } });
   };
 
   return (
     <div className="user-permit-pr-page">
-      <h1 className="permit-pr-form-title">{t('permitFormTitlePR')}</h1>
+      <h1 className="permit-pr-form-title">{t("permitFormTitlePR")}</h1>
 
-      {/* Language Selector */}
       <div className="language-permit-pr-selector">
-        <button onClick={() => changeLanguage('en')} className="language-permit-pr-btn">
+        <button
+          onClick={() => changeLanguage("en")}
+          className="language-permit-pr-btn"
+        >
           English
         </button>
-        <button onClick={() => changeLanguage('si')} className="language-permit-pr-btn">
+        <button
+          onClick={() => changeLanguage("si")}
+          className="language-permit-pr-btn"
+        >
           සිංහල
         </button>
       </div>
 
-      {/* Form Section */}
       <form className="permit-pr-form-content">
-        {/* File Upload Section */}
         <div className="file-permit-pr-upload-section">
           <input
             type="file"
             id="file-upload"
-            accept=".pdf, .jpg, .png"
+            accept=".pdf,.jpg,.png"
             onChange={handleFileChange}
             className="file-permit-pr-input-field"
-            style={{ display: 'none' }} // Hide default file input
+            style={{ display: "none" }}
           />
           {file && (
             <div className="file-permit-pr-info">
@@ -84,20 +111,19 @@ const UserPermitsPR = () => {
                 download={file.name}
                 className="file-permit-pr-download-link"
               >
-                {t('downloadLink')}
+                {t("downloadLink")}
               </a>
             </div>
           )}
         </div>
 
-        {/* Buttons Section */}
         <div className="form-permit-pr-buttons-section">
           <button
             type="button"
             className="upload-permit-pr-btn"
             onClick={handleFileClick}
           >
-            📎 {t('permitFormTitlePR')}
+            📎 {t("uploadPRButton")}
           </button>
 
           {file && (
@@ -106,7 +132,7 @@ const UserPermitsPR = () => {
               className="delete-permit-pr-btn"
               onClick={handleDelete}
             >
-              {t('delete')}
+              {t("delete")}
             </button>
           )}
 
@@ -116,7 +142,7 @@ const UserPermitsPR = () => {
               className="back-permit-pr-btn"
               onClick={handleBack}
             >
-              {t('back')}
+              {t("back")}
             </button>
 
             <button
@@ -124,7 +150,7 @@ const UserPermitsPR = () => {
               className="next-permit-pr-btn"
               onClick={handleNext}
             >
-              {t('next')}
+              {t("next")}
             </button>
           </div>
         </div>

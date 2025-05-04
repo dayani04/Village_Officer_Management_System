@@ -1,85 +1,119 @@
-import React, { useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2'; // Import SweetAlert2
-import './UserAllowancesBC.css';
+import React, { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { LanguageContext } from "../../context/LanguageContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+import { submitAllowanceApplication } from "../../../../../api/allowanceApplication";
+import "./UserAllowancesBC.css";
 
 const UserAllowancesBC = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
-  const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Handle file selection
+  // Get form data from UserAllowances
+  const { formData } = location.state || { formData: { email: "", type: "" } };
+
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(uploadedFile.type)) {
+        Swal.fire({
+          icon: "error",
+          title: t("uploadRequiredTitleBC"),
+          text: t("invalidFileType"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
       setFile(uploadedFile);
     }
   };
 
-  // Trigger file input click
   const handleFileClick = () => {
-    document.getElementById('file-upload').click();
+    document.getElementById("file-upload").click();
   };
 
-  // Handle file deletion
   const handleDelete = () => {
     setFile(null);
   };
 
-  // Navigate to the previous page
   const handleBack = () => {
-    navigate('/UserAllowances');
+    navigate("/UserAllowances");
   };
 
-  // Handle submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) {
       Swal.fire({
-        icon: 'error',
-        title: t('uploadRequiredTitleBC'), // Add translation key
-        text: t('uploadRequiredMessageBC'), // Add translation key
-        confirmButtonText: t('ok'),
+        icon: "error",
+        title: t("uploadRequiredTitleBC"),
+        text: t("uploadRequiredMessageBC"),
+        confirmButtonText: t("ok"),
       });
-    } else {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("allowanceType", formData.type);
+      formDataToSend.append("document", file);
+
+      await submitAllowanceApplication(formDataToSend);
+
       Swal.fire({
-        icon: 'success',
-        title: t('submissionSuccessTitle'), // Add translation key
-        text: t('submissionSuccessMessage'), // Add translation key
-        confirmButtonText: t('ok'),
+        icon: "success",
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        confirmButtonText: t("ok"),
       }).then(() => {
-        
+        navigate("/UserDashboard"); // Redirect to dashboard after success
       });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <div className="user-allowances-bc-page">
-      <h1 className="allowances-bc-form-title">{t('FormTitleBC')}</h1>
+      <h1 className="allowances-bc-form-title">{t("FormTitleBC")}</h1>
 
-      {/* Language Selector */}
       <div className="language-allowances-bc-selector">
-        <button onClick={() => changeLanguage('en')} className="language-allowances-bc-btn">
+        <button
+          onClick={() => changeLanguage("en")}
+          className="language-allowances-bc-btn"
+        >
           English
         </button>
-        <button onClick={() => changeLanguage('si')} className="language-allowances-bc-btn">
+        <button
+          onClick={() => changeLanguage("si")}
+          className="language-allowances-bc-btn"
+        >
           සිංහල
         </button>
       </div>
 
-      {/* Form Section */}
       <form className="allowances-bc-form-content">
-        {/* File Upload Section */}
         <div className="file-allowances-bc-upload-section">
           <input
             type="file"
             id="file-upload"
-            accept=".pdf, .jpg, .png"
+            accept=".pdf,.jpg,.png"
             onChange={handleFileChange}
             className="file-allowances-bc-input-field"
-            style={{ display: 'none' }}
+            style={{ display: "none" }}
           />
           {file && (
             <div className="file-allowances-bc-info">
@@ -88,21 +122,22 @@ const UserAllowancesBC = () => {
                 href={URL.createObjectURL(file)}
                 download={file.name}
                 className="file-allowances-bc-download-link"
-              ><br></br>
-                {t('downloadLink')}
+              >
+                <br />
+                {t("downloadLink")}
               </a>
             </div>
           )}
         </div>
 
-        {/* Buttons Section */}
         <div className="form-allowances-bc-buttons-section">
           <button
             type="button"
             className="upload-allowances-bc-btn"
             onClick={handleFileClick}
+            disabled={loading}
           >
-            📎 {t('uploadBCButton')}
+            📎 {t("uploadBCButton")}
           </button>
 
           {file && (
@@ -110,8 +145,9 @@ const UserAllowancesBC = () => {
               type="button"
               className="delete-allowances-bc-btn"
               onClick={handleDelete}
+              disabled={loading}
             >
-              {t('delete')}
+              {t("delete")}
             </button>
           )}
 
@@ -120,16 +156,18 @@ const UserAllowancesBC = () => {
               type="button"
               className="back-allowances-bc-btn"
               onClick={handleBack}
+              disabled={loading}
             >
-              {t('back')}
+              {t("back")}
             </button>
 
             <button
               type="button"
               className="submit-allowances-bc-btn"
               onClick={handleSubmit}
+              disabled={loading}
             >
-              {t('submit')} {/* Changed button text */}
+              {loading ? t("submitting") : t("submit")}
             </button>
           </div>
         </div>

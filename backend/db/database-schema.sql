@@ -52,6 +52,7 @@ ALTER TABLE Secretary CHANGE ReginalDivision RegionalDivision VARCHAR(100);
 
 CREATE TABLE Election_recode (
     ID INT PRIMARY KEY
+    Type VARCHAR(255) NOT NULL
 );
 
 INSERT INTO Election_recode (ID, type) VALUES 
@@ -70,4 +71,81 @@ CREATE TABLE villager_hase_election_recode (
     PRIMARY KEY (Villager_ID, electionrecodeID), -- Composite primary key
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Allowances_recode (
+     Allowances_ID VARCHAR(50) PRIMARY KEY,
+     Allowances_Type VARCHAR(255) NOT NULL
+);
+
+
+INSERT INTO allowances_recode (Allowances_ID,Allowances_Type) VALUES (1, 'Adult Allowances'), (2, 'Disabled Allowances'), (3,'Widow Allowances'), (4,'Nutritional And Food Allowance'), (5,'Agriculture And Farming Subsidies Allowances');
+
+
+CREATE TABLE villager_has_allowances_recode (
+    Villager_ID VARCHAR(50),
+     Allowances_ID VARCHAR(50),
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
+    PRIMARY KEY (Villager_ID, Allowances_ID), -- Composite primary key
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Allowances_ID) REFERENCES Allowances_recode(Allowances_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE Permits_recode (
+     Permits_ID VARCHAR(50) PRIMARY KEY,
+     Permits_Type VARCHAR(255) NOT NULL
+);
+INSERT INTO Permits_recode (Permits_ID,Permits_Type)
+ VALUES (1, 'Sand Permit'), 
+ (2, 'Tree Cutting Permit'), 
+ (3,'Land Use Permit'), 
+ (4,'Vehicle Travel Permit');
+
+
+ CREATE TABLE villager_has_Permits_recode (
+    Villager_ID VARCHAR(50),
+    Permits_ID VARCHAR(50),
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
+    PRIMARY KEY (Villager_ID, Permits_ID), -- Composite primary key
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Permits_ID) REFERENCES Permits_recode(Permits_ID) ON DELETE CASCADE
+);
+ALTER TABLE villager_has_Permits_recode ADD COLUMN police_report_path VARCHAR(255);
+
+
+CREATE TABLE villager_has_certificate_recode (
+    Villager_ID VARCHAR(50),
+    application_id INT AUTO_INCREMENT,
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    PRIMARY KEY (application_id),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE
+);
+
+
+CREATE TABLE nic_recode (
+     NIC_ID VARCHAR(50) PRIMARY KEY,
+     NIC_Type VARCHAR(255) NOT NULL
+);
+INSERT INTO nic_recode (NIC_ID , NIC_Type)
+ VALUES (1, 'postal ID Card'), 
+ (2, 'National ID Card');
+
+
+ CREATE TABLE villager_has_nic_recode (
+    Villager_ID VARCHAR(50),
+     NIC_ID VARCHAR(50),
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
+    PRIMARY KEY (Villager_ID,  NIC_ID), -- Composite primary key
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY ( NIC_ID) REFERENCES nic_recode( NIC_ID) ON DELETE CASCADE
 );
