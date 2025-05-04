@@ -24,7 +24,7 @@ const addVillager = async (
   nic,
   dob,
   address,
-  regional_division,
+  regional_division, // Correct spelling matching the database
   status,
   area_id
 ) => {
@@ -39,9 +39,9 @@ const addVillager = async (
       nic,
       dob,
       address,
-      regional_division,
-      status,
-      area_id,
+      regional_division, // Matches the corrected column name in db
+      status || "Active", // Default status if not provided
+      area_id
     ]
   );
   return villager_id;
@@ -79,18 +79,12 @@ const deleteVillager = async (id) => {
 };
 
 const updateUserStatus = async (id, status) => {
-  const [result] = await pool.query("UPDATE Villager SET Status = ? WHERE Villager_ID = ?", [
-    status,
-    id,
-  ]);
+  const [result] = await pool.query("UPDATE Villager SET Status = ? WHERE Villager_ID = ?", [status, id]);
   return result.affectedRows > 0;
 };
 
 const updatePassword = async (id, hashedPassword) => {
-  const [result] = await pool.query("UPDATE Villager SET Password = ? WHERE Villager_ID = ?", [
-    hashedPassword,
-    id,
-  ]);
+  const [result] = await pool.query("UPDATE Villager SET Password = ? WHERE Villager_ID = ?", [hashedPassword, id]);
   return result.affectedRows > 0;
 };
 
