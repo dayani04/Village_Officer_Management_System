@@ -1,78 +1,119 @@
-import React, { useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import './UserIDCardBC.css';
+import React, { useContext, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { LanguageContext } from "../../context/LanguageContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+import { submitNICApplication } from "../../../../../api/nicApplication";
+import "./UserIDCardBC.css";
 
 const UserIDCardBC = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
-  const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [file, setFile] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  // Handle file selection
+  // Get form data from UserIDCard
+  const { formData } = location.state || { formData: { email: "", type: "" } };
+
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(uploadedFile.type)) {
+        Swal.fire({
+          icon: "error",
+          title: t("uploadRequiredTitleBC"),
+          text: t("invalidFileType"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
       setFile(uploadedFile);
     }
   };
 
-  // Trigger file input click
   const handleFileClick = () => {
-    document.getElementById('file-upload').click();
+    document.getElementById("file-upload").click();
   };
 
-  // Handle file deletion
   const handleDelete = () => {
     setFile(null);
   };
 
-  // Navigate to previous page
   const handleBack = () => {
-    navigate('/UserIDCard');
+    navigate("/UserIDCard");
   };
 
-  // Handle form submission with validation
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) {
       Swal.fire({
-        icon: 'error',
-        title: t('uploadRequiredTitleBC'), // Translation key for "Validation Error"
-        text: t('uploadRequiredMessageBC'), // Translation key for "Please upload a file before submitting."
-        confirmButtonText: t('ok'), // Translation key for "OK"
+        icon: "error",
+        title: t("uploadRequiredTitleBC"),
+        text: t("uploadRequiredMessageBC"),
+        confirmButtonText: t("ok"),
       });
       return;
     }
 
-    // If validation passes, show success alert
-    Swal.fire({
-      title: t('submissionSuccessTitle'), // Translation key for "Success"
-      text: t('submissionSuccessMessage'), // Translation key for "Your file has been successfully submitted."
-      icon: 'success',
-      confirmButtonText: t('ok'), // Translation key for "OK"
-    });
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("nicType", formData.type);
+      formDataToSend.append("document", file);
+
+      await submitNICApplication(formDataToSend);
+
+      Swal.fire({
+        icon: "success",
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/UserDashboard"); // Redirect to dashboard after success
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="user-idcard-bc-page">
-      <h1 className="idcard-bc-form-title">{t('FormTitleBC')}</h1>
+      <h1 className="idcard-bc-form-title">{t("FormTitleBC")}</h1>
 
       <div className="language-idcard-bc-selector">
-        <button onClick={() => changeLanguage('en')} className="language-election-id-btn">English</button>
-        <button onClick={() => changeLanguage('si')} className="language-election-id-btn">සිංහල</button>
+        <button
+          onClick={() => changeLanguage("en")}
+          className="language-election-id-btn"
+        >
+          English
+        </button>
+        <button
+          onClick={() => changeLanguage("si")}
+          className="language-election-id-btn"
+        >
+          සිංහල
+        </button>
       </div>
 
       <form className="idcard-bc-form-content">
-        {/* File Upload Section */}
         <div className="file-idcard-bc-upload-section">
           <input
             type="file"
             id="file-upload"
-            accept=".pdf, .jpg, .png"
+            accept=".pdf,.jpg,.png"
             onChange={handleFileChange}
             className="file-idcard-bc-input-field"
+            style={{ display: "none" }}
           />
           {file && (
             <div className="file-idcard-bc-info">
@@ -83,20 +124,20 @@ const UserIDCardBC = () => {
                 className="file-idcard-bc-download-link"
               >
                 <br />
-                {t('downloadLink')}
+                {t("downloadLink")}
               </a>
             </div>
           )}
         </div>
 
-        {/* Buttons Section */}
         <div className="form-idcard-bc-buttons-section">
           <button
             type="button"
             className="upload-idcard-bc-btn"
             onClick={handleFileClick}
+            disabled={loading}
           >
-            📎 {t('uploadBCButton')}
+            📎 {t("uploadBCButton")}
           </button>
 
           {file && (
@@ -104,8 +145,9 @@ const UserIDCardBC = () => {
               type="button"
               className="delete-idcard-bc-btn"
               onClick={handleDelete}
+              disabled={loading}
             >
-              {t('delete')}
+              {t("delete")}
             </button>
           )}
 
@@ -114,15 +156,17 @@ const UserIDCardBC = () => {
               type="button"
               className="back-idcard-bc-btn"
               onClick={handleBack}
+              disabled={loading}
             >
-              {t('back')}
+              {t("back")}
             </button>
             <button
               type="button"
               className="submit-idcard-bc-btn"
               onClick={handleSubmit}
+              disabled={loading}
             >
-              {t('submit')}
+              {loading ? t("submitting") : t("submit")}
             </button>
           </div>
         </div>
