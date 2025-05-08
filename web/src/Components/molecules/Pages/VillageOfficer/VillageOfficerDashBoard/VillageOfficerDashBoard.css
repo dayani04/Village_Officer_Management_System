@@ -1,59 +1,68 @@
 /* Sidebar */
-.sidebarV {
-  margin-top: 50px;
+.dashboard-containerV .sidebarV { /* Make this rule more specific */
+  margin-top: 20px;
   width: 300px;
-  background-color: #9C284F;
-  color: white;
-  padding: 20px;
-  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
-  height: 185vh;
+  padding: 10px;
+  font-family: 'Poppins', sans-serif;
+  height: 215vh;
+  color: #921A40;
 }
 
-.sidebarV p {
+.dashboard-containerV .sidebarV p { /* Make this rule more specific */
   text-align: center;
   margin-bottom: 20px;
-  font-size: 32px;
-  
+  font-size: 24px;
+  color: #921A40;
 }
 
 /* List styling for navigation */
-.sidebarV ul {
+.dashboard-containerV .sidebarV ul { /* Make this rule more specific */
   list-style: none;
   padding: 0;
-  color: white;
+  color: #921A40;
 }
 
-.sidebarV ul li {
+.dashboard-containerV .sidebarV ul li { /* Make this rule more specific */
+  /* Existing styles */
   margin: 15px 0;
-  padding: 12px 20px;
+  padding: 25px 28px;
+  font-size: 14px;
   cursor: pointer;
-  background-color: #921A40;
-  border-radius: 5px;
+  border-radius: 8px;
+  border: 1px solid #B7416A;
   text-align: center;
+  color: #921A40;
+
+  /* Add margin-bottom to increase space between list items */
+  margin-bottom: 25px; /* Adjust this value to control the spacing */
 }
 
-.sidebarV ul li:hover {
-  background-color: #C75B7A;
+.dashboard-containerV .sidebarV ul li:hover,
+.dashboard-containerV .sidebarV ul li.active { /* <<< Added .dashboard-containerV .sidebarV ul li.active */
+  border: 1.5px solid #921A40;
+  background-color: #ffd8e5;
+  color: black;
 }
 
-.sidebarV ul li button {
+.dashboard-containerV .sidebarV ul li button { /* Make this rule more specific */
   background: none;
   border: none;
-  color: white;
-  font-size: 18px;
+  color: #921A40;
+  font-size: 15px;
   font-weight: bold;
   width: 100%;
   text-align: center;
   cursor: pointer;
 }
 
-/* Content area */
+/* Dashboard Layout */
 .dashboard-containerV {
   display: flex;
 }
 
-.contentV {
-  margin-left: 270px; 
+.dashboard-containerV .contentV { /* Make this rule more specific if you use contentV */
+  margin-left: 270px;
   padding: 20px;
   flex: 1;
+  color: black;
 }
