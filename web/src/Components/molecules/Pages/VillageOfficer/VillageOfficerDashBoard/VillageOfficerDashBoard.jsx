@@ -64,10 +64,10 @@ const VillageOfficerDashBoard = () => {
             <button onClick={() => navigateTo("AddVillagers")}>Add Villager</button>
           </motion.li>
           <motion.li
-            className={isActive("AddVillageOfficer") ? "active" : ""}
+            className={isActive("AddVillagerOfficer") ? "active" : ""}
             variants={listItemVariants}
           >
-            <button onClick={() => navigateTo("AddVillageOfficer")}>Add Village Officer</button>
+            <button onClick={() => navigateTo("AddVillagerOfficer")}>Add Village Officer</button>
           </motion.li>
           <motion.li
             className={isActive("RemoveVillager") ? "active" : ""}
@@ -123,6 +123,12 @@ const VillageOfficerDashBoard = () => {
             variants={listItemVariants}
           >
             <button onClick={() => navigateTo("/")}>Counts</button>
+          </motion.li>
+          <motion.li
+            className={isActive("/") ? "active" : ""}
+            variants={listItemVariants}
+          >
+            <button onClick={() => navigateTo("/")}>View Members</button>
           </motion.li>
           <motion.li
             className={isActive("Logout") ? "active" : ""}
