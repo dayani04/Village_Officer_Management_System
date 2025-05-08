@@ -1,7 +1,8 @@
 import axios from "axios";
 import { getToken, setToken } from "../utils/auth";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://localhost:5000/api/secretaries";
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -22,10 +23,9 @@ api.interceptors.request.use(
   }
 );
 
-// Fetch all secretaries (GET /secretaries/)
 export const fetchSecretaries = async () => {
   try {
-    const response = await api.get("/secretaries/");
+    const response = await api.get("/");
     return response.data;
   } catch (error) {
     console.error("Error fetching secretaries:", error);
@@ -33,10 +33,9 @@ export const fetchSecretaries = async () => {
   }
 };
 
-// Fetch a single secretary by ID (GET /secretaries/:id)
 export const fetchSecretary = async (secretaryId) => {
   try {
-    const response = await api.get(`/secretaries/${secretaryId}`);
+    const response = await api.get(`/${secretaryId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching secretary ${secretaryId}:`, error);
@@ -44,10 +43,9 @@ export const fetchSecretary = async (secretaryId) => {
   }
 };
 
-// Add a new secretary (POST /secretaries/)
 export const addSecretary = async (newSecretary) => {
   try {
-    const response = await api.post("/secretaries/", newSecretary);
+    const response = await api.post("/", newSecretary);
     return response.data;
   } catch (error) {
     console.error("Error adding secretary:", error);
@@ -55,7 +53,6 @@ export const addSecretary = async (newSecretary) => {
   }
 };
 
-// Update a secretary (PUT /secretaries/:id)
 export const updateSecretary = async (secretaryId, updatedSecretary) => {
   try {
     const payload = {
@@ -69,7 +66,7 @@ export const updateSecretary = async (secretaryId, updatedSecretary) => {
       throw new Error("Full Name, Email, and Phone Number are required");
     }
 
-    const response = await api.put(`/secretaries/${secretaryId}`, payload);
+    const response = await api.put(`/${secretaryId}`, payload);
     return response.data;
   } catch (error) {
     console.error(`Error updating secretary ${secretaryId}:`, error);
@@ -77,10 +74,9 @@ export const updateSecretary = async (secretaryId, updatedSecretary) => {
   }
 };
 
-// Delete a secretary (DELETE /secretaries/:id)
 export const deleteSecretary = async (secretaryId) => {
   try {
-    const response = await api.delete(`/secretaries/${secretaryId}`);
+    const response = await api.delete(`/${secretaryId}`);
     return response.data;
   } catch (error) {
     console.error(`Error deleting secretary ${secretaryId}:`, error);
@@ -88,10 +84,9 @@ export const deleteSecretary = async (secretaryId) => {
   }
 };
 
-// Login a secretary (POST /secretaries/login)
 export const loginSecretary = async (email, password) => {
   try {
-    const response = await api.post("/secretaries/login", { email, password });
+    const response = await api.post("/login", { email, password });
     if (response.data && response.data.token) {
       setToken(response.data.token);
     }
@@ -102,10 +97,9 @@ export const loginSecretary = async (email, password) => {
   }
 };
 
-// Fetch secretary profile (GET /secretaries/profile)
 export const getProfile = async () => {
   try {
-    const response = await api.get("/secretaries/profile");
+    const response = await api.get("/profile");
     return response.data;
   } catch (error) {
     console.error("Error fetching profile:", error);
@@ -113,10 +107,9 @@ export const getProfile = async () => {
   }
 };
 
-// Update secretary status (PUT /secretaries/:id/status)
 export const updateSecretaryStatus = async (secretaryId, status) => {
   try {
-    const response = await api.put(`/secretaries/${secretaryId}/status`, { status });
+    const response = await api.put(`/${secretaryId}/status`, { status });
     return response.data;
   } catch (error) {
     console.error(`Error updating status for secretary ${secretaryId}:`, error);
@@ -124,10 +117,9 @@ export const updateSecretaryStatus = async (secretaryId, status) => {
   }
 };
 
-// Update secretary password (PUT /secretaries/:id/password)
 export const updateSecretaryPassword = async (secretaryId, newPassword) => {
   try {
-    const response = await api.put(`/secretaries/${secretaryId}/password`, { newPassword });
+    const response = await api.put(`/${secretaryId}/password`, { newPassword });
     return response.data;
   } catch (error) {
     console.error(`Error updating password for secretary ${secretaryId}:`, error);
@@ -135,7 +127,26 @@ export const updateSecretaryPassword = async (secretaryId, newPassword) => {
   }
 };
 
-// Send confirmation email (mocked, as it’s server-side)
+export const requestPasswordOtp = async (email) => {
+  try {
+    const response = await api.post("/request-otp", { email });
+    return response.data;
+  } catch (error) {
+    console.error(`Error requesting OTP for email ${email}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const verifyPasswordOtp = async (secretaryId, otp, newPassword) => {
+  try {
+    const response = await api.post(`/${secretaryId}/verify-otp`, { otp, newPassword });
+    return response.data;
+  } catch (error) {
+    console.error(`Error verifying OTP for secretary ${secretaryId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
 export const sendConfirmationEmail = async (email) => {
   return { message: "Email confirmation handled server-side" };
 };

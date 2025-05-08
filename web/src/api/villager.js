@@ -22,7 +22,6 @@ api.interceptors.request.use(
   }
 );
 
-// Fetch all villagers (GET /villagers/)
 export const fetchVillagers = async () => {
   try {
     const response = await api.get("/villagers/");
@@ -33,7 +32,6 @@ export const fetchVillagers = async () => {
   }
 };
 
-// Fetch a single villager by ID (GET /villagers/:id)
 export const fetchVillager = async (villagerId) => {
   try {
     const response = await api.get(`/villagers/${villagerId}`);
@@ -44,10 +42,13 @@ export const fetchVillager = async (villagerId) => {
   }
 };
 
-// Add a new villager (POST /villagers/)
 export const addVillager = async (newVillager) => {
   try {
-    const response = await api.post("/villagers/", newVillager);
+    const payload = {
+      ...newVillager,
+      is_participant: Boolean(newVillager.is_participant),
+    };
+    const response = await api.post("/villagers/", payload);
     return response.data;
   } catch (error) {
     console.error("Error adding villager:", error);
@@ -55,17 +56,16 @@ export const addVillager = async (newVillager) => {
   }
 };
 
-// Update a villager (PUT /villagers/:id)
 export const updateVillager = async (villagerId, updatedVillager) => {
   try {
-    // Ensure required fields are included
     const payload = {
       full_name: updatedVillager.full_name || "",
       email: updatedVillager.email || "",
       phone_no: updatedVillager.phone_no || "",
-      address: updatedVillager.address || "",
-      regional_division: updatedVillager.regional_division || "",
+      address: updatedVillager.address !== undefined ? updatedVillager.address : null,
+      regional_division: updatedVillager.regional_division !== undefined ? updatedVillager.regional_division : null,
       status: updatedVillager.status || "Active",
+      is_election_participant: Boolean(updatedVillager.is_election_participant),
     };
 
     if (!payload.full_name || !payload.email || !payload.phone_no) {
@@ -80,7 +80,6 @@ export const updateVillager = async (villagerId, updatedVillager) => {
   }
 };
 
-// Delete a villager (DELETE /villagers/:id)
 export const deleteVillager = async (villagerId) => {
   try {
     const response = await api.delete(`/villagers/${villagerId}`);
@@ -91,7 +90,6 @@ export const deleteVillager = async (villagerId) => {
   }
 };
 
-// Login a villager (POST /villagers/login)
 export const loginVillager = async (email, password) => {
   try {
     const response = await api.post("/villagers/login", { email, password });
@@ -105,7 +103,6 @@ export const loginVillager = async (email, password) => {
   }
 };
 
-// Fetch villager profile (GET /villagers/profile)
 export const getProfile = async () => {
   try {
     const response = await api.get("/villagers/profile");
@@ -116,7 +113,6 @@ export const getProfile = async () => {
   }
 };
 
-// Update villager status (PUT /villagers/:id/status)
 export const updateVillagerStatus = async (villagerId, status) => {
   try {
     const response = await api.put(`/villagers/${villagerId}/status`, { status });
@@ -127,18 +123,36 @@ export const updateVillagerStatus = async (villagerId, status) => {
   }
 };
 
-// Request OTP for password change (POST /villagers/:id/request-otp)
-export const requestPasswordOtp = async (villagerId) => {
+export const updateVillagerLocation = async (villagerId, latitude, longitude) => {
   try {
-    const response = await api.post(`/villagers/${villagerId}/request-otp`);
+    const response = await api.put(`/villagers/${villagerId}/location`, { latitude, longitude });
     return response.data;
   } catch (error) {
-    console.error(`Error requesting OTP for villager ${villagerId}:`, error);
+    console.error(`Error updating location for villager ${villagerId}:`, error);
     throw error.response ? error.response.data : error.message;
   }
 };
 
-// Verify OTP and update password (POST /villagers/:id/verify-otp)
+export const getVillagerLocation = async (villagerId) => {
+  try {
+    const response = await api.get(`/villagers/${villagerId}/location`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error getting location for villager ${villagerId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const requestPasswordOtp = async (email) => {
+  try {
+    const response = await api.post("/villagers/request-otp", { email });
+    return response.data;
+  } catch (error) {
+    console.error(`Error requesting OTP for email ${email}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
 export const verifyPasswordOtp = async (villagerId, otp, newPassword) => {
   try {
     const response = await api.post(`/villagers/${villagerId}/verify-otp`, { otp, newPassword });
@@ -149,7 +163,6 @@ export const verifyPasswordOtp = async (villagerId, otp, newPassword) => {
   }
 };
 
-// Send confirmation email (mocked, as it’s server-side)
 export const sendConfirmationEmail = async (email) => {
   return { message: "Email confirmation handled server-side" };
 };

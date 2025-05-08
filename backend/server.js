@@ -1,4 +1,3 @@
-//server.js
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
@@ -13,6 +12,7 @@ const permitApplicationRoutes = require("./src/routes/villager/permitApplication
 const certificateApplicationRoutes = require("./src/routes/villager/certificateApplicationRoutes");
 const nicRoutes = require("./src/routes/villager/nicRoutes");
 const nicApplicationRoutes = require("./src/routes/villager/nicApplicationRoutes");
+const secretaryRoutes = require("./src/routes/Secretary/SecretaryRoutes"); // Add this line
 
 const path = require("path");
 
@@ -40,6 +40,7 @@ app.use("/api/permit-applications", permitApplicationRoutes);
 app.use("/api/certificate-applications", certificateApplicationRoutes);
 app.use("/api/nics", nicRoutes);
 app.use("/api/nic-applications", nicApplicationRoutes);
+app.use("/api/secretaries", secretaryRoutes); // Add this line
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "Uploads")));

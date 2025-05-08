@@ -19,6 +19,10 @@ import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPer
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
 import UserProfile from './Components/molecules/Pages/User/UserProfile/UserProfile';
+import VillagerLocationSearch from './Components/molecules/Pages/User/UserProfile/VillagerLocationSearch';
+import FamilyDetails from './Components/molecules/Pages/User/UserFamilyDetails/FamilyDetails';
+import OfficeSupport from './Components/molecules/Pages/OfficeSupport/OfficeSupport';
+import PrivacyPolicy from './Components/molecules/Pages/PrivacyPolicy/PrivacyPolicy';
 
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
@@ -74,6 +78,10 @@ function App() {
         <Route path="/UserPermits" element={<UserPermits/>}/>
         <Route path="/UserPermitsID" element={<UserPermitsID/>}/>
         <Route path="/UserProfile" element={<UserProfile/>}/>
+        <Route path="/VillagerLocationSearch" element={<VillagerLocationSearch/>}/>
+        <Route path="/FamilyDetails" element={<FamilyDetails/>}/>
+        <Route path="/OfficeSupport" element={<OfficeSupport/>}/>
+        <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />

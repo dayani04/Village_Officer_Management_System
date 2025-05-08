@@ -2,12 +2,16 @@ const VillagerOfficer = require("../../models/villagerOfficer/villagerOfficerMod
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendConfirmationEmail = require("../../utills/mailer");
+const crypto = require("crypto");
+
+const otps = new Map();
 
 const getVillagerOfficers = async (req, res) => {
   try {
     const officers = await VillagerOfficer.getAllVillagerOfficers();
     res.json(officers);
   } catch (error) {
+    console.error("Error in getVillagerOfficers:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -18,6 +22,7 @@ const getVillagerOfficer = async (req, res) => {
     if (!officer) return res.status(404).json({ error: "Officer not found" });
     res.json(officer);
   } catch (error) {
+    console.error("Error in getVillagerOfficer:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -62,9 +67,14 @@ const createVillagerOfficer = async (req, res) => {
       area_id
     );
 
-    await sendConfirmationEmail(email);
+    await sendConfirmationEmail(
+      email,
+      "Welcome to Village Officer Management System",
+      "Your Village Officer account has been created successfully."
+    );
     res.status(201).json({ id: villager_officer_id, message: "Villager Officer added successfully" });
   } catch (error) {
+    console.error("Error in createVillagerOfficer:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -76,6 +86,7 @@ const updateVillagerOfficer = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Officer not found" });
     res.json({ message: "Villager Officer updated successfully" });
   } catch (error) {
+    console.error("Error in updateVillagerOfficer:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -86,6 +97,7 @@ const deleteVillagerOfficer = async (req, res) => {
     if (!deleted) return res.status(404).json({ error: "Officer not found" });
     res.json({ message: "Villager Officer deleted successfully" });
   } catch (error) {
+    console.error("Error in deleteVillagerOfficer:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -113,7 +125,7 @@ const loginVillagerOfficer = async (req, res) => {
     });
 
     res.json({
-      message: "Login successful conftest.js",
+      message: "Login successful",
       officerId: officer.Villager_Officer_ID,
       fullName: officer.Full_Name,
       email: officer.Email,
@@ -122,6 +134,7 @@ const loginVillagerOfficer = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error("Error in loginVillagerOfficer:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 };
@@ -132,6 +145,7 @@ const getProfile = async (req, res) => {
     if (!officer) return res.status(404).json({ error: "Officer not found" });
     res.json(officer);
   } catch (error) {
+    console.error("Error in getProfile:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -147,6 +161,7 @@ const updateOfficerStatus = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Officer not found" });
     res.json({ message: "Officer status updated successfully" });
   } catch (error) {
+    console.error("Error in updateOfficerStatus:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -163,6 +178,68 @@ const updateOfficerPassword = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Officer not found" });
     res.json({ message: "Password updated successfully" });
   } catch (error) {
+    console.error("Error in updateOfficerPassword:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const requestPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const officer = await VillagerOfficer.getVillagerOfficerByEmail(email);
+    if (!officer) {
+      return res.status(404).json({ error: "Officer not found" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    otps.set(officer.Villager_Officer_ID, { otp, expires: Date.now() + 10 * 60 * 1000 });
+
+    await sendConfirmationEmail(
+      officer.Email,
+      "Password Reset OTP",
+      `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`
+    );
+
+    res.json({ message: "OTP sent to your email", villageOfficerId: officer.Villager_Officer_ID });
+  } catch (error) {
+    console.error("Error in requestPasswordOtp:", error);
+    res.status(500).json({ error: "Failed to send OTP", details: error.message });
+  }
+};
+
+const verifyPasswordOtp = async (req, res) => {
+  try {
+    const { otp, newPassword } = req.body;
+    const officerId = req.params.id;
+
+    const storedOtp = otps.get(officerId);
+    if (!storedOtp || storedOtp.expires < Date.now()) {
+      return res.status(400).json({ error: "OTP expired or invalid" });
+    }
+
+    if (storedOtp.otp !== otp) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await VillagerOfficer.updatePassword(officerId, hashedPassword);
+    if (!updated) return res.status(404).json({ error: "Officer not found" });
+
+    otps.delete(officerId);
+    await sendConfirmationEmail(
+      (await VillagerOfficer.getVillagerOfficerById(officerId)).Email,
+      "Password Updated",
+      "Your password has been updated successfully."
+    );
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error in verifyPasswordOtp:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -182,5 +259,7 @@ module.exports = {
   getProfile,
   updateOfficerStatus,
   updateOfficerPassword,
+  requestPasswordOtp,
+  verifyPasswordOtp,
   validateEmail,
 };

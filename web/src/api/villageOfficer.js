@@ -1,7 +1,7 @@
 import axios from "axios";
-import { getToken, setToken } from "../utils/auth"; // Make sure these utility functions are correctly implemented
+import { getToken, setToken } from "../utils/auth";
 
-const API_URL = "http://localhost:5000/api/villager-officer"; // Updated base URL for village officers
+const API_URL = "http://localhost:5000/api/villager-officer";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -10,7 +10,6 @@ const api = axios.create({
   },
 });
 
-// Add Authorization header to every request if a token is present
 api.interceptors.request.use(
   (config) => {
     const token = getToken();
@@ -24,7 +23,6 @@ api.interceptors.request.use(
   }
 );
 
-// Fetch all village officers (GET /village-officer/)
 export const fetchVillageOfficers = async () => {
   try {
     const response = await api.get("/");
@@ -35,7 +33,6 @@ export const fetchVillageOfficers = async () => {
   }
 };
 
-// Fetch a single village officer by ID (GET /village-officer/:id)
 export const fetchVillageOfficer = async (villageOfficerId) => {
   try {
     const response = await api.get(`/${villageOfficerId}`);
@@ -46,7 +43,6 @@ export const fetchVillageOfficer = async (villageOfficerId) => {
   }
 };
 
-// Add a new village officer (POST /village-officer/)
 export const addVillageOfficer = async (newVillageOfficer) => {
   try {
     const response = await api.post("/", newVillageOfficer);
@@ -57,7 +53,6 @@ export const addVillageOfficer = async (newVillageOfficer) => {
   }
 };
 
-// Update a village officer (PUT /village-officer/:id)
 export const updateVillageOfficer = async (villageOfficerId, updatedVillageOfficer) => {
   try {
     const payload = {
@@ -79,7 +74,6 @@ export const updateVillageOfficer = async (villageOfficerId, updatedVillageOffic
   }
 };
 
-// Delete a village officer (DELETE /village-officer/:id)
 export const deleteVillageOfficer = async (villageOfficerId) => {
   try {
     const response = await api.delete(`/${villageOfficerId}`);
@@ -90,7 +84,6 @@ export const deleteVillageOfficer = async (villageOfficerId) => {
   }
 };
 
-// Login a village officer (POST /village-officer/login)
 export const loginVillageOfficer = async (email, password) => {
   try {
     const response = await api.post("/login", { email, password });
@@ -104,7 +97,6 @@ export const loginVillageOfficer = async (email, password) => {
   }
 };
 
-// Fetch village officer profile (GET /village-officer/profile)
 export const getProfile = async () => {
   try {
     const response = await api.get("/profile");
@@ -115,7 +107,6 @@ export const getProfile = async () => {
   }
 };
 
-// Update village officer status (PUT /village-officer/:id/status)
 export const updateVillageOfficerStatus = async (villageOfficerId, status) => {
   try {
     const response = await api.put(`/${villageOfficerId}/status`, { status });
@@ -126,7 +117,6 @@ export const updateVillageOfficerStatus = async (villageOfficerId, status) => {
   }
 };
 
-// Update village officer password (PUT /village-officer/:id/password)
 export const updateVillageOfficerPassword = async (villageOfficerId, newPassword) => {
   try {
     const response = await api.put(`/${villageOfficerId}/password`, { newPassword });
@@ -137,8 +127,26 @@ export const updateVillageOfficerPassword = async (villageOfficerId, newPassword
   }
 };
 
-// Send confirmation email (mocked, as it’s server-side)
+export const requestPasswordOtp = async (email) => {
+  try {
+    const response = await api.post("/request-otp", { email });
+    return response.data;
+  } catch (error) {
+    console.error(`Error requesting OTP for email ${email}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const verifyPasswordOtp = async (villageOfficerId, otp, newPassword) => {
+  try {
+    const response = await api.post(`/${villageOfficerId}/verify-otp`, { otp, newPassword });
+    return response.data;
+  } catch (error) {
+    console.error(`Error verifying OTP for village officer ${villageOfficerId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
 export const sendConfirmationEmail = async (email) => {
-  // Implement the actual email sending functionality as per your server-side setup
   return { message: "Email confirmation handled server-side" };
 };

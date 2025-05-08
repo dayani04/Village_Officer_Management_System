@@ -41,6 +41,9 @@ const createVillager = async (req, res) => {
       regional_division,
       status,
       area_id,
+      latitude,
+      longitude,
+      is_participant,
     } = req.body;
 
     if (!villager_id || !full_name || !email || !password || !phone_no) {
@@ -64,7 +67,10 @@ const createVillager = async (req, res) => {
       address,
       regional_division,
       status || "Active",
-      area_id
+      area_id,
+      latitude,
+      longitude,
+      is_participant
     );
 
     await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
@@ -77,15 +83,13 @@ const createVillager = async (req, res) => {
 
 const updateVillager = async (req, res) => {
   try {
-    const { full_name, email, phone_no, address, regional_division, status } = req.body;
+    const { full_name, email, phone_no, address, regional_division, status, is_election_participant } = req.body;
     const villagerId = req.params.id;
 
-    // Validate required fields
     if (!full_name || !email || !phone_no) {
       return res.status(400).json({ error: "Full Name, Email, and Phone Number are required" });
     }
 
-    // Validate email format
     const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ error: "Invalid email format" });
@@ -94,14 +98,16 @@ const updateVillager = async (req, res) => {
     const currentUser = await User.getVillagerById(villagerId);
     if (!currentUser) return res.status(404).json({ error: "User not found" });
 
-    // Prepare update data, preserving existing values for optional fields if not provided
+    const parsedIsElectionParticipant = typeof is_election_participant === 'boolean' ? is_election_participant : Boolean(is_election_participant);
+
     const updateData = {
       full_name,
       email,
       phone_no,
-      address: address || currentUser.Address,
-      regional_division: regional_division || currentUser.RegionalDivision,
+      address: address !== undefined ? address : currentUser.Address,
+      regional_division: regional_division !== undefined ? regional_division : currentUser.RegionalDivision,
       status: status || currentUser.Status,
+      is_election_participant: parsedIsElectionParticipant,
     };
 
     const updated = await User.updateVillager(
@@ -111,7 +117,8 @@ const updateVillager = async (req, res) => {
       updateData.phone_no,
       updateData.address,
       updateData.regional_division,
-      updateData.status
+      updateData.status,
+      updateData.is_election_participant
     );
 
     if (!updated) return res.status(404).json({ error: "User not found" });
@@ -168,6 +175,7 @@ const loginVillager = async (req, res) => {
       phoneNo: user.Phone_No,
       status: user.Status,
       token,
+      isParticipant: user.IsParticipant,
     });
   } catch (error) {
     console.error("Error in loginVillager:", error);
@@ -202,10 +210,76 @@ const updateUserStatus = async (req, res) => {
   }
 };
 
+const updateVillagerLocation = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    const villagerId = req.params.id;
+
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: "Latitude and Longitude are required" });
+    }
+
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: "Invalid Latitude or Longitude values" });
+    }
+
+    const updated = await User.updateVillagerLocation(villagerId, lat, lng);
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    res.json({ message: "Villager location updated successfully" });
+  } catch (error) {
+    console.error(`Error in updateVillagerLocation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getVillagerLocation = async (req, res) => {
+  try {
+    const villagerId = req.params.id;
+    const location = await User.getVillagerLocation(villagerId);
+    if (!location) return res.status(404).json({ error: "User not found or location not set" });
+    res.json(location);
+  } catch (error) {
+    console.error(`Error in getVillagerLocation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const updateVillagerParticipation = async (req, res) => {
+  try {
+    const { is_participant } = req.body;
+    const villagerId = req.params.id;
+
+    if (typeof is_participant !== 'boolean') {
+      return res.status(400).json({ error: "is_participant must be a boolean value" });
+    }
+
+    const updated = await User.updateVillagerParticipation(villagerId, is_participant);
+
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    res.json({ message: "Villager participation status updated successfully" });
+  } catch (error) {
+    console.error(`Error in updateVillagerParticipation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
 const requestPasswordOtp = async (req, res) => {
   try {
-    const user = await User.getVillagerById(req.params.id);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const user = await User.getVillagerByEmail(email);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
     const otp = crypto.randomInt(100000, 999999).toString();
     otps.set(user.Villager_ID, { otp, expires: Date.now() + 10 * 60 * 1000 });
@@ -216,7 +290,7 @@ const requestPasswordOtp = async (req, res) => {
       `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`
     );
 
-    res.json({ message: "OTP sent to your email" });
+    res.json({ message: "OTP sent to your email", villagerId: user.Villager_ID });
   } catch (error) {
     console.error("Error in requestPasswordOtp:", error);
     res.status(500).json({ error: "Failed to send OTP", details: error.message });
@@ -272,4 +346,7 @@ module.exports = {
   requestPasswordOtp,
   verifyPasswordOtp,
   validateEmail,
+  updateVillagerLocation,
+  getVillagerLocation,
+  updateVillagerParticipation,
 };
