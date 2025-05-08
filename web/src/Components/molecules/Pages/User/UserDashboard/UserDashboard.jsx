@@ -52,6 +52,7 @@ const UserDashboard = () => {
           imgSrc="https://img.freepik.com/premium-photo/happy-young-sri-lankan-family-family-portrait_1106493-124766.jpg"
           altText={t('familyDetails')}
           buttonText={t('familyDetails')}
+          linkTo="/FamilyDetails" // Navigate to FamilyDetails page
         />
         <div className="vertical-line"></div>
         <OptionCard
@@ -63,13 +64,15 @@ const UserDashboard = () => {
         <OptionCard
           imgSrc="https://cdn-icons-png.freepik.com/512/7132/7132557.png"
           altText={t('officeSupport')}
-          buttonText={t('officeSupport')}
+          buttonText={t('officeSupport')} 
+          linkTo="/OfficeSupport" 
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.cookieyes.com/wp-content/uploads/2022/05/Privacy-policy-01-1.png"
           altText={t('privacyPolicy')}
-          buttonText={t('privacyPolicy')}
+          buttonText={t('privacyPolicy')} 
+          linkTo="/PrivacyPolicy" 
         />
       </div>
       <br /><br /><br /><br /><br />

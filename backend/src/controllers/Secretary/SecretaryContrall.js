@@ -2,12 +2,16 @@ const Secretary = require("../../models/Secretary/SecretaryModel");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendConfirmationEmail = require("../../utills/mailer");
+const crypto = require("crypto");
+
+const otps = new Map();
 
 const getSecretaries = async (req, res) => {
   try {
     const secretaries = await Secretary.getAllSecretaries();
     res.json(secretaries);
   } catch (error) {
+    console.error("Error in getSecretaries:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -18,6 +22,7 @@ const getSecretary = async (req, res) => {
     if (!secretary) return res.status(404).json({ error: "Secretary not found" });
     res.json(secretary);
   } catch (error) {
+    console.error("Error in getSecretary:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -62,9 +67,14 @@ const createSecretary = async (req, res) => {
       area_id
     );
 
-    await sendConfirmationEmail(email);
+    await sendConfirmationEmail(
+      email,
+      "Welcome to Village Officer Management System",
+      "Your Secretary account has been created successfully."
+    );
     res.status(201).json({ id: secretary_id, message: "Secretary added successfully" });
   } catch (error) {
+    console.error("Error in createSecretary:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -76,6 +86,7 @@ const updateSecretary = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Secretary not found" });
     res.json({ message: "Secretary updated successfully" });
   } catch (error) {
+    console.error("Error in updateSecretary:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -86,6 +97,7 @@ const deleteSecretary = async (req, res) => {
     if (!deleted) return res.status(404).json({ error: "Secretary not found" });
     res.json({ message: "Secretary deleted successfully" });
   } catch (error) {
+    console.error("Error in deleteSecretary:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -122,6 +134,7 @@ const loginSecretary = async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error("Error in loginSecretary:", error);
     res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 };
@@ -132,6 +145,7 @@ const getProfile = async (req, res) => {
     if (!secretary) return res.status(404).json({ error: "Secretary not found" });
     res.json(secretary);
   } catch (error) {
+    console.error("Error in getProfile:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -147,6 +161,7 @@ const updateSecretaryStatus = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Secretary not found" });
     res.json({ message: "Secretary status updated successfully" });
   } catch (error) {
+    console.error("Error in updateSecretaryStatus:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -163,6 +178,68 @@ const updateSecretaryPassword = async (req, res) => {
     if (!updated) return res.status(404).json({ error: "Secretary not found" });
     res.json({ message: "Password updated successfully" });
   } catch (error) {
+    console.error("Error in updateSecretaryPassword:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const requestPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const secretary = await Secretary.getSecretaryByEmail(email);
+    if (!secretary) {
+      return res.status(404).json({ error: "Secretary not found" });
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    otps.set(secretary.Secretary_ID, { otp, expires: Date.now() + 10 * 60 * 1000 });
+
+    await sendConfirmationEmail(
+      secretary.Email,
+      "Password Reset OTP",
+      `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`
+    );
+
+    res.json({ message: "OTP sent to your email", secretaryId: secretary.Secretary_ID });
+  } catch (error) {
+    console.error("Error in requestPasswordOtp:", error);
+    res.status(500).json({ error: "Failed to send OTP", details: error.message });
+  }
+};
+
+const verifyPasswordOtp = async (req, res) => {
+  try {
+    const { otp, newPassword } = req.body;
+    const secretaryId = req.params.id;
+
+    const storedOtp = otps.get(secretaryId);
+    if (!storedOtp || storedOtp.expires < Date.now()) {
+      return res.status(400).json({ error: "OTP expired or invalid" });
+    }
+
+    if (storedOtp.otp !== otp) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await Secretary.updatePassword(secretaryId, hashedPassword);
+    if (!updated) return res.status(404).json({ error: "Secretary not found" });
+
+    otps.delete(secretaryId);
+    await sendConfirmationEmail(
+      (await Secretary.getSecretaryById(secretaryId)).Email,
+      "Password Updated",
+      "Your password has been updated successfully."
+    );
+
+    res.json({ message: "Password updated successfully" });
+  } catch (error) {
+    console.error("Error in verifyPasswordOtp:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
@@ -182,5 +259,7 @@ module.exports = {
   getProfile,
   updateSecretaryStatus,
   updateSecretaryPassword,
+  requestPasswordOtp,
+  verifyPasswordOtp,
   validateEmail,
 };

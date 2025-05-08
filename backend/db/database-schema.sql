@@ -13,6 +13,14 @@ CREATE TABLE Villager (
     FOREIGN KEY (Area_ID) REFERENCES Area(Area_ID) -- Assuming Area table exists
 );
 ALTER TABLE Villager CHANGE ReginalDivision RegionalDivision VARCHAR(100);
+-- Assuming your Villager table already exists
+ALTER TABLE Villager
+ADD COLUMN Latitude DECIMAL(10, 8),
+ADD COLUMN Longitude DECIMAL(11, 8);
+
+-- Assuming your Villager table already exists
+ALTER TABLE Villager
+ADD COLUMN IsParticipant BOOLEAN DEFAULT FALSE; -- Or TINYINT(1) DEFAULT 0; depending on your SQL database
 
 CREATE TABLE Area (
     Area_ID VARCHAR(50) PRIMARY KEY,

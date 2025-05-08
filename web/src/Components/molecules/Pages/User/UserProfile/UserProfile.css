@@ -1,5 +1,5 @@
 .profile-container {
-    max-width: 600px;
+    width: 900px;
     margin: 2rem auto;
     padding: 2rem;
     background-color: #f9f9f9;
@@ -7,10 +7,12 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
   
-  .profile-container h2 {
+  .profile-container h1 {
     text-align: center;
+    margin-left: -100px;
     margin-bottom: 1.5rem;
     color: #333;
+    font-weight: bold;
   }
   
   .profile-details, .profile-form, .otp-form {
@@ -60,48 +62,70 @@
   }
   
   .edit-button {
-    background-color: #007bff;
+    background-color:#7a1632;
     color: white;
   }
   
   .edit-button:hover {
-    background-color: #0056b3;
+    background-color: #C75B7A;
   }
   
   .password-button {
-    background-color: #ffc107;
-    color: black;
+    background-color: #7a1632;
+    color: white;
   }
-  
+  .password-button:hover{
+    background-color:#C75B7A;
+  }
+  .save-button{ 
+    background-color: #7a1632;
+    color: white;
+  }
+  .save-button:hover{
+    background-color:#C75B7A;
+  }
+  .cancel-button{
+    background-color: #7a1632;
+    color: white;
+  }
+  .cancel-button:hover{
+    background-color:#C75B7A;
+  }
   .password-button:hover {
-    background-color: #e0a800;
+    background-color:#C75B7A;
   }
-  
+  .location-button{
+    background-color: #7a1632;
+    color: white;
+  }
+  .location-button:hover{
+    background-color:#C75B7A;
+  }
   .back-button {
-    background-color: #6c757d;
+    background-color:#7a1632;
     color: white;
   }
   
   .back-button:hover {
-    background-color: #5a6268;
+    background-color: #C75B7A;
   }
   
   .save-button {
-    background-color: #28a745;
+    background-color: #7a1632;
     color: white;
   }
   
   .save-button:hover {
-    background-color: #218838;
+    background-color: #C75B7A;
   }
   
   .cancel-button {
-    background-color: #dc3545;
+    background-color: #7a1632;
     color: white;
   }
   
   .cancel-button:hover {
-    background-color: #c82333;
+    background-color: #C75B7A;
   }
   
   .error-message {
