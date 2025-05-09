@@ -1,40 +1,59 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import VillageOfficerDashBoard from "../VillageOfficerDashBoard/VillageOfficerDashBoard";
 import "./PermitOwners.css";
 
 const PermitOwners = () => {
-  const [villagers, setVillagers] = useState([]);
 
-  // Fetch villagers from backend
+  const [villagers, setVillagers] = useState([]);
+  const navigate = useNavigate();
+
   useEffect(() => {
-    axios.get("http://localhost:5000/villagers")
+    axios
+      .get("http://localhost:5000/villagers")
       .then((response) => {
         setVillagers(response.data);
       })
       .catch((error) => console.error("Error fetching villagers:", error));
   }, []);
 
+  const ElectionVillagerDetails = (id) => {
+    navigate(`/villager-details/${id}`);
+  };
 
   return (
-    <div className="villagers-container">
-    
-      <table className="villagers-table">
-        <thead>
-          <tr>
-            <th>Owner Name</th>
-            <th>Permit Type</th>
-            
-          </tr>
-        </thead>
-        <tbody>
-          {villagers.map((villager) => (
-            <tr key={villager.id}>
-              <td>{villager.id}</td>
-              <td>{villager.Address}</td>
+    <div className="page-layout">
+      <div className="sidebar">
+        <VillageOfficerDashBoard />
+      </div>
+      <div className="villager-list-container">
+        <p>Permit Owrners</p>
+        <table className="villager-table">
+          <thead>
+            <tr>
+              <th>Owner Name</th>
+              <th>Permit Type</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {villagers.map((villager) => (
+              <tr key={villager.id}>
+                <td>{villager.id}</td>
+                <td>{villager.name}</td>
+                <td>
+                  <button
+                    className="view-btn"
+                    onClick={() => ElectionVillagerDetails(villager.id)}
+                  >
+                    View Details
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
