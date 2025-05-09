@@ -36,6 +36,7 @@ import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/Reques
 import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
 import RequestsForIDCardsS from './Components/molecules/Pages/Secretary/RequestsForIDCardsS/RequestsForIDCardsS';
 import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
+import VillageOfficerProfile from './Components/molecules/Pages/VillageOfficer/VillageOfficerProfile/VillageOfficerProfile';
 
 
 import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillageOfficer';
@@ -54,6 +55,7 @@ import RequestsForElectionList from './Components/molecules/Pages/VillageOfficer
 import RequestsForIDCards from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCards';
 import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/VillageOfficerDashBoard';
 import SecretaryDashBoard from './Components/molecules/Pages/Secretary/SecretaryDashBoard/SecretaryDashBoard';
+import SecretaryProfile from './Components/molecules/Pages/Secretary/SecretaryProfile/SecretaryProfile';
 
 
 function App() {
@@ -97,6 +99,8 @@ function App() {
         <Route path="RequestsForIDCardsS" element={<RequestsForIDCardsS/>} />
         <Route path="VillageOfficers" element={<VillageOfficers/>} />
         <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
+        <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
+
 
         <Route path="AddVillagerOfficer" element={<AddVillagerOfficer/>} />
         <Route path="AddVillagers" element={<AddVillagers/>} />
@@ -113,6 +117,7 @@ function App() {
         <Route path="RequestsForCertificate" element={<RequestsForCertificate/>} />
         <Route path="RequestsForIDCards" element={<RequestsForIDCards/>} />
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
+        <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
    
         
         

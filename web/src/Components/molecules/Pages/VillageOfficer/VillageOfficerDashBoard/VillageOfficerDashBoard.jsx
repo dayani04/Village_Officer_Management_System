@@ -1,18 +1,20 @@
 import React from "react";
-import './VillageOfficerDashBoard.css';
+import { useNavigate } from "react-router-dom";
+import "./VillageOfficerDashBoard.css";
 
 const VillageOfficerDashBoard = () => {
+  const navigate = useNavigate();
+
   const navigateTo = (path) => {
-    window.location.href = path;
+    navigate(`/${path}`);
   };
 
   return (
     <div className="dashboard-containerV">
       <div className="sidebarV">
-        
         <ul>
           <li>
-            <button onClick={() => navigateTo("MyProfile")}>My Profile</button>
+            <button onClick={() => navigateTo("VillageOfficerProfile")}>My Profile</button>
           </li>
           <li>
             <button onClick={() => navigateTo("AddVillagers")}>Add Villager</button>
@@ -26,7 +28,6 @@ const VillageOfficerDashBoard = () => {
           <li>
             <button onClick={() => navigateTo("Houses")}>Houses</button>
           </li>
-          
           <li>
             <button onClick={() => navigateTo("PermitOwners")}>Permit Owners</button>
           </li>
@@ -53,9 +54,7 @@ const VillageOfficerDashBoard = () => {
           </li>
         </ul>
       </div>
-
-      </div>
-    
+    </div>
   );
 };
 
