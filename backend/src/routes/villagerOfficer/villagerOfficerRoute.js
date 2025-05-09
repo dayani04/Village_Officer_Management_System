@@ -1,6 +1,6 @@
-const express = require('express');
-const villagerOfficerController = require('../../controllers/villagerOfficer/villagerOfficerControll'); // Corrected import path
-const authenticate = require('../../middleware/authMiddleware');
+const express = require("express");
+const villagerOfficerController = require("../../controllers/villagerOfficer/villagerOfficerControll");
+const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
 // Public routes

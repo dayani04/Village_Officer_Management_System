@@ -19,7 +19,7 @@ const getVillagerOfficers = async (req, res) => {
 const getVillagerOfficer = async (req, res) => {
   try {
     const officer = await VillagerOfficer.getVillagerOfficerById(req.params.id);
-    if (!officer) return res.status(404).json({ error: "Officer not found" });
+    if (!officer) return res.status(404).json({ error: "Villager Officer not found" });
     res.json(officer);
   } catch (error) {
     console.error("Error in getVillagerOfficer:", error);
@@ -45,6 +45,10 @@ const createVillagerOfficer = async (req, res) => {
 
     if (!villager_officer_id || !full_name || !email || !password || !phone_no) {
       return res.status(400).json({ error: "Required fields are missing" });
+    }
+
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
     }
 
     const existingOfficer = await VillagerOfficer.getVillagerOfficerByEmail(email);
@@ -82,8 +86,14 @@ const createVillagerOfficer = async (req, res) => {
 const updateVillagerOfficer = async (req, res) => {
   try {
     const { full_name, email, phone_no, status } = req.body;
+    if (!full_name || !email || !phone_no) {
+      return res.status(400).json({ error: "Full Name, Email, and Phone Number are required" });
+    }
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
     const updated = await VillagerOfficer.updateVillagerOfficer(req.params.id, full_name, email, phone_no, status);
-    if (!updated) return res.status(404).json({ error: "Officer not found" });
+    if (!updated) return res.status(404).json({ error: "Villager Officer not found" });
     res.json({ message: "Villager Officer updated successfully" });
   } catch (error) {
     console.error("Error in updateVillagerOfficer:", error);
@@ -94,7 +104,7 @@ const updateVillagerOfficer = async (req, res) => {
 const deleteVillagerOfficer = async (req, res) => {
   try {
     const deleted = await VillagerOfficer.deleteVillagerOfficer(req.params.id);
-    if (!deleted) return res.status(404).json({ error: "Officer not found" });
+    if (!deleted) return res.status(404).json({ error: "Villager Officer not found" });
     res.json({ message: "Villager Officer deleted successfully" });
   } catch (error) {
     console.error("Error in deleteVillagerOfficer:", error);
@@ -112,7 +122,7 @@ const loginVillagerOfficer = async (req, res) => {
 
     const officer = await VillagerOfficer.getVillagerOfficerByEmail(email);
     if (!officer) {
-      return res.status(404).json({ error: "Officer not found" });
+      return res.status(404).json({ error: "Villager Officer not found" });
     }
 
     const isMatch = await bcrypt.compare(password, officer.Password);
@@ -142,7 +152,7 @@ const loginVillagerOfficer = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     const officer = await VillagerOfficer.getVillagerOfficerById(req.user.userId);
-    if (!officer) return res.status(404).json({ error: "Officer not found" });
+    if (!officer) return res.status(404).json({ error: "Villager Officer not found" });
     res.json(officer);
   } catch (error) {
     console.error("Error in getProfile:", error);
@@ -158,8 +168,8 @@ const updateOfficerStatus = async (req, res) => {
     }
 
     const updated = await VillagerOfficer.updateOfficerStatus(req.params.id, status);
-    if (!updated) return res.status(404).json({ error: "Officer not found" });
-    res.json({ message: "Officer status updated successfully" });
+    if (!updated) return res.status(404).json({ error: "Villager Officer not found" });
+    res.json({ message: "Villager Officer status updated successfully" });
   } catch (error) {
     console.error("Error in updateOfficerStatus:", error);
     res.status(500).json({ error: "Database error", details: error.message });
@@ -175,7 +185,7 @@ const updateOfficerPassword = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updated = await VillagerOfficer.updatePassword(req.params.id, hashedPassword);
-    if (!updated) return res.status(404).json({ error: "Officer not found" });
+    if (!updated) return res.status(404).json({ error: "Villager Officer not found" });
     res.json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Error in updateOfficerPassword:", error);
@@ -193,7 +203,7 @@ const requestPasswordOtp = async (req, res) => {
 
     const officer = await VillagerOfficer.getVillagerOfficerByEmail(email);
     if (!officer) {
-      return res.status(404).json({ error: "Officer not found" });
+      return res.status(404).json({ error: "Villager Officer not found" });
     }
 
     const otp = crypto.randomInt(100000, 999999).toString();
@@ -228,7 +238,7 @@ const verifyPasswordOtp = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updated = await VillagerOfficer.updatePassword(officerId, hashedPassword);
-    if (!updated) return res.status(404).json({ error: "Officer not found" });
+    if (!updated) return res.status(404).json({ error: "Villager Officer not found" });
 
     otps.delete(officerId);
     await sendConfirmationEmail(

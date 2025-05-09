@@ -1,6 +1,6 @@
-const express = require('express');
-const secretaryController = require('../../controllers/Secretary/SecretaryContrall'); // Fixed typo
-const authenticate = require('../../middleware/authMiddleware');
+const express = require("express");
+const secretaryController = require("../../controllers/Secretary/SecretaryContrall"); // Fixed typo
+const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
 // Public routes
