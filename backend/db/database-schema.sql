@@ -17,6 +17,7 @@ ALTER TABLE Villager CHANGE ReginalDivision RegionalDivision VARCHAR(100);
 ALTER TABLE Villager
 ADD COLUMN Latitude DECIMAL(10, 8),
 ADD COLUMN Longitude DECIMAL(11, 8);
+ADD Alive_Status ENUM('Alive', 'Deceased') DEFAULT 'Alive';
 
 -- Assuming your Villager table already exists
 ALTER TABLE Villager
