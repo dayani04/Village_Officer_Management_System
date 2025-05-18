@@ -44,6 +44,7 @@ const createVillager = async (req, res) => {
       latitude,
       longitude,
       is_participant,
+      alive_status,
     } = req.body;
 
     if (!villager_id || !full_name || !email || !password || !phone_no) {
@@ -70,7 +71,8 @@ const createVillager = async (req, res) => {
       area_id,
       latitude,
       longitude,
-      is_participant
+      is_participant,
+      alive_status || "Alive"
     );
 
     await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
@@ -83,7 +85,7 @@ const createVillager = async (req, res) => {
 
 const updateVillager = async (req, res) => {
   try {
-    const { full_name, email, phone_no, address, regional_division, status, is_election_participant } = req.body;
+    const { full_name, email, phone_no, address, regional_division, status, is_election_participant, alive_status } = req.body;
     const villagerId = req.params.id;
 
     if (!full_name || !email || !phone_no) {
@@ -108,6 +110,7 @@ const updateVillager = async (req, res) => {
       regional_division: regional_division !== undefined ? regional_division : currentUser.RegionalDivision,
       status: status || currentUser.Status,
       is_election_participant: parsedIsElectionParticipant,
+      alive_status: alive_status !== undefined ? alive_status : currentUser.Alive_Status,
     };
 
     const updated = await User.updateVillager(
@@ -118,7 +121,8 @@ const updateVillager = async (req, res) => {
       updateData.address,
       updateData.regional_division,
       updateData.status,
-      updateData.is_election_participant
+      updateData.is_election_participant,
+      updateData.alive_status
     );
 
     if (!updated) return res.status(404).json({ error: "User not found" });
@@ -176,6 +180,7 @@ const loginVillager = async (req, res) => {
       status: user.Status,
       token,
       isParticipant: user.IsParticipant,
+      aliveStatus: user.Alive_Status,
     });
   } catch (error) {
     console.error("Error in loginVillager:", error);
