@@ -1,10 +1,8 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import "./SecretaryDashBoard.css";
-import permit from "./permit.png";
-import house from "./house.png";
-import money from "./money.png";
-import users from "./users.png";
+
+import './SecretaryDashBoard.css';
+import { FaUser, FaPlus, FaMinus, FaUsers, FaFileAlt, FaWallet, FaIdBadge, FaSignOutAlt } from 'react-icons/fa';
+
 
 const SecretaryDashBoard = () => {
   const navigate = useNavigate();
@@ -19,62 +17,70 @@ const SecretaryDashBoard = () => {
         <p>Secretary Dashboard</p>
         <ul>
           <li>
-            <button onClick={() => navigateTo("SecretaryProfile")}>My Profile</button>
+
+            <button onClick={() => navigateTo("MyProfile")}>
+              <FaUser style={{ marginRight: '8px' }} />
+              My Profile
+            </button>
+
           </li>
           <li>
-            <button onClick={() => navigateTo("AddVillageOfficerS")}>Add Village Officer</button>
+            <button onClick={() => navigateTo("AddVillageOfficerS")}>
+              <FaPlus style={{ marginRight: '8px' }} />
+              Add Village Officer
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("RemoveVillageOfficerS")}>Remove Village Officer</button>
+            <button onClick={() => navigateTo("RemoveVillageOfficerS")}>
+              <FaMinus style={{ marginRight: '8px' }} />
+              Remove Village Officer
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("VillageOfficers")}>Village Officers</button>
+            <button onClick={() => navigateTo("VillageOfficers")}>
+              <FaUsers style={{ marginRight: '8px' }} />
+              Village Officers
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("PermitOwners")}>Permit Owners</button>
+            <button onClick={() => navigateTo("PermitOwners")}>
+              <FaFileAlt style={{ marginRight: '8px' }} />
+              Permit Owners
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("AllowanceOwners")}>Allowance Owners</button>
+            <button onClick={() => navigateTo("AllowanceOwners")}>
+              <FaWallet style={{ marginRight: '8px' }} />
+              Allowance Owners
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("RequestsForElectionListS")}>Requests For Election List</button>
+            <button onClick={() => navigateTo("RequestsForElectionListS")}>
+              <FaFileAlt style={{ marginRight: '8px' }} />
+               Election List Requests
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("RequestsForIDCardsS")}>Requests For ID Cards</button>
+            <button onClick={() => navigateTo("RequestsForIDCardsS")}>
+              <FaIdBadge style={{ marginRight: '8px' }} />
+              Requests For ID Cards
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("RequestsForAllowanceS")}>Requests For Allowance</button>
+            <button onClick={() => navigateTo("RequestsForAllowanceS")}>
+              <FaWallet style={{ marginRight: '8px' }} />
+              Allowance Requests
+            </button>
           </li>
           <li>
-            <button onClick={() => navigateTo("Logout")}>Logout</button>
+            <button onClick={() => navigateTo("Logout")}>
+              <FaSignOutAlt style={{ marginRight: '8px' }} />
+              Logout
+            </button>
           </li>
         </ul>
       </div>
 
-      <div className="content1">
-        <div className="cards1">
-          <div className="card1">
-            <h3>Villagers</h3>
-            <img src={users} alt="Villagers" className="card-icon" />
-            <p>1,234</p>
-          </div>
-          <div className="card1">
-            <h3>Houses</h3>
-            <img src={house} alt="Houses" className="card-icon" />
-            <p>567</p>
-          </div>
-          <div className="card1">
-            <h3>Permit Owners</h3>
-            <img src={permit} alt="Permit Owners" className="card-icon" />
-            <p>89</p>
-          </div>
-          <div className="card1">
-            <h3>Allowance Owners</h3>
-            <img src={money} alt="Allowance Owners" className="card-icon" />
-            <p>42</p>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };

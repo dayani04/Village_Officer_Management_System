@@ -1,3 +1,6 @@
+
+
+
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 *,
@@ -7,6 +10,27 @@
   padding: 0;
   box-sizing: border-box;
   text-decoration: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.page-wrapper {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+}
+
+.dashboard-wrapper {
+  width: 300px;
+}
+
+.containerAV {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-start;
+  padding: 2rem;
+  background-color: #fcf6f5;
+  min-height: 100vh;
 }
 
 
@@ -49,29 +73,31 @@ code {
   left: -2rem;
 }
 
-.containerAV {
-  width: 100%;
-  max-width: 768px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 2rem 1.5rem;
-  background-color: #fcf6f5;
-  margin-top: 50px;
-  margin-left: 300px;
-}
+
 
 @media (min-width: 768px) {
   .containerAV {
     flex-direction: row;
     align-items: center;
+    
   }
 }
 
+/* Center the cta-form container with a border */
 .cta-form {
-  margin-bottom: 2rem;
-  text-align: center;
+ text-align: center;
+  margin: 0 auto; /* Centers the container horizontally */
+  padding: 10px; /* Optional: space inside the border */
+  
+  
+}
+
+/* Align h2 to the top-right corner */
+.cta-form h2 {
+
+  padding: 15px; /* Optional: space around the text */
+  margin-left: 30px;
+  
 }
 
 @media (min-width: 768px) {
@@ -79,22 +105,6 @@ code {
     margin-bottom: 0;
     margin-right: 2rem;
     text-align: left;
-  }
-}
-
-.cta-form h2 {
-  font-size: 1.5rem;
-  width: 100%;
-  max-width: 25ch;
-  margin: 0 auto;
-  text-align: center;
-  color: #921940;
-}
-
-@media (min-width: 768px) {
-  .cta-form h2 {
-    text-align: left;
-    margin: 0;
   }
 }
 
@@ -161,3 +171,6 @@ code {
   user-select: none;
   pointer-events: none;
 }
+
+
+

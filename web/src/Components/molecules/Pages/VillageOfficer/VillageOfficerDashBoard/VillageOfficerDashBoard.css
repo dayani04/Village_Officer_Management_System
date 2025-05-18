@@ -1,68 +1,59 @@
-/* Sidebar */
-.dashboard-containerV .sidebarV { /* Make this rule more specific */
+/* Example: adapt VillageOfficerDashboard.css to secretary styles */
+
+.dashboard-containerV {
+  display: flex;
+  /* match secretary dashboard container styles */
+}
+
+.sidebarV {
   margin-top: 20px;
-  width: 300px;
+  width: 280px;
   padding: 10px;
-  font-family: 'Poppins', sans-serif;
-  height: 215vh;
-  color: #921A40;
+  font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  height: 138vh;
+  color: white;
+  background-color: #9C284F; /* secretary style background */
+  /* add any other secretary sidebar styles here */
 }
 
-.dashboard-containerV .sidebarV p { /* Make this rule more specific */
+.sidebarV p {
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   font-size: 24px;
-  color: #921A40;
+  color: white; /* or white, as per secretary style */
 }
 
-/* List styling for navigation */
-.dashboard-containerV .sidebarV ul { /* Make this rule more specific */
+.sidebarV ul {
   list-style: none;
   padding: 0;
-  color: #921A40;
+  margin: 0;
 }
 
-.dashboard-containerV .sidebarV ul li { /* Make this rule more specific */
-  /* Existing styles */
-  margin: 15px 0;
-  padding: 25px 28px;
-  font-size: 14px;
+.sidebarV li {
+  margin: 10px 0;
+  padding: 15px 18px;
+  font-size: 18px;
   cursor: pointer;
   border-radius: 8px;
-  border: 1px solid #B7416A;
   text-align: center;
-  color: #921A40;
-
-  /* Add margin-bottom to increase space between list items */
-  margin-bottom: 25px; /* Adjust this value to control the spacing */
+  margin-bottom: 0px;
 }
 
-.dashboard-containerV .sidebarV ul li:hover,
-.dashboard-containerV .sidebarV ul li.active { /* <<< Added .dashboard-containerV .sidebarV ul li.active */
+/* Hover and active styles as in secretary CSS */
+.sidebarV li:hover,
+.sidebarV li.active {
   border: 1.5px solid #921A40;
-  background-color: #ffd8e5;
+  background-color: #921A40;
   color: black;
 }
 
-.dashboard-containerV .sidebarV ul li button { /* Make this rule more specific */
+.sidebarV button {
   background: none;
   border: none;
-  color: #921A40;
-  font-size: 15px;
+  color: white;
+  font-size: 16px;
   font-weight: bold;
   width: 100%;
   text-align: center;
   cursor: pointer;
-}
-
-/* Dashboard Layout */
-.dashboard-containerV {
-  display: flex;
-}
-
-.dashboard-containerV .contentV { /* Make this rule more specific if you use contentV */
-  margin-left: 270px;
-  padding: 20px;
-  flex: 1;
-  color: black;
 }
