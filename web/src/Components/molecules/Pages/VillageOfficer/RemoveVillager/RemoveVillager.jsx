@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { useNavigate } from 'react-router-dom'; // Import useNavigate
 import "./RemoveVillager.css";
 
 const RemoveVillager = () => {
-
   const [villagers, setVillagers] = useState([]);
+  const [loading, setLoading] = useState(true); // Manage loading state
+  const navigate = useNavigate(); // Initialize navigate
 
   useEffect(() => {
     axios.get("http://localhost:5000/villagers")
       .then((response) => {
         setVillagers(response.data);
       })
-      .catch((error) => console.error("Error fetching villagers:", error));
+      .catch((error) => console.error("Error fetching villagers:", error))
+      .finally(() => setLoading(false));
   }, []);
 
   // Remove villager with confirmation
@@ -36,6 +39,7 @@ const RemoveVillager = () => {
   return (
     <div className="villagers-container">
       <h2>Villagers List</h2>
+      <button onClick={handleBack}>Back to Dashboard</button>
       <table className="villagers-table">
         <thead>
           <tr>
@@ -61,6 +65,5 @@ const RemoveVillager = () => {
     </div>
   );
 };
-
 
 export default RemoveVillager;

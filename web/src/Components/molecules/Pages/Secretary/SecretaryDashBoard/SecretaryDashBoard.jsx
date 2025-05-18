@@ -1,5 +1,5 @@
 import React from "react";
-
+import { useNavigate } from 'react-router-dom';
 import './SecretaryDashBoard.css';
 import { FaUser, FaPlus, FaMinus, FaUsers, FaFileAlt, FaWallet, FaIdBadge, FaSignOutAlt } from 'react-icons/fa';
 

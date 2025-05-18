@@ -1,12 +1,24 @@
 import React from "react";
-
+import { useNavigate } from 'react-router-dom';
 import './VillageOfficerDashBoard.css';
 import { motion } from 'framer-motion';
-import { FaUser, FaPlus, FaUserTie, FaTrash, FaHome, FaFileAlt, FaWallet, FaList, FaIdBadge, FaCheckCircle, FaUsers, FaSignOutAlt } from 'react-icons/fa';
-
+import {
+  FaUser, FaPlus, FaUserTie, FaTrash, FaHome, FaFileAlt, FaWallet,
+  FaList, FaIdBadge, FaCheckCircle, FaUsers, FaSignOutAlt
+} from 'react-icons/fa';
 
 const VillageOfficerDashBoard = () => {
   const navigate = useNavigate();
+
+  // ✅ Handle active class based on current route
+  const isActive = (route) => {
+    return window.location.pathname.includes(route);
+  };
+
+  // ✅ Navigation handler
+  const navigateTo = (path) => {
+    navigate(`/${path}`);
+  };
 
   const sidebarVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -66,7 +78,6 @@ const VillageOfficerDashBoard = () => {
               Houses
             </button>
           </motion.li>
-          {/* Continue similarly for other categories */}
           <motion.li className={isActive("PermitOwners") ? "active" : ""} variants={listItemVariants}>
             <button onClick={() => navigateTo("PermitOwners")}>
               <FaFileAlt style={{ marginRight: '8px' }} />
@@ -103,14 +114,14 @@ const VillageOfficerDashBoard = () => {
               Requests For Certificate
             </button>
           </motion.li>
-          <motion.li className={isActive("/") ? "active" : ""} variants={listItemVariants}>
-            <button onClick={() => navigateTo("/")}>
+          <motion.li className={isActive("Counts") ? "active" : ""} variants={listItemVariants}>
+            <button onClick={() => navigateTo("Counts")}>
               <FaHome style={{ marginRight: '8px' }} />
               Counts
             </button>
           </motion.li>
-          <motion.li className={isActive("/") ? "active" : ""} variants={listItemVariants}>
-            <button onClick={() => navigateTo("/")}>
+          <motion.li className={isActive("ViewMembers") ? "active" : ""} variants={listItemVariants}>
+            <button onClick={() => navigateTo("ViewMembers")}>
               <FaUsers style={{ marginRight: '8px' }} />
               View Members
             </button>
@@ -124,7 +135,6 @@ const VillageOfficerDashBoard = () => {
         </ul>
       </motion.div>
     </motion.div>
-
   );
 };
 

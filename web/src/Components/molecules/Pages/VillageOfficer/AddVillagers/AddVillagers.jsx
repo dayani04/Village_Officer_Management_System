@@ -1,6 +1,7 @@
 import React from 'react';
 import './AddVillagers.css'; 
 
+
 const AddVillagers = () => {
   return (
     <div>
@@ -115,4 +116,4 @@ const AddVillagers = () => {
   );
 };
 
-export default AddVillager;
+export default AddVillagers;

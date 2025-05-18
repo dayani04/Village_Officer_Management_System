@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const villagerRoutes = require("./src/routes/villager/villagerRoutes");
-const villagerOfficerRoutes = require("./src/routes/villagerOfficer/villagerOfficerRoute");
+const villagerOfficerRoutes = require("./src/routes/villagerOfficer/villagerOfficerRoute"); // Fixed path
 const electionRoutes = require("./src/routes/villager/electionRoutes");
 const electionApplicationRoutes = require("./src/routes/villager/electionApplicationRoutes");
 const allowanceRoutes = require("./src/routes/villager/allowanceRoutes");
@@ -12,7 +12,7 @@ const permitApplicationRoutes = require("./src/routes/villager/permitApplication
 const certificateApplicationRoutes = require("./src/routes/villager/certificateApplicationRoutes");
 const nicRoutes = require("./src/routes/villager/nicRoutes");
 const nicApplicationRoutes = require("./src/routes/villager/nicApplicationRoutes");
-const secretaryRoutes = require("./src/routes/Secretary/SecretaryRoutes"); // Add this line
+const secretaryRoutes = require("./src/routes/Secretary/SecretaryRoutes");
 
 const path = require("path");
 
@@ -30,7 +30,7 @@ app.use(
 
 app.use(express.json());
 app.use("/api/villagers", villagerRoutes);
-app.use("/api/villager-officer", villagerOfficerRoutes);
+app.use("/api/villager-officers", villagerOfficerRoutes); // Fixed route path
 app.use("/api/elections", electionRoutes);
 app.use("/api/election-applications", electionApplicationRoutes);
 app.use("/api/allowances", allowanceRoutes);
@@ -40,7 +40,7 @@ app.use("/api/permit-applications", permitApplicationRoutes);
 app.use("/api/certificate-applications", certificateApplicationRoutes);
 app.use("/api/nics", nicRoutes);
 app.use("/api/nic-applications", nicApplicationRoutes);
-app.use("/api/secretaries", secretaryRoutes); // Add this line
+app.use("/api/secretaries", secretaryRoutes);
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
