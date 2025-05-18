@@ -1,20 +1,12 @@
 import React from "react";
+
 import './VillageOfficerDashBoard.css';
 import { motion } from 'framer-motion';
 import { FaUser, FaPlus, FaUserTie, FaTrash, FaHome, FaFileAlt, FaWallet, FaList, FaIdBadge, FaCheckCircle, FaUsers, FaSignOutAlt } from 'react-icons/fa';
 
+
 const VillageOfficerDashBoard = () => {
-  const navigateTo = (path) => {
-    const fullPath = path.startsWith('/') ? path : '/' + path;
-    window.location.href = fullPath;
-  };
-
-  const currentPath = window.location.pathname;
-
-  const isActive = (path) => {
-    const fullPath = path.startsWith('/') ? path : '/' + path;
-    return currentPath === fullPath;
-  };
+  const navigate = useNavigate();
 
   const sidebarVariants = {
     hidden: { opacity: 0, x: -50 },
@@ -132,6 +124,7 @@ const VillageOfficerDashBoard = () => {
         </ul>
       </motion.div>
     </motion.div>
+
   );
 };
 

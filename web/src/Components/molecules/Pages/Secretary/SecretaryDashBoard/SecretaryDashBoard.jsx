@@ -1,10 +1,14 @@
 import React from "react";
+
 import './SecretaryDashBoard.css';
 import { FaUser, FaPlus, FaMinus, FaUsers, FaFileAlt, FaWallet, FaIdBadge, FaSignOutAlt } from 'react-icons/fa';
 
+
 const SecretaryDashBoard = () => {
+  const navigate = useNavigate();
+
   const navigateTo = (path) => {
-    window.location.href = path;
+    navigate(`/${path}`);
   };
 
   return (
@@ -13,10 +17,12 @@ const SecretaryDashBoard = () => {
         <p>Secretary Dashboard</p>
         <ul>
           <li>
+
             <button onClick={() => navigateTo("MyProfile")}>
               <FaUser style={{ marginRight: '8px' }} />
               My Profile
             </button>
+
           </li>
           <li>
             <button onClick={() => navigateTo("AddVillageOfficerS")}>
@@ -36,7 +42,6 @@ const SecretaryDashBoard = () => {
               Village Officers
             </button>
           </li>
-          
           <li>
             <button onClick={() => navigateTo("PermitOwners")}>
               <FaFileAlt style={{ marginRight: '8px' }} />
@@ -75,6 +80,7 @@ const SecretaryDashBoard = () => {
           </li>
         </ul>
       </div>
+
     </div>
   );
 };

@@ -28,13 +28,14 @@ const UserProfile = () => {
     regional_division: '',
     status: 'Active',
     is_election_participant: false,
+    alive_status: 'Alive', // Added alive_status to formData
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [otpMode, setOtpMode] = useState(false);
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
-  const [villagerId, setVillagerId] = useState(null); // New state for villagerId
+  const [villagerId, setVillagerId] = useState(null);
   const [locationMode, setLocationMode] = useState(false);
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
@@ -70,6 +71,7 @@ const UserProfile = () => {
           regional_division: profileData.RegionalDivision || '',
           status: profileData.Status || 'Active',
           is_election_participant: profileData.IsParticipant || false,
+          alive_status: profileData.Alive_Status || 'Alive', // Initialize alive_status
         });
 
         if (profileData.Latitude && profileData.Longitude) {
@@ -117,6 +119,7 @@ const UserProfile = () => {
         regional_division: formData.regional_division,
         status: formData.status,
         is_election_participant: formData.is_election_participant,
+        alive_status: formData.alive_status, // Include alive_status in payload
       };
 
       await api.updateVillager(profile.Villager_ID, updatePayload);
@@ -129,6 +132,7 @@ const UserProfile = () => {
         RegionalDivision: formData.regional_division,
         Status: formData.status,
         IsParticipant: formData.is_election_participant,
+        Alive_Status: formData.alive_status, // Update profile with alive_status
       });
       setEditMode(false);
       setError('');
@@ -139,8 +143,8 @@ const UserProfile = () => {
 
   const handlePasswordChangeRequest = async () => {
     try {
-      const response = await api.requestPasswordOtp(profile.Email); // Use profile.Email
-      setVillagerId(response.villagerId); // Store villagerId from response
+      const response = await api.requestPasswordOtp(profile.Email);
+      setVillagerId(response.villagerId);
       setOtpMode(true);
       setError('');
     } catch (err) {
@@ -151,7 +155,7 @@ const UserProfile = () => {
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     try {
-      await api.verifyPasswordOtp(villagerId, otp, newPassword); // Use stored villagerId
+      await api.verifyPasswordOtp(villagerId, otp, newPassword);
       setOtpMode(false);
       setOtp('');
       setNewPassword('');
@@ -251,6 +255,17 @@ const UserProfile = () => {
               value={formData.regional_division}
               onChange={handleInputChange}
             />
+          </div>
+          <div className="profile-field">
+            <label>Alive Status:</label>
+            <select
+              name="alive_status"
+              value={formData.alive_status}
+              onChange={handleInputChange}
+            >
+              <option value="Alive">Alive</option>
+              <option value="Deceased">Deceased</option>
+            </select>
           </div>
           <div className="profile-field">
             <label>Upcoming Election Participant:</label>
@@ -420,6 +435,10 @@ const UserProfile = () => {
             <div className="profile-field">
               <label>Upcoming Election Participant:</label>
               <span>{profile.IsParticipant ? 'Yes' : 'No'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Alive Status:</label>
+              <span>{profile.Alive_Status || 'N/A'}</span>
             </div>
           </div>
           <div className="profile-actions">

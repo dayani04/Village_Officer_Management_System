@@ -19,7 +19,7 @@ const getSecretaries = async (req, res) => {
 const getSecretary = async (req, res) => {
   try {
     const secretary = await Secretary.getSecretaryById(req.params.id);
-    if (!secretary) return res.status(404).json({ error: "Secretary not found" });
+    if (!secretary) return res.status(404).json({ error: " reconstruction not found" });
     res.json(secretary);
   } catch (error) {
     console.error("Error in getSecretary:", error);
@@ -45,6 +45,10 @@ const createSecretary = async (req, res) => {
 
     if (!secretary_id || !full_name || !email || !password || !phone_no) {
       return res.status(400).json({ error: "Required fields are missing" });
+    }
+
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
     }
 
     const existingSecretary = await Secretary.getSecretaryByEmail(email);
@@ -82,6 +86,12 @@ const createSecretary = async (req, res) => {
 const updateSecretary = async (req, res) => {
   try {
     const { full_name, email, phone_no, status } = req.body;
+    if (!full_name || !email || !phone_no) {
+      return res.status(400).json({ error: "Full Name, Email, and Phone Number are required" });
+    }
+    if (!validateEmail(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
     const updated = await Secretary.updateSecretary(req.params.id, full_name, email, phone_no, status);
     if (!updated) return res.status(404).json({ error: "Secretary not found" });
     res.json({ message: "Secretary updated successfully" });
