@@ -115,4 +115,4 @@ const AddVillagers = () => {
   );
 };
 
-export default AddVillager;
+export default  AddVillagers;
