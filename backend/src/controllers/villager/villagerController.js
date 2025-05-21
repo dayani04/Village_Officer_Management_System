@@ -1,192 +1,342 @@
 const User = require("../../models/villager/villagerModel");
 const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken"); // Importing JWT
+const jwt = require("jsonwebtoken");
 const sendConfirmationEmail = require("../../utills/mailer");
-const pool = require("../../config/database");
+const crypto = require("crypto");
 
-// Get all users
+const otps = new Map();
+
 const getVillagers = async (req, res) => {
   try {
     const users = await User.getAllVillagers();
     res.json(users);
   } catch (error) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Error in getVillagers:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
-// Get a single user
 const getVillager = async (req, res) => {
   try {
-    console.log("Fetching user with ID:", req.params.id); // Log the ID
     const user = await User.getVillagerById(req.params.id);
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
   } catch (error) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Error in getVillager:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
-// Add a new user
-// Create a new villager
 const createVillager = async (req, res) => {
   try {
-    const { 
-      villager_id, full_name, email, password, phone_no, 
-      nic, dob, address, reginal_division, status, area_id 
+    const {
+      villager_id,
+      full_name,
+      email,
+      password,
+      phone_no,
+      nic,
+      dob,
+      address,
+      regional_division,
+      status,
+      area_id,
+      latitude,
+      longitude,
+      is_participant,
+      alive_status,
     } = req.body;
-    
+
     if (!villager_id || !full_name || !email || !password || !phone_no) {
-      return res.status(400).json({ error: "All fields are required" });
+      return res.status(400).json({ error: "Required fields are missing" });
     }
-    
-    // Check if email already exists
+
     const existingUser = await User.getVillagerByEmail(email);
     if (existingUser) {
       return res.status(400).json({ error: "Email already in use" });
     }
-    
+
     const hashedPassword = await bcrypt.hash(password, 10);
-    
-    const userId = await User.addVillager(
-      villager_id, full_name, email, hashedPassword, phone_no, 
-      nic, dob, address, reginal_division, status || "Active", area_id
+    await User.addVillager(
+      villager_id,
+      full_name,
+      email,
+      hashedPassword,
+      phone_no,
+      nic,
+      dob,
+      address,
+      regional_division,
+      status || "Active",
+      area_id,
+      latitude,
+      longitude,
+      is_participant,
+      alive_status || "Alive"
     );
-    res.status(201).json({ id: userId, message: "Villager added successfully" });
+
+    await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
+    res.status(201).json({ id: villager_id, message: "Villager added successfully" });
   } catch (error) {
+    console.error("Error in createVillager:", error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
 const updateVillager = async (req, res) => {
   try {
-    const { full_name, email, phone_no, status } = req.body;
+    const { full_name, email, phone_no, address, regional_division, status, is_election_participant, alive_status } = req.body;
+    const villagerId = req.params.id;
 
-    // Update user in the database
-    await User.updateVillager(req.params.id, full_name, email, phone_no, status);
+    if (!full_name || !email || !phone_no) {
+      return res.status(400).json({ error: "Full Name, Email, and Phone Number are required" });
+    }
+
+    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: "Invalid email format" });
+    }
+
+    const currentUser = await User.getVillagerById(villagerId);
+    if (!currentUser) return res.status(404).json({ error: "User not found" });
+
+    const parsedIsElectionParticipant = typeof is_election_participant === 'boolean' ? is_election_participant : Boolean(is_election_participant);
+
+    const updateData = {
+      full_name,
+      email,
+      phone_no,
+      address: address !== undefined ? address : currentUser.Address,
+      regional_division: regional_division !== undefined ? regional_division : currentUser.RegionalDivision,
+      status: status || currentUser.Status,
+      is_election_participant: parsedIsElectionParticipant,
+      alive_status: alive_status !== undefined ? alive_status : currentUser.Alive_Status,
+    };
+
+    const updated = await User.updateVillager(
+      villagerId,
+      updateData.full_name,
+      updateData.email,
+      updateData.phone_no,
+      updateData.address,
+      updateData.regional_division,
+      updateData.status,
+      updateData.is_election_participant,
+      updateData.alive_status
+    );
+
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    if (email !== currentUser.Email) {
+      await sendConfirmationEmail(email, "Email Change Confirmation", "Your email address has been updated successfully.");
+    }
 
     res.json({ message: "Villager updated successfully" });
   } catch (error) {
+    console.error(`Error in updateVillager for ID ${req.params.id}:`, error);
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
-
-const validateEmail = (email) => {
-  const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-  return re.test(email);
-};
-
-// Delete user
 const deleteVillager = async (req, res) => {
   try {
-    await User.deleteVillager (req.params.id);
-    res.json({ message: "User deleted successfully" });
+    const deleted = await User.deleteVillager(req.params.id);
+    if (!deleted) return res.status(404).json({ error: "User not found" });
+    res.json({ message: "Villager deleted successfully" });
   } catch (error) {
-    res.status(500).json({ error: "Database error" });
+    console.error("Error in deleteVillager:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
 const loginVillager = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log("Received login attempt for:", email); // Add logging for email
 
     if (!email || !password) {
-      return res
-        .status(400)
-        .json({ error: "Please provide both email and password." });
+      return res.status(400).json({ error: "Email and password are required" });
     }
 
-    // Fetch user by email
-    const user = await User. getVillagerByEmail(email);
-    console.log("User fetched from DB:", user); // Log user from DB
-
+    const user = await User.getVillagerByEmail(email);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Compare the password with the stored hashed password
     const isMatch = await bcrypt.compare(password, user.Password);
     if (!isMatch) {
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
-    // Generate JWT token
-    const token = jwt.sign({ userId: user.idUser }, "your-secret-key", {
-      expiresIn: "1h",
+    const token = jwt.sign({ userId: user.Villager_ID }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
     });
 
-    // Send the response with the token
     res.json({
       message: "Login successful",
-      userId: user.idUser,
+      userId: user.Villager_ID,
       fullName: user.Full_Name,
       email: user.Email,
       phoneNo: user.Phone_No,
       status: user.Status,
-      token: token,
+      token,
+      isParticipant: user.IsParticipant,
+      aliveStatus: user.Alive_Status,
     });
   } catch (error) {
-    console.error("Error during login:", error); // Log any unexpected errors
-    res.status(500).json({ error: "Internal Server Error" });
+    console.error("Error in loginVillager:", error);
+    res.status(500).json({ error: "Internal Server Error", details: error.message });
   }
 };
 
 const getProfile = async (req, res) => {
   try {
-    console.log("User info from JWT:", req.user); // This should print user info like { userId: 2 }
-    const user = await User.getVillagerById(req.user.userId); // Fetch user based on decoded userId
+    const user = await User.getVillagerById(req.user.userId);
     if (!user) return res.status(404).json({ error: "User not found" });
     res.json(user);
   } catch (error) {
-    console.error("Error fetching profile:", error); // Log the error
-    res.status(500).json({ error: "Database error" });
+    console.error("Error in getProfile:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
   }
 };
-
 
 const updateUserStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    const userId = req.params.id;
-
-    if (!['Active', 'Inactive'].includes(status)) {
+    if (!["Active", "Inactive"].includes(status)) {
       return res.status(400).json({ error: "Invalid status" });
     }
 
-    const query = "UPDATE User SET status = ? WHERE idUser = ?";
-    const values = [status, userId];
-    const [result] = await pool.query(query, values);
+    const updated = await User.updateUserStatus(req.params.id, status);
+    if (!updated) return res.status(404).json({ error: "User not found" });
+    res.json({ message: "User status updated successfully" });
+  } catch (error) {
+    console.error("Error in updateUserStatus:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
 
-    if (result.affectedRows === 0) {
+const updateVillagerLocation = async (req, res) => {
+  try {
+    const { latitude, longitude } = req.body;
+    const villagerId = req.params.id;
+
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: "Latitude and Longitude are required" });
+    }
+
+    const lat = parseFloat(latitude);
+    const lng = parseFloat(longitude);
+
+    if (isNaN(lat) || isNaN(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+      return res.status(400).json({ error: "Invalid Latitude or Longitude values" });
+    }
+
+    const updated = await User.updateVillagerLocation(villagerId, lat, lng);
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    res.json({ message: "Villager location updated successfully" });
+  } catch (error) {
+    console.error(`Error in updateVillagerLocation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getVillagerLocation = async (req, res) => {
+  try {
+    const villagerId = req.params.id;
+    const location = await User.getVillagerLocation(villagerId);
+    if (!location) return res.status(404).json({ error: "User not found or location not set" });
+    res.json(location);
+  } catch (error) {
+    console.error(`Error in getVillagerLocation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const updateVillagerParticipation = async (req, res) => {
+  try {
+    const { is_participant } = req.body;
+    const villagerId = req.params.id;
+
+    if (typeof is_participant !== 'boolean') {
+      return res.status(400).json({ error: "is_participant must be a boolean value" });
+    }
+
+    const updated = await User.updateVillagerParticipation(villagerId, is_participant);
+
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    res.json({ message: "Villager participation status updated successfully" });
+  } catch (error) {
+    console.error(`Error in updateVillagerParticipation for ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const requestPasswordOtp = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: "Email is required" });
+    }
+
+    const user = await User.getVillagerByEmail(email);
+    if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    res.status(200).json({ message: "User status updated successfully" });
+    const otp = crypto.randomInt(100000, 999999).toString();
+    otps.set(user.Villager_ID, { otp, expires: Date.now() + 10 * 60 * 1000 });
+
+    await sendConfirmationEmail(
+      user.Email,
+      "Password Reset OTP",
+      `Your OTP for password reset is ${otp}. It is valid for 10 minutes.`
+    );
+
+    res.json({ message: "OTP sent to your email", villagerId: user.Villager_ID });
   } catch (error) {
-    res.status(500).json({ error: "Error updating status" });
+    console.error("Error in requestPasswordOtp:", error);
+    res.status(500).json({ error: "Failed to send OTP", details: error.message });
   }
 };
-// Update user password
-const updateUserPassword = async (req, res) => {
-  const { id } = req.params;
-  const { newPassword } = req.body;
 
-  if (!newPassword) {
-    return res.status(400).json({ message: "New password is required" });
-  }
-
+const verifyPasswordOtp = async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(newPassword, 10); // Hash the new password
-    await pool.query(
-      "UPDATE User SET Password = ? WHERE idUser = ?",
-      [hashedPassword, id]
+    const { otp, newPassword } = req.body;
+    const userId = req.params.id;
+
+    const storedOtp = otps.get(userId);
+    if (!storedOtp || storedOtp.expires < Date.now()) {
+      return res.status(400).json({ error: "OTP expired or invalid" });
+    }
+
+    if (storedOtp.otp !== otp) {
+      return res.status(400).json({ error: "Invalid OTP" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updated = await User.updatePassword(userId, hashedPassword);
+    if (!updated) return res.status(404).json({ error: "User not found" });
+
+    otps.delete(userId);
+    await sendConfirmationEmail(
+      (await User.getVillagerById(userId)).Email,
+      "Password Updated",
+      "Your password has been updated successfully."
     );
-    res.status(200).json({ message: "Password updated successfully" });
+
+    res.json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error("Error updating password:", error);
-    res.status(500).json({ message: "Error updating password" });
+    console.error("Error in verifyPasswordOtp:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
   }
+};
+
+const validateEmail = (email) => {
+  const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  return re.test(email);
 };
 
 module.exports = {
@@ -194,11 +344,14 @@ module.exports = {
   getVillager,
   createVillager,
   updateVillager,
-  loginVillager,
   deleteVillager,
+  loginVillager,
   getProfile,
-  updateUserStatus, 
+  updateUserStatus,
+  requestPasswordOtp,
+  verifyPasswordOtp,
   validateEmail,
-  updateUserPassword
-
+  updateVillagerLocation,
+  getVillagerLocation,
+  updateVillagerParticipation,
 };

@@ -1,6 +1,7 @@
 import React from 'react';
 import './AddVillagers.css'; 
 
+
 const AddVillagers = () => {
   return (
     <div>
@@ -114,5 +115,6 @@ const AddVillagers = () => {
     </div>
   );
 };
+
 
 export default AddVillagers;

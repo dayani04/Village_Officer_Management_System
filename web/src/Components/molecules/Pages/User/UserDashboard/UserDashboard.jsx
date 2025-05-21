@@ -1,9 +1,9 @@
+// src/components/UserDashboard/UserDashboard.js
 import React, { useContext } from 'react';
 import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import './UserDashboard.css';
-
 
 const OptionCard = ({ imgSrc, altText, buttonText, linkTo }) => {
   const navigate = useNavigate();
@@ -37,7 +37,6 @@ const UserDashboard = () => {
         </div>
       </div>
       <br /> <br />
-     
 
       {/* Personal Information Section */}
       <h2>{t('personalInformation')}</h2>
@@ -46,13 +45,14 @@ const UserDashboard = () => {
           imgSrc="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
           altText={t('editProfile')}
           buttonText={t('editProfile')}
-          
+          linkTo="/UserProfile" // Navigate to UserProfile page
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://img.freepik.com/premium-photo/happy-young-sri-lankan-family-family-portrait_1106493-124766.jpg"
           altText={t('familyDetails')}
           buttonText={t('familyDetails')}
+          linkTo="/FamilyDetails" // Navigate to FamilyDetails page
         />
         <div className="vertical-line"></div>
         <OptionCard
@@ -64,15 +64,18 @@ const UserDashboard = () => {
         <OptionCard
           imgSrc="https://cdn-icons-png.freepik.com/512/7132/7132557.png"
           altText={t('officeSupport')}
-          buttonText={t('officeSupport')}
+          buttonText={t('officeSupport')} 
+          linkTo="/OfficeSupport" 
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.cookieyes.com/wp-content/uploads/2022/05/Privacy-policy-01-1.png"
           altText={t('privacyPolicy')}
-          buttonText={t('privacyPolicy')}
+          buttonText={t('privacyPolicy')} 
+          linkTo="/PrivacyPolicy" 
         />
-      </div> <br></br>  <br></br> <br></br> <br></br> <br></br>
+      </div>
+      <br /><br /><br /><br /><br />
 
       {/* Application Processes Section */}
       <h2>{t('applicationProcesses')}</h2>

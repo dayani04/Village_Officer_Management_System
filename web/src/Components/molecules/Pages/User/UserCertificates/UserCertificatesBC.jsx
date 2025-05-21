@@ -1,91 +1,118 @@
-import React, { useState, useContext } from 'react';
-import { useTranslation } from 'react-i18next';
-import { LanguageContext } from '../../context/LanguageContext';
-import { useNavigate } from 'react-router-dom';
-import Swal from 'sweetalert2';
-import './UserCertificatesBC.css';
+import React, { useState, useContext } from "react";
+import { useTranslation } from "react-i18next";
+import { LanguageContext } from "../../context/LanguageContext";
+import { useNavigate, useLocation } from "react-router-dom";
+import Swal from "sweetalert2";
+import { submitCertificateApplication } from "../../../../../api/certificateApplication";
+import "./UserCertificatesBC.css";
 
 const UserCertificatesBC = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const [loading, setLoading] = useState(false);
 
-  // Handle file selection
+  // Get form data from UserCertificates
+  const { formData } = location.state || { formData: { email: "" } };
+
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(uploadedFile.type)) {
+        Swal.fire({
+          icon: "error",
+          title: t("uploadRequiredTitleBC"),
+          text: t("invalidFileType"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
       setFile(uploadedFile);
     }
   };
 
-  // Trigger file input click
   const handleFileClick = () => {
-    document.getElementById('file-upload').click();
+    document.getElementById("file-upload").click();
   };
 
-  // Handle file deletion
   const handleDelete = () => {
     setFile(null);
   };
 
-  // Navigate to previous page
   const handleBack = () => {
-    navigate('/UserIDCard');
+    navigate("/UserCertificates");
   };
 
-  // Validate file and handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!file) {
       Swal.fire({
-        icon: 'error',
-        title: t('uploadRequiredTitleBC'),
-        text: t('uploadRequiredMessageBC'), // Add this key to translations
-        confirmButtonText: t('ok'),
+        icon: "error",
+        title: t("uploadRequiredTitleBC"),
+        text: t("uploadRequiredMessageBC"),
+        confirmButtonText: t("ok"),
       });
       return;
     }
 
-    const validExtensions = ['pdf', 'jpg', 'png'];
-    const fileExtension = file.name.split('.').pop().toLowerCase();
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("document", file);
 
-    if (!validExtensions.includes(fileExtension)) {
+      await submitCertificateApplication(formDataToSend);
+
       Swal.fire({
-        icon: 'error',
-        title: t('uploadRequiredTitleBC'),
-        text: t('uploadRequiredMessageBC'), // Add this key to translations
-        confirmButtonText: t('ok'),
+        icon: "success",
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/UserDashboard"); // Redirect to dashboard after success
       });
-      return;
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
     }
-
-    // If validation passes
-    Swal.fire({
-      title: t('submissionSuccessTitle'),
-      text: t('submissionSuccessMessage'),
-      icon: 'success',
-      confirmButtonText: t('ok'),
-    });
   };
 
   return (
     <div className="user-certificates-bc-page">
-      <h1 className="certificates-bc-form-title">{t('FormTitleBC')}</h1>
+      <h1 className="certificates-bc-form-title">{t("FormTitleBC")}</h1>
 
       <div className="language-certificates-bc-selector">
-        <button onClick={() => changeLanguage('en')} className="language-certificates-bc-btn">English</button>
-        <button onClick={() => changeLanguage('si')} className="language-certificates-bc-btn">සිංහල</button>
+        <button
+          onClick={() => changeLanguage("en")}
+          className="language-certificates-bc-btn"
+        >
+          English
+        </button>
+        <button
+          onClick={() => changeLanguage("si")}
+          className="language-certificates-bc-btn"
+        >
+          සිංහල
+        </button>
       </div>
 
       <form className="certificates-bc-form-content">
-        {/* File Upload Section */}
         <div className="file-certificates-bc-upload-section">
           <input
             type="file"
             id="file-upload"
-            accept=".pdf, .jpg, .png"
+            accept=".pdf,.jpg,.png"
             onChange={handleFileChange}
             className="file-certificates-bc-input-field"
+            style={{ display: "none" }}
           />
           {file && (
             <div className="file-certificates-bc-info">
@@ -96,20 +123,20 @@ const UserCertificatesBC = () => {
                 className="file-certificates-bc-download-link"
               >
                 <br />
-                {t('downloadLink')}
+                {t("downloadLink")}
               </a>
             </div>
           )}
         </div>
 
-        {/* Buttons Section */}
         <div className="form-certificates-bc-buttons-section">
           <button
             type="button"
             className="upload-certificates-bc-btn"
             onClick={handleFileClick}
+            disabled={loading}
           >
-            📎 {t('uploadBCButton')}
+            📎 {t("uploadBCButton")}
           </button>
 
           {file && (
@@ -117,8 +144,9 @@ const UserCertificatesBC = () => {
               type="button"
               className="delete-certificates-bc-btn"
               onClick={handleDelete}
+              disabled={loading}
             >
-              {t('delete')}
+              {t("delete")}
             </button>
           )}
 
@@ -127,15 +155,17 @@ const UserCertificatesBC = () => {
               type="button"
               className="back-certificates-bc-btn"
               onClick={handleBack}
+              disabled={loading}
             >
-              {t('back')}
+              {t("back")}
             </button>
             <button
               type="button"
               className="submit-certificates-bc-btn"
               onClick={handleSubmit}
+              disabled={loading}
             >
-              {t('submit')}
+              {loading ? t("submitting") : t("submit")}
             </button>
           </div>
         </div>

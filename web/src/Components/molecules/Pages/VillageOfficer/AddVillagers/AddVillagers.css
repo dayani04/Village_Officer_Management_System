@@ -1,24 +1,18 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
-*,
-*::before,
-*::after {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  text-decoration: none;
-}
 
 
 code {
   font-size: 1rem;
   padding: 0 0.5rem;
   background-color: #D8DBCE;
+  
 }
 
 .explanation {
   width: 100%;
   margin-bottom: 15vh;
+
 }
 
 .explanation p {
@@ -50,6 +44,9 @@ code {
 }
 
 .containerAV {
+  border: 2px solid #921940;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* optional shadow */
   width: 100%;
   max-width: 768px;
   display: flex;
@@ -58,8 +55,8 @@ code {
   align-items: center;
   padding: 2rem 2rem 1.5rem;
   background-color: #fcf6f5;
-  margin-top: 50px;
-  margin-left: 220px;
+  margin-top: 70px;
+  margin-left: 160px;
 }
 
 @media (min-width: 768px) {
@@ -107,6 +104,7 @@ code {
 
 .form {
   align-self: center;
+
   
 }
 
@@ -161,3 +159,20 @@ code {
   user-select: none;
   pointer-events: none;
 }
+
+.add-villager-layout {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 20px;
+  
+}
+
+.dashboard-left {
+  margin-right: 20px;
+}
+
+.form-container-right {
+  flex: 1;
+}
+

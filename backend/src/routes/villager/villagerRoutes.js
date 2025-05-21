@@ -1,23 +1,22 @@
 const express = require('express');
 const villagerController = require('../../controllers/villager/villagerController');
 const authenticate = require('../../middleware/authMiddleware');
-
 const router = express.Router();
 
-// Public routes
-router.post('/', villagerController.createVillager); // Create a new villager
-router.post('/login', villagerController.loginVillager); // Login
+router.post("/", villagerController.createVillager);
+router.post("/login", villagerController.loginVillager);
+router.post("/request-otp", villagerController.requestPasswordOtp); // New route for email-based OTP request
 
-// Protected routes (authentication required)
-router.get('/', authenticate, villagerController.getVillagers); // Get all villagers
-router.get('/:id', authenticate, villagerController.getVillager); // Get a single villager
-router.put('/:id', authenticate, villagerController.updateVillager); // Update villager details
-router.delete('/:id', authenticate, villagerController.deleteVillager); // Delete villager
-router.put('/:id/status', authenticate, villagerController.updateUserStatus); // Update villager status
-router.put('/:id/password', authenticate, villagerController.updateUserPassword); // Update password
+router.use(authenticate);
 
-// Profile route
-router.get('/profile', authenticate, villagerController.getProfile); // Get user profile
-
+router.get("/", villagerController.getVillagers);
+router.get("/profile", villagerController.getProfile);
+router.get("/:id", villagerController.getVillager);
+router.put("/:id", villagerController.updateVillager);
+router.delete("/:id", villagerController.deleteVillager);
+router.put("/:id/status", villagerController.updateUserStatus);
+router.put("/:id/location", villagerController.updateVillagerLocation);
+router.get("/:id/location", villagerController.getVillagerLocation);
+router.post("/:id/verify-otp", villagerController.verifyPasswordOtp);
 
 module.exports = router;

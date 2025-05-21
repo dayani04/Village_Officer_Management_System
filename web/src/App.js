@@ -18,6 +18,11 @@ import UserCertificates from './Components/molecules/Pages/User/UserCertificates
 import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPermitsID';
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
+import UserProfile from './Components/molecules/Pages/User/UserProfile/UserProfile';
+import VillagerLocationSearch from './Components/molecules/Pages/User/UserProfile/VillagerLocationSearch';
+import FamilyDetails from './Components/molecules/Pages/User/UserFamilyDetails/FamilyDetails';
+import OfficeSupport from './Components/molecules/Pages/OfficeSupport/OfficeSupport';
+import PrivacyPolicy from './Components/molecules/Pages/PrivacyPolicy/PrivacyPolicy';
 
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
@@ -31,6 +36,9 @@ import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/Reques
 import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
 import RequestsForIDCardsS from './Components/molecules/Pages/Secretary/RequestsForIDCardsS/RequestsForIDCardsS';
 import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
+import VillageOfficerProfile from './Components/molecules/Pages/VillageOfficer/VillageOfficerProfile/VillageOfficerProfile';
+
+
 
 import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillageOfficer';
 import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
@@ -48,6 +56,7 @@ import RequestsForElectionList from './Components/molecules/Pages/VillageOfficer
 import RequestsForIDCards from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCards';
 import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/VillageOfficerDashBoard';
 import SecretaryDashBoard from './Components/molecules/Pages/Secretary/SecretaryDashBoard/SecretaryDashBoard';
+import SecretaryProfile from './Components/molecules/Pages/Secretary/SecretaryProfile/SecretaryProfile';
 
 
 function App() {
@@ -71,6 +80,11 @@ function App() {
         <Route path="/UserPermitsPR" element={< UserPermitsPR/>}/>
         <Route path="/UserPermits" element={<UserPermits/>}/>
         <Route path="/UserPermitsID" element={<UserPermitsID/>}/>
+        <Route path="/UserProfile" element={<UserProfile/>}/>
+        <Route path="/VillagerLocationSearch" element={<VillagerLocationSearch/>}/>
+        <Route path="/FamilyDetails" element={<FamilyDetails/>}/>
+        <Route path="/OfficeSupport" element={<OfficeSupport/>}/>
+        <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
@@ -86,6 +100,8 @@ function App() {
         <Route path="RequestsForIDCardsS" element={<RequestsForIDCardsS/>} />
         <Route path="VillageOfficers" element={<VillageOfficers/>} />
         <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
+        <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
+
 
         <Route path="AddVillagerOfficer" element={<AddVillagerOfficer/>} />
         <Route path="AddVillagers" element={<AddVillagers/>} />
@@ -102,6 +118,9 @@ function App() {
         <Route path="RequestsForCertificate" element={<RequestsForCertificate/>} />
         <Route path="RequestsForIDCards" element={<RequestsForIDCards/>} />
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
+        <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
+   
+        
         
 
         </Routes>
