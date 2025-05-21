@@ -116,4 +116,5 @@ const AddVillagers = () => {
   );
 };
 
+
 export default AddVillagers;

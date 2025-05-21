@@ -28,13 +28,7 @@ const RemoveVillager = () => {
     }
   };
 
-  const handleBack = () => {
-    navigate('/UserDashboard');
-  };
 
-  if (loading) {
-    return <div className="profile-container">Loading...</div>;
-  }
 
   return (
     <div className="villagers-container">
