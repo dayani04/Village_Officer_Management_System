@@ -1,6 +1,4 @@
 
-import VillageOfficerDashBoard from "../VillageOfficerDashBoard/VillageOfficerDashBoard"; // Adjust path if needed
-
 import React from 'react';
 import './AddVillageOfficers.css';
 
@@ -8,7 +6,7 @@ const AddVillagerOfficer = () => {
   return (
     <div className="add-villager-layout">
       <div className="dashboard-left">
-        <VillageOfficerDashBoard />
+        
       </div>
 
       <div className="form-container-right">
