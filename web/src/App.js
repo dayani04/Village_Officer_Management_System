@@ -60,6 +60,9 @@ import RequestsForIDCards from './Components/molecules/Pages/VillageOfficer/Requ
 import VillageOfficerDashBoard from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/VillageOfficerDashBoard';
 import SecretaryDashBoard from './Components/molecules/Pages/Secretary/SecretaryDashBoard/SecretaryDashBoard';
 import SecretaryProfile from './Components/molecules/Pages/Secretary/SecretaryProfile/SecretaryProfile';
+import DashboardLayout from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/DashboardLayout';
+import Sidebar from './Components/molecules/Pages/VillageOfficer/VillageOfficerDashBoard/Sidebar';
+import DashboardLayoutS from './Components/molecules/Pages/Secretary/SecretaryDashBoard/DashboardLayoutS';
 
 
 function App() {
@@ -101,6 +104,7 @@ function App() {
         <Route path="RequestsForAllowanceS" element={<RequestsForAllowanceS/>} />
         <Route path="RequestsForElectionListS" element={<RequestsForElectionListS/>} />
         <Route path="VillageOfficers" element={<VillageOfficers/>} />
+
         <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
         <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
         <Route path="/requests-for-id-cards" element={<RequestsForIDCards />} />
@@ -126,6 +130,25 @@ function App() {
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
         <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
    
+
+   {/* Dashboard with nested routes */}
+        <Route element={<DashboardLayout />}>
+          {/* Nested pages inside dashboard */}
+          <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard />} />
+          <Route path="RequestsForElectionList" element={<RequestsForElectionList />} />
+          {/* add more nested routes here */}
+        </Route>
+
+        {/* Dashboard with nested routes */}
+        <Route element={<DashboardLayoutS />}>
+          {/* Nested pages inside dashboard */}
+          <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
+          <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
+          
+          {/* add more nested routes here */}
+        </Route>
+        
+
 
         </Routes>
       </BrowserRouter>
