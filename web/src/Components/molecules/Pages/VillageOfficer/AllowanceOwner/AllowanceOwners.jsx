@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import VillageOfficerDashBoard from "../VillageOfficerDashBoard/VillageOfficerDashBoard";
 import "./AllowanceOwners.css";
+import VillageOfficerDashBoard from "../VillageOfficerDashBoard/VillageOfficerDashBoard";
 
 const AllowanceOwners = () => {
-
   const [villagers, setVillagers] = useState([]);
   const navigate = useNavigate();
 
@@ -28,7 +27,7 @@ const AllowanceOwners = () => {
         <VillageOfficerDashBoard />
       </div>
       <div className="villager-list-container">
-        <p>Allownaces Owrners</p>
+        <p>Allowance Owners</p>
         <table className="villager-table">
           <thead>
             <tr>
