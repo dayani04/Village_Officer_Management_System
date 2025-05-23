@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import * as nicApplicationApi from '../../../../../api/nicApplication';
-import './RequestsForIDCards.css';
+import * as permitApplicationApi from '../../../../../api/permitApplication';
+import './RequestsForPermits.css';
 
-const RequestsForIDCards = () => {
+const RequestsForPermits = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [pendingStatuses, setPendingStatuses] = useState({});
@@ -14,13 +14,13 @@ const RequestsForIDCards = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        const data = await nicApplicationApi.fetchNICApplications();
-        console.log('Fetched NIC applications:', data);
+        const data = await permitApplicationApi.fetchPermitApplications();
+        console.log('Fetched applications:', data);
         setApplications(data);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
-        setError(err.error || 'Failed to fetch NIC applications');
+        setError(err.error || 'Failed to fetch permit applications');
         setLoading(false);
       }
     };
@@ -28,7 +28,7 @@ const RequestsForIDCards = () => {
     fetchApplications();
   }, []);
 
-  const handleStatusSelect = (villagerId, nicId, newStatus) => {
+  const handleStatusSelect = (villagerId, permitsId, newStatus) => {
     if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
       toast.error('Invalid status selected.', {
         style: {
@@ -40,16 +40,16 @@ const RequestsForIDCards = () => {
       return;
     }
 
-    console.log('Selected status:', { villagerId, nicId, newStatus });
+    console.log('Selected status:', { villagerId, permitsId, newStatus });
     setPendingStatuses({
       ...pendingStatuses,
-      [`${villagerId}-${nicId}`]: newStatus,
+      [`${villagerId}-${permitsId}`]: newStatus,
     });
   };
 
-  const handleStatusConfirm = async (villagerId, nicId) => {
-    if (!nicId) {
-      toast.error('NIC ID is missing. Please check the application data.', {
+  const handleStatusConfirm = async (villagerId, permitsId) => {
+    if (!permitsId) {
+      toast.error('Permit ID is missing. Please check the application data.', {
         style: {
           background: '#f43f3f',
           color: '#fff',
@@ -59,7 +59,7 @@ const RequestsForIDCards = () => {
       return;
     }
 
-    const newStatus = pendingStatuses[`${villagerId}-${nicId}`];
+    const newStatus = pendingStatuses[`${villagerId}-${permitsId}`];
     if (!newStatus) {
       toast.error('No status change selected.', {
         style: {
@@ -71,23 +71,23 @@ const RequestsForIDCards = () => {
       return;
     }
 
-    console.log('Confirming status change:', { villagerId, nicId, newStatus });
+    console.log('Confirming status change:', { villagerId, permitsId, newStatus });
 
     try {
-      await nicApplicationApi.updateNICApplicationStatus(villagerId, nicId, newStatus);
+      await permitApplicationApi.updatePermitApplicationStatus(villagerId, permitsId, newStatus);
       setApplications(applications.map(app =>
-        app.Villager_ID === villagerId && app.NIC_ID === nicId
+        app.Villager_ID === villagerId && app.Permits_ID === permitsId
           ? { ...app, status: newStatus }
           : app
       ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
-        delete updated[`${villagerId}-${nicId}`];
+        delete updated[`${villagerId}-${permitsId}`];
         return updated;
       });
       toast.success('Status updated successfully', {
         style: {
-          background: '#7a1632',
+          background: '#6ac476',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -96,7 +96,7 @@ const RequestsForIDCards = () => {
       console.error('Status update error:', err);
       toast.error(err.error || 'Failed to update status', {
         style: {
-          background: '#6ac476',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -106,7 +106,7 @@ const RequestsForIDCards = () => {
 
   const handleDownload = async (filename) => {
     try {
-      const blob = await nicApplicationApi.downloadDocument(filename);
+      const blob = await permitApplicationApi.downloadDocument(filename);
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;
@@ -128,7 +128,7 @@ const RequestsForIDCards = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/id-villager-details/${villagerId}`);
+    navigate(`/permit-villager-details/${villagerId}`);
   };
 
   const handleBack = () => {
@@ -136,25 +136,26 @@ const RequestsForIDCards = () => {
   };
 
   if (loading) {
-    return <div className="requests-container">Loading...</div>;
+    return <div className="permits-container">Loading...</div>;
   }
 
   if (error) {
-    return <div className="requests-container">Error: {error}</div>;
+    return <div className="permits-container">Error: {error}</div>;
   }
 
   return (
-    <div className="requests-container">
-      <h1>NIC Applications</h1>
+    <div className="permits-container">
+      <h1>Permit Applications</h1>
 
-      <table className="requests-table">
+      <table className="permits-table">
         <thead>
           <tr>
             <th>Villager Name</th>
             <th>Villager ID</th>
-            <th>NIC Type</th>
+            <th>Permit Type</th>
             <th>Apply Date</th>
             <th>Document</th>
+            <th>Police Report</th>
             <th>Status</th>
             <th>Status Action</th>
             <th>Action</th>
@@ -162,10 +163,10 @@ const RequestsForIDCards = () => {
         </thead>
         <tbody>
           {applications.map((app) => (
-            <tr key={`${app.Villager_ID}-${app.NIC_ID}`}>
+            <tr key={`${app.Villager_ID}-${app.Permits_ID}`}>
               <td>{app.Full_Name}</td>
               <td>{app.Villager_ID}</td>
-              <td>{app.NIC_Type}</td>
+              <td>{app.Permits_Type}</td>
               <td>{new Date(app.apply_date).toLocaleDateString()}</td>
               <td>
                 <a
@@ -180,9 +181,21 @@ const RequestsForIDCards = () => {
                 </a>
               </td>
               <td>
+                <a
+                  href="#"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    handleDownload(app.police_report_path);
+                  }}
+                  className="download-link"
+                >
+                  Download
+                </a>
+              </td>
+              <td>
                 <select
-                  value={pendingStatuses[`${app.Villager_ID}-${app.NIC_ID}`] || app.status || 'Pending'}
-                  onChange={(e) => handleStatusSelect(app.Villager_ID, app.NIC_ID, e.target.value)}
+                  value={pendingStatuses[`${app.Villager_ID}-${app.Permits_ID}`] || app.status || 'Pending'}
+                  onChange={(e) => handleStatusSelect(app.Villager_ID, app.Permits_ID, e.target.value)}
                   className="status-select"
                 >
                   <option value="Pending">Pending</option>
@@ -194,7 +207,7 @@ const RequestsForIDCards = () => {
               <td>
                 <button
                   className="confirm-button"
-                  onClick={() => handleStatusConfirm(app.Villager_ID, app.NIC_ID)}
+                  onClick={() => handleStatusConfirm(app.Villager_ID, app.Permits_ID)}
                 >
                   Confirm
                 </button>
@@ -212,7 +225,7 @@ const RequestsForIDCards = () => {
         </tbody>
       </table>
 
-      <div className="requests-actions">
+      <div className="permits-actions">
         <button className="back-button" onClick={handleBack}>
           Back to Dashboard
         </button>
@@ -222,4 +235,4 @@ const RequestsForIDCards = () => {
   );
 };
 
-export default RequestsForIDCards;
+export default RequestsForPermits;

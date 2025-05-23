@@ -4,18 +4,24 @@ const nicApplicationController = require("../../controllers/villager/nicApplicat
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
-// Configure multer for file uploads
 const upload = multer({
-  storage: multer.memoryStorage(), // Store file in memory
+  storage: multer.memoryStorage(),
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
 });
 
-// Protected route for submitting NIC application
 router.post(
   "/",
   authenticate,
   upload.single("document"),
   nicApplicationController.createNICApplication
 );
+
+router.get("/", authenticate, nicApplicationController.getAllNICApplications);
+router.put(
+  "/:villagerId/:nicId/status",
+  authenticate,
+  nicApplicationController.updateNICApplicationStatus
+);
+router.get("/download/:filename", authenticate, nicApplicationController.downloadDocument);
 
 module.exports = router;

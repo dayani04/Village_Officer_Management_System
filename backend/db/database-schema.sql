@@ -126,6 +126,7 @@ INSERT INTO Permits_recode (Permits_ID,Permits_Type)
     FOREIGN KEY (Permits_ID) REFERENCES Permits_recode(Permits_ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_has_Permits_recode ADD COLUMN police_report_path VARCHAR(255);
+ALTER TABLE villager_has_Permits_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 
 
 CREATE TABLE villager_has_certificate_recode (
@@ -158,3 +159,4 @@ INSERT INTO nic_recode (NIC_ID , NIC_Type)
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY ( NIC_ID) REFERENCES nic_recode( NIC_ID) ON DELETE CASCADE
 );
+ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';

@@ -1,9 +1,10 @@
+// src/components/UserElection.js
 import React, { useContext, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchElections } from "../../../../../api/election";
+import { fetchElections } from "../../../../../api/election"; // Adjusted path
 import "./UserElection.css";
 
 const UserElection = () => {
@@ -19,14 +20,16 @@ const UserElection = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    console.log("useEffect running to fetch elections");
     const loadElections = async () => {
       try {
         const elections = await fetchElections();
+        console.log("Loaded elections:", elections);
         setElectionTypes(elections);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch election types:", err);
-        setError(t("errorFetchingElections"));
+        console.error("Failed to fetch election types:", err.response?.data || err.message);
+        setError(t("errorFetchingElections") + ": " + (err.response?.data?.error || err.message));
         setLoading(false);
       }
     };
@@ -41,7 +44,8 @@ const UserElection = () => {
     }));
   };
 
-  const handleUploadClick = () => {
+  const handleUploadClick = (e) => {
+    e.preventDefault();
     if (!formData.email || !formData.type) {
       Swal.fire({
         title: t("formValidationTitle"),
@@ -50,30 +54,29 @@ const UserElection = () => {
         confirmButtonText: t("ok"),
       });
     } else {
-      // Pass form data to UserElectionID
+      console.log("Navigating to UserElectionID with formData:", formData);
       navigate("/UserElectionID", { state: { formData } });
     }
   };
 
   const handleLanguageChange = (lang) => {
+    console.log("Changing language to:", lang);
     changeLanguage(lang);
   };
 
   const getTranslationKey = (apiType) => {
-    switch (apiType) {
-      case "Presidential Election":
-        return "presidentialElection";
-      case "Parliament Election":
-        return "parliamentElection";
-      case "Local Election":
-        return "localElection";
-      case "Division Election":
-        return "divisionElection";
-      default:
-        return apiType;
-    }
+    const translationMap = {
+      "Presidential Election": "presidentialElection",
+      "Parliament Election": "parliamentElection",
+      "Local Election": "localElection",
+      "Division Election": "divisionElection",
+    };
+    const key = translationMap[apiType] || apiType;
+    console.log(`Translated ${apiType} to ${key}`);
+    return key;
   };
 
+  console.log("Rendering with electionTypes:", electionTypes);
   return (
     <div>
       <br />
@@ -114,13 +117,15 @@ const UserElection = () => {
                 {t("selectType")}
               </option>
               {loading ? (
-                <option disabled>{t("loading")}</option>
+                <option disabled>{t("loading") || "Loading..."}</option>
               ) : error ? (
                 <option disabled>{error}</option>
+              ) : electionTypes.length === 0 ? (
+                <option disabled>No elections available</option>
               ) : (
                 electionTypes.map((election) => (
-                  <option key={election.ID} value={election.type}>
-                    {t(getTranslationKey(election.type))}
+                  <option key={election.ID} value={election.Type}>
+                    {t(getTranslationKey(election.Type))}
                   </option>
                 ))
               )}
