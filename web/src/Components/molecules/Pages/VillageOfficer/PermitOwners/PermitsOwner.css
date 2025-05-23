@@ -1,4 +1,4 @@
-.requests-container {
+.owners-container {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
@@ -7,50 +7,34 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.requests-container h1 {
+.owners-container h1 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
   font-size: 24px;
 }
 
-.requests-table {
+.owners-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-.requests-table th,
-.requests-table td {
+.owners-table th,
+.owners-table td {
   padding: 12px;
   text-align: left;
   border-bottom: 1px solid #ddd;
 }
 
-.requests-table th {
+.owners-table th {
   background-color: #7a1632;
   color: white;
   font-weight: bold;
 }
 
-.requests-table tr:hover {
+.owners-table tr:hover {
   background-color: #f5f5f5;
-}
-
-.download-link {
-  color: #7a1632;
-  text-decoration: none;
-}
-
-.download-link:hover {
-  text-decoration: underline;
-}
-
-.status-select {
-  padding: 6px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  font-size: 14px;
 }
 
 .view-button {
@@ -67,7 +51,7 @@
   background-color: #C75B7A;
 }
 
-.requests-actions {
+.owners-actions {
   text-align: center;
 }
 

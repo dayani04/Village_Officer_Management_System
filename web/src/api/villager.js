@@ -32,6 +32,7 @@ export const fetchVillagers = async () => {
   }
 };
 
+// src/api/villager.js (relevant part)
 export const fetchVillager = async (villagerId) => {
   try {
     const response = await api.get(`/villagers/${villagerId}`);

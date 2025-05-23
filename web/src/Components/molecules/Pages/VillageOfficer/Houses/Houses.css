@@ -1,47 +1,161 @@
-.family-details-container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .family-details-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .family-members-list {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-  }
-  
-  .family-member {
-    margin-bottom: 10px;
-  }
-  
-  .family-member h4 {
-    margin: 0 0 5px;
-    color: #333;
-  }
-  
-  .family-member p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .family-details-actions {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .back-button {
-    background-color:#7a1632;
-    color: white;
-  }
-  
-  .back-button:hover {
-    background-color: #C75B7A;
-  }
+.location-search-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.location-search-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.search-bar {
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.search-bar label {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.search-bar input {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 350px;
+  max-width: 100%;
+}
+
+.map-controls {
+  margin-bottom: 20px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.map-controls label {
+  font-size: 16px;
+  color: #333;
+  font-weight: bold;
+}
+
+.map-controls select {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 150px;
+}
+
+.map-and-details {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.map-and-details > div:first-child {
+  flex: 1;
+  min-width: 300px;
+}
+
+.villager-details-panel {
+  flex: 1;
+  min-width: 300px;
+  max-height: 600px; /* Matches default map height, adjustable */
+  overflow-y: auto;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.villager-details-panel h3 {
+  margin: 0 0 10px;
+  color: #333;
+  font-size: 18px;
+}
+
+.villager-details-panel p {
+  margin: 10px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.villager-detail {
+  margin-bottom: 15px;
+}
+
+.villager-detail h4 {
+  margin: 0 0 8px;
+  color: #333;
+  font-size: 16px;
+}
+
+.villager-detail p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.location-search-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.back-button {
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.back-button:hover {
+  background-color: #C75B7A;
+}
+
+.info-window {
+  padding: 10px;
+  max-width: 300px;
+}
+
+.info-window h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.info-window .villager-info {
+  margin-bottom: 10px;
+}
+
+.info-window h4 {
+  margin: 0 0 5px;
+  font-size: 14px;
+  color: #333;
+}
+
+.info-window p {
+  margin: 5px 0;
+  font-size: 12px;
+  color: #555;
+}
+
+.info-window hr {
+  margin: 5px 0;
+  border: 0;
+  border-top: 1px solid #eee;
+}
