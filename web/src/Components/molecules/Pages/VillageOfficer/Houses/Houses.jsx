@@ -141,6 +141,7 @@ const Houses = () => {
   }
 
   return (
+       <section className="w-full h-full flex items-center justify-center">
     <div className="location-search-container">
       <h2>Villager Location Search</h2>
       <div className="search-bar">
@@ -221,12 +222,8 @@ const Houses = () => {
           </div>
         )}
       </div>
-      <div className="location-search-actions">
-        <button className="back-button" onClick={handleBack}>
-          Back to Dashboard
-        </button>
-      </div>
     </div>
+    </section>
   );
 };
 

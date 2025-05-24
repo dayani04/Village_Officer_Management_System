@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { requestPasswordOtp as requestVillagerOtp, verifyPasswordOtp as verifyVillagerOtp } from '../../../../api/villager';
 import { requestPasswordOtp as requestOfficerOtp, verifyPasswordOtp as verifyOfficerOtp } from '../../../../api/villageOfficer';
 import { requestPasswordOtp as requestSecretaryOtp, verifyPasswordOtp as verifySecretaryOtp } from '../../../../api/secretary';
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 import './ForgotPassword.css';
 
 const ForgotPassword = () => {
@@ -78,6 +80,8 @@ const ForgotPassword = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="forgot-password-container">
       <div className="forgot-password-form">
         <h2>Forgot Password</h2>
@@ -141,6 +145,9 @@ const ForgotPassword = () => {
         )}
       </div>
     </div>
+      <Footer/>
+    </section>
+  
   );
 };
 

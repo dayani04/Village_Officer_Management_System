@@ -4,6 +4,8 @@ import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./UserCertificates.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserCertificates = () => {
   const { t } = useTranslation();
@@ -59,6 +61,8 @@ const UserCertificates = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div>
       <br />
       <br />
@@ -96,6 +100,8 @@ const UserCertificates = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

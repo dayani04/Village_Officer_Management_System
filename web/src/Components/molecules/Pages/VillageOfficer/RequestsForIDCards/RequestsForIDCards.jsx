@@ -211,12 +211,6 @@ const RequestsForIDCards = () => {
           ))}
         </tbody>
       </table>
-
-      <div className="requests-actions">
-        <button className="back-button" onClick={handleBack}>
-          Back to Dashboard
-        </button>
-      </div>
       <Toaster />
     </div>
   );

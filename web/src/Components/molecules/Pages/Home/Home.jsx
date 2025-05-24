@@ -8,10 +8,13 @@ import Carousel from './Carousel';
 import About from './About';
 import Services from './Services';
 import Teams from './Team';
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 
 const Home = () => {
   return (
     <>
+    <NavBar/>
      <Carousel/> <br></br> <br></br> <br></br> 
      <About/> <br></br> <br></br> <br></br> 
 
@@ -118,7 +121,9 @@ const Home = () => {
           </div>
         </div>
       </div>
+
     </section>
+          <Footer/>
     </>
   );
 }

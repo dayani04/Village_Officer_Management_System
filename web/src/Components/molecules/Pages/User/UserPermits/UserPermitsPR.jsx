@@ -4,6 +4,8 @@ import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import "./UserPremitsPR.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserPermitsPR = () => {
   const { t } = useTranslation();
@@ -75,6 +77,8 @@ const UserPermitsPR = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="user-permit-pr-page">
       <h1 className="permit-pr-form-title">{t("permitFormTitlePR")}</h1>
 
@@ -156,6 +160,8 @@ const UserPermitsPR = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

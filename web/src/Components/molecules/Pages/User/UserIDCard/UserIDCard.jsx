@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchNICs } from "../../../../../api/nic";
 import "./UserIDCard.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserIDCard = () => {
   const { t } = useTranslation();
@@ -91,6 +93,8 @@ const UserIDCard = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div>
       <br />
       <br />
@@ -156,6 +160,8 @@ const UserIDCard = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

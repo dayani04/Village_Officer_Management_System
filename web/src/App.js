@@ -1,8 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { BrowserRouter, Routes, Route } from 'react-router-dom'; // Ensure react-router-dom is installed
-import NavBar from './Components/molecules/NavBar/NavBar'; // Adjust the path if necessary
-import Footer from  './Components/molecules/Footer/Footer';
 import Home from './Components/molecules/Pages/Home/Home';
 
 
@@ -52,7 +50,7 @@ import ElectionVillagerDetails from './Components/molecules/Pages/VillageOfficer
 import Houses from './Components/molecules/Pages/VillageOfficer/Houses/Houses';
 import IDCardVillagerDetails from './Components/molecules/Pages/VillageOfficer/IDCardVillagerDetails/IDCardVillagerDetails';
 import PermitOwner from './Components/molecules/Pages/VillageOfficer/PermitOwners/PermitsOwner';
-import RemoveVillager from './Components/molecules/Pages/VillageOfficer/RemoveVillager/RemoveVillager';
+
 import RequestsForAllowance from './Components/molecules/Pages/VillageOfficer/RequestsForAllowance/RequestsForAllowance';
 import RequestsForCertificate from './Components/molecules/Pages/VillageOfficer/RequestsForCertificate/RequestsForCertificate';
 import RequestsForElectionList from './Components/molecules/Pages/VillageOfficer/RequestsForElectionList/RequestsForElectionList';
@@ -65,10 +63,14 @@ import Sidebar from './Components/molecules/Pages/VillageOfficer/VillageOfficerD
 import DashboardLayoutS from './Components/molecules/Pages/Secretary/SecretaryDashBoard/DashboardLayoutS';
 
 
+import Villagers from './Components/molecules/Pages/VillageOfficer/VillagersDetails/Villagers'
+import EditVillager from './Components/molecules/Pages/VillageOfficer/VillagersDetails/EditVillager';
+import ViewVillager from './Components/molecules/Pages/VillageOfficer/VillagersDetails/ViewVillager';
+
 function App() {
   return (
     <div className="App">
-      <NavBar />
+ 
       <BrowserRouter>
         <Routes>
         <Route path="/" element={<Home />} />
@@ -94,7 +96,7 @@ function App() {
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
-        <Route path="AddVillagers" element={<AddVillagers/>} />
+        
 
         <Route path="AddVillageOfficerS" element={<AddVillageOfficerS/>} />
         <Route path="AllowanceVillagerDetailsS" element={<AllowanceVillagerDetailsS/>} />
@@ -107,28 +109,24 @@ function App() {
 
         <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
         <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
-        <Route path="/requests-for-id-cards" element={<RequestsForIDCards />} />
-        <Route path="/id-villager-details/:villagerId" element={<RequestsForIDCardsVillagerDetails />} />
-         <Route path="/requests-for-permits" element={<RequestsForPermits />} />
-        <Route path="/permit-villager-details/:villagerId" element={<RequestsForPermitsVillagerDetails />} />
+      
 
 
 
         <Route path="AddVillagerOfficer" element={<AddVillagerOfficer/>} />
-        <Route path="AddVillagers" element={<AddVillagers/>} />
+      
         <Route path="AllowanceOwners" element={<AllowanceOwners/>} />
         <Route path="AllowanceVillagerDetails" element={<AllowanceVillagerDetails/>} />
         <Route path="CertificateVillagerDetails" element={<CertificateVillagerDetails/>} />
         <Route path="ElectionVillagerDetails" element={<ElectionVillagerDetails/>} />
         <Route path="IDCardVillagerDetails" element={<IDCardVillagerDetails/>} />
-        <Route path="PermitOwner" element={<PermitOwner/>} />
-        <Route path="RemoveVillager" element={<RemoveVillager/>} />
+      
         <Route path="RequestsForAllowance" element={<RequestsForAllowance/>} />
-        <Route path="Houses" element={<Houses/>} />
+       
         <Route path="RequestsForElectionList" element={<RequestsForElectionList/>} />
         <Route path="RequestsForCertificate" element={<RequestsForCertificate/>} />
         <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard/>} />
-        <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
+       
    
 
    {/* Dashboard with nested routes */}
@@ -136,6 +134,17 @@ function App() {
           {/* Nested pages inside dashboard */}
           <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard />} />
           <Route path="RequestsForElectionList" element={<RequestsForElectionList />} />
+          <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
+          <Route path="Houses" element={<Houses/>} />
+          <Route path="/requests-for-id-cards" element={<RequestsForIDCards />} />
+          <Route path="/id-villager-details/:villagerId" element={<RequestsForIDCardsVillagerDetails />} /> 
+          <Route path="/requests-for-permits" element={<RequestsForPermits />} />
+          <Route path="/permit-villager-details/:villagerId" element={<RequestsForPermitsVillagerDetails />} />
+          <Route path="/AddVillagers" element={<AddVillagers/>} /> 
+           <Route path="/villagers" element={< Villagers />} />
+           <Route path="/Villagers/Edit/:villagerId" element={<EditVillager />} />
+         <Route path="/Villagers/View/:villagerId" element={<ViewVillager />} />
+           <Route path="PermitOwner" element={<PermitOwner/>} />
           {/* add more nested routes here */}
         </Route>
 
@@ -152,7 +161,7 @@ function App() {
 
         </Routes>
       </BrowserRouter>
-      <Footer/>
+    
     </div>
   );
 } 

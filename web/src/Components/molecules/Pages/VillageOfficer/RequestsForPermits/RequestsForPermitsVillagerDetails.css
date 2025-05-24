@@ -1,4 +1,4 @@
-.villager-details-container {
+.permit-villager-container {
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
@@ -7,38 +7,38 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.villager-details-container h1 {
+.permit-villager-container h1 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
   font-size: 24px;
 }
 
-.villager-details {
+.permit-villager-info {
   background-color: white;
   padding: 20px;
   border-radius: 4px;
   border: 1px solid #ddd;
 }
 
-.villager-details p {
+.permit-villager-info p {
   margin: 10px 0;
   font-size: 16px;
   color: #333;
 }
 
-.villager-details p strong {
+.permit-villager-info p strong {
   display: inline-block;
   width: 200px;
   font-weight: bold;
 }
 
-.villager-details-actions {
+.permit-villager-actions {
   text-align: center;
   margin-top: 20px;
 }
 
-.back-button {
+.permit-back-btn {
   background-color: #7a1632;
   color: white;
   padding: 10px 20px;
@@ -48,6 +48,6 @@
   font-size: 16px;
 }
 
-.back-button:hover {
+.permit-back-btn:hover {
   background-color: #C75B7A;
 }

@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './OfficeSupport.css';
 import supportImage from './support.jpg'; // Placeholder image
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 
 const OfficeSupport = () => {
   const navigate = useNavigate();
@@ -11,6 +13,8 @@ const OfficeSupport = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="containerA">
       <div className="left-column">
         <div className="card-english">
@@ -50,6 +54,8 @@ const OfficeSupport = () => {
         </button>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 
