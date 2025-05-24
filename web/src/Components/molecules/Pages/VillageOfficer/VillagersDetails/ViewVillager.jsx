@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import * as villagerApi from '../../../../../api/villager';
-import './RequestsForPermitsVillagerDetails.css';
+import './ViewVillager.css';
 
-const RequestsForPermitsVillagerDetails = () => {
+const ViewVillager = () => {
   const { villagerId } = useParams();
   const navigate = useNavigate();
   const [villager, setVillager] = useState(null);
@@ -15,7 +15,6 @@ const RequestsForPermitsVillagerDetails = () => {
     const fetchVillagerDetails = async () => {
       if (!villagerId) {
         const errorMessage = 'Invalid villager ID';
-        console.error(errorMessage);
         setError(errorMessage);
         setLoading(false);
         toast.error(errorMessage, {
@@ -29,9 +28,7 @@ const RequestsForPermitsVillagerDetails = () => {
       }
 
       try {
-        console.log('Fetching villager with ID:', villagerId);
         const data = await villagerApi.fetchVillager(villagerId);
-        console.log('Villager data:', data);
         if (!data) {
           throw new Error('No villager data returned');
         }
@@ -56,13 +53,13 @@ const RequestsForPermitsVillagerDetails = () => {
   }, [villagerId]);
 
   const handleBack = () => {
-    navigate('/requests-for-permits');
+    navigate('/Villagers');
   };
 
   if (loading) {
     return (
       <section className="w-full h-full flex items-center justify-center">
-        <div className="permit-villager-container">Loading...</div>
+        <div className="view-villager-container">Loading...</div>
       </section>
     );
   }
@@ -70,12 +67,12 @@ const RequestsForPermitsVillagerDetails = () => {
   if (error) {
     return (
       <section className="w-full h-full flex items-center justify-center">
-        <div className="permit-villager-container">
-          <h1>Permit Villager Details</h1>
+        <div className="view-villager-container">
+          <h1>Villager Details</h1>
           <p>Error: {error}</p>
-          <div className="permit-villager-actions">
-            <button className="permit-back-btn" onClick={handleBack}>
-              Back to Permit Applications
+          <div className="view-villager-actions">
+            <button className="view-villager-back-btn" onClick={handleBack}>
+              Back to Villagers
             </button>
           </div>
           <Toaster />
@@ -87,12 +84,12 @@ const RequestsForPermitsVillagerDetails = () => {
   if (!villager) {
     return (
       <section className="w-full h-full flex items-center justify-center">
-        <div className="permit-villager-container">
-          <h1>Permit Villager Details</h1>
+        <div className="view-villager-container">
+          <h1>Villager Details</h1>
           <p>Villager not found</p>
-          <div className="permit-villager-actions">
-            <button className="permit-back-btn" onClick={handleBack}>
-              Back to Permit Applications
+          <div className="view-villager-actions">
+            <button className="view-villager-back-btn" onClick={handleBack}>
+              Back to Villagers
             </button>
           </div>
           <Toaster />
@@ -103,9 +100,9 @@ const RequestsForPermitsVillagerDetails = () => {
 
   return (
     <section className="w-full h-full flex items-center justify-center">
-      <div className="permit-villager-container">
-        <h1>Permit Villager Details</h1>
-        <div className="permit-villager-info">
+      <div className="view-villager-container">
+        <h1>Villager Details</h1>
+        <div className="view-villager-info">
           <p><strong>Villager ID:</strong> {villager.Villager_ID || 'N/A'}</p>
           <p><strong>Full Name:</strong> {villager.Full_Name || 'N/A'}</p>
           <p><strong>Email:</strong> {villager.Email || 'N/A'}</p>
@@ -121,9 +118,9 @@ const RequestsForPermitsVillagerDetails = () => {
           <p><strong>Election Participant:</strong> {villager.IsParticipant ? 'Yes' : 'No'}</p>
           <p><strong>Alive Status:</strong> {villager.Alive_Status || 'N/A'}</p>
         </div>
-        <div className="permit-villager-actions">
-          <button className="permit-back-btn" onClick={handleBack}>
-            Back to Permit Applications
+        <div className="view-villager-actions">
+          <button className="view-villager-back-btn" onClick={handleBack}>
+            Back to Villagers
           </button>
         </div>
         <Toaster />
@@ -132,4 +129,4 @@ const RequestsForPermitsVillagerDetails = () => {
   );
 };
 
-export default RequestsForPermitsVillagerDetails;
+export default ViewVillager;

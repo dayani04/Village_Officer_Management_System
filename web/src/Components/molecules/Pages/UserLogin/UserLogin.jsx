@@ -4,6 +4,8 @@ import * as villagerApi from '../../../../api/villager';
 import * as villageOfficerApi from '../../../../api/villageOfficer';
 import * as secretaryApi from '../../../../api/secretary';
 import './UserLogin.css';
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 
 const LoginForm = () => {
   const [email, setEmail] = useState('');
@@ -50,6 +52,8 @@ const LoginForm = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="login-container">
       <div className="login-form">
         <h2>Login</h2>
@@ -98,6 +102,8 @@ const LoginForm = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

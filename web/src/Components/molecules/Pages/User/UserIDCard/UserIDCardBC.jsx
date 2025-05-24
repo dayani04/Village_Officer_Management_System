@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitNICApplication } from "../../../../../api/nicApplication";
 import "./UserIDCardBC.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserIDCardBC = () => {
   const { t } = useTranslation();
@@ -87,6 +89,8 @@ const UserIDCardBC = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="user-idcard-bc-page">
       <h1 className="idcard-bc-form-title">{t("FormTitleBC")}</h1>
 
@@ -172,6 +176,8 @@ const UserIDCardBC = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

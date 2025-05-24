@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as villagerApi from '../../../../../api/villager';
 import './FamilyDetails.css';
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const FamilyDetails = () => {
   const [familyMembers, setFamilyMembers] = useState([]);
@@ -52,6 +54,8 @@ const FamilyDetails = () => {
   }
 
   return (
+    <section>
+      <NavBar/>
     <div className="family-details-container">
       <h2>Family Members</h2>
       {familyMembers.length === 0 ? (
@@ -77,6 +81,8 @@ const FamilyDetails = () => {
         </button>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

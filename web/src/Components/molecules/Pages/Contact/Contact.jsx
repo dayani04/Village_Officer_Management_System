@@ -4,6 +4,8 @@ import email from './emaillogo.png';
 import fb from './facebooklogo.png';
 import phone from './phonelogo.png';
 import wapp from './watsapplogo.png';
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 
 const ContactUs = () => {
     return(

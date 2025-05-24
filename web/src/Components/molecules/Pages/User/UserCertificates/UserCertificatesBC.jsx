@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitCertificateApplication } from "../../../../../api/certificateApplication";
 import "./UserCertificatesBC.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserCertificatesBC = () => {
   const { t } = useTranslation();
@@ -86,6 +88,8 @@ const UserCertificatesBC = () => {
   };
 
   return (
+    <section>
+    <NavBar/>
     <div className="user-certificates-bc-page">
       <h1 className="certificates-bc-form-title">{t("FormTitleBC")}</h1>
 
@@ -171,6 +175,8 @@ const UserCertificatesBC = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

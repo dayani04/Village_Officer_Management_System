@@ -1,4 +1,4 @@
-.add-villager-container {
+.edit-villager-container {
   padding: 20px;
   max-width: 800px;
   margin: 0 auto;
@@ -7,87 +7,76 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.add-villager-container h1 {
+.edit-villager-container h1 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
   font-size: 24px;
 }
 
-.add-villager-form {
+.edit-villager-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.add-villager-field {
+.edit-villager-field {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.add-villager-field label {
+.edit-villager-field label {
   font-weight: bold;
   color: #333;
 }
 
-.add-villager-field input,
-.add-villager-field select {
+.edit-villager-field input,
+.edit-villager-field select {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 16px;
 }
 
-.add-villager-field input[type="checkbox"] {
+.edit-villager-field input[type="checkbox"] {
   width: auto;
 }
 
-.add-villager-error {
+.edit-villager-error {
   color: #f43f3f;
   font-size: 14px;
 }
 
-.add-villager-actions {
+.edit-villager-actions {
   display: flex;
   justify-content: center;
   gap: 1rem;
   margin-top: 20px;
 }
 
-.add-villager-submit-btn,
-.add-villager-cancel-btn,
-.add-villager-back-btn {
+.edit-villager-submit-btn,
+.edit-villager-back-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-}
-
-.add-villager-submit-btn {
-  background-color: #7a1632;
   color: white;
 }
 
-.add-villager-submit-btn:hover {
+.edit-villager-submit-btn {
+  background-color: #7a1632;
+}
+
+.edit-villager-submit-btn:hover {
   background-color: #C75B7A;
 }
 
-.add-villager-cancel-btn {
+.edit-villager-back-btn {
   background-color: #666;
-  color: white;
 }
 
-.add-villager-cancel-btn:hover {
+.edit-villager-back-btn:hover {
   background-color: #888;
-}
-
-.add-villager-back-btn {
-  background-color: #7a1632;
-  color: white;
-}
-
-.add-villager-back-btn:hover {
-  background-color: #C75B7A;
 }
