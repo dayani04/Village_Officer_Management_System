@@ -2,7 +2,7 @@ const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const villagerRoutes = require("./src/routes/villager/villagerRoutes");
-const villagerOfficerRoutes = require("./src/routes/villagerOfficer/villagerOfficerRoute"); // Fixed path
+const villagerOfficerRoutes = require("./src/routes/villagerOfficer/villagerOfficerRoute");
 const electionRoutes = require("./src/routes/villager/electionRoutes");
 const electionApplicationRoutes = require("./src/routes/villager/electionApplicationRoutes");
 const allowanceRoutes = require("./src/routes/villager/allowanceRoutes");
@@ -30,7 +30,7 @@ app.use(
 
 app.use(express.json());
 app.use("/api/villagers", villagerRoutes);
-app.use("/api/villager-officers", villagerOfficerRoutes); // Fixed route path
+app.use("/api/villager-officers", villagerOfficerRoutes);
 app.use("/api/elections", electionRoutes);
 app.use("/api/election-applications", electionApplicationRoutes);
 app.use("/api/allowances", allowanceRoutes);
@@ -44,6 +44,29 @@ app.use("/api/secretaries", secretaryRoutes);
 
 // Serve uploaded files statically
 app.use("/uploads", express.static(path.join(__dirname, "Uploads")));
+
+// Debug: List all routes
+app.get("/api/debug/routes", (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods),
+      });
+    } else if (middleware.name === "router" && middleware.handle.stack) {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: `/api${handler.route.path}`, // Adjust for base path
+            methods: Object.keys(handler.route.methods),
+          });
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

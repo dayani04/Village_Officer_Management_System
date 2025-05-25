@@ -35,13 +35,10 @@ import RemoveVillageOfficerS from './Components/molecules/Pages/Secretary/Remove
 import RequestsForAllowanceS from './Components/molecules/Pages/Secretary/RequestsForAllowanceS/RequestsForAllowanceS';
 import RequestsForElectionListS from './Components/molecules/Pages/Secretary/RequestsForElectionListS/RequestsForElectionListS';
 import VillageOfficers from './Components/molecules/Pages/Secretary/VillageOfficers/VillageOfficers';
-import VillageOfficerProfile from './Components/molecules/Pages/VillageOfficer/VillageOfficerProfile/VillageOfficerProfile';
 import RequestsForIDCardsVillagerDetails from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCardsVillagerDetails';
 import RequestsForPermits from './Components/molecules/Pages/VillageOfficer/RequestsForPermits/RequestsForPermits';
 import RequestsForPermitsVillagerDetails from './Components/molecules/Pages/VillageOfficer/RequestsForPermits/RequestsForPermitsVillagerDetails';
 
-
-import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillageOfficer';
 import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
 import AllowanceOwners from './Components/molecules/Pages/VillageOfficer/AllowanceOwner/AllowanceOwners';
 import AllowanceVillagerDetails from './Components/molecules/Pages/VillageOfficer/AllowanceVillagerDetails/AllowanceVillagerDetails';
@@ -66,6 +63,12 @@ import DashboardLayoutS from './Components/molecules/Pages/Secretary/SecretaryDa
 import Villagers from './Components/molecules/Pages/VillageOfficer/VillagersDetails/Villagers'
 import EditVillager from './Components/molecules/Pages/VillageOfficer/VillagersDetails/EditVillager';
 import ViewVillager from './Components/molecules/Pages/VillageOfficer/VillagersDetails/ViewVillager';
+import EligibleVoters from './Components/molecules/Pages/VillageOfficer/EligibleVoters/EligibleVoters';
+import Notification from './Components/molecules/Pages/User/Notifications/Notification';
+import VillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/VillagerOfficer';
+import AddVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/AddVillagerOfficer';
+import EditVillagerOfficer from './Components/molecules/Pages/VillageOfficer/AddVillageOfficer/EditVillagerOfficer';
+import VillageOfficerProfile from './Components/molecules/Pages/VillageOfficer/VillageOfficerProfile/VillageOfficerProfile';
 
 function App() {
   return (
@@ -93,6 +96,7 @@ function App() {
         <Route path="/FamilyDetails" element={<FamilyDetails/>}/>
         <Route path="/OfficeSupport" element={<OfficeSupport/>}/>
         <Route path="/PrivacyPolicy" element={<PrivacyPolicy/>}/>
+        <Route path="/Notification" element={<Notification/>}/>
 
         <Route path="AboutUs" element={<AboutUs/>} />
         <Route path="ContactUs" element={<ContactUs/>} />
@@ -109,12 +113,6 @@ function App() {
 
         <Route path="SecretaryDashBoard" element={<SecretaryDashBoard/>} />
         <Route path="/SecretaryProfile" element={<SecretaryProfile/>} />
-      
-
-
-
-        <Route path="AddVillagerOfficer" element={<AddVillagerOfficer/>} />
-      
         <Route path="AllowanceOwners" element={<AllowanceOwners/>} />
         <Route path="AllowanceVillagerDetails" element={<AllowanceVillagerDetails/>} />
         <Route path="CertificateVillagerDetails" element={<CertificateVillagerDetails/>} />
@@ -134,7 +132,6 @@ function App() {
           {/* Nested pages inside dashboard */}
           <Route path="VillageOfficerDashBoard" element={<VillageOfficerDashBoard />} />
           <Route path="RequestsForElectionList" element={<RequestsForElectionList />} />
-          <Route path="VillageOfficerProfile" element={<VillageOfficerProfile/>} />
           <Route path="Houses" element={<Houses/>} />
           <Route path="/requests-for-id-cards" element={<RequestsForIDCards />} />
           <Route path="/id-villager-details/:villagerId" element={<RequestsForIDCardsVillagerDetails />} /> 
@@ -143,8 +140,15 @@ function App() {
           <Route path="/AddVillagers" element={<AddVillagers/>} /> 
            <Route path="/villagers" element={< Villagers />} />
            <Route path="/Villagers/Edit/:villagerId" element={<EditVillager />} />
-         <Route path="/Villagers/View/:villagerId" element={<ViewVillager />} />
+           <Route path="/Villagers/View/:villagerId" element={<ViewVillager />} />
            <Route path="PermitOwner" element={<PermitOwner/>} />
+            <Route path="/eligible-voters" element={<EligibleVoters/>} />
+            <Route path="/villager-officers" element={<VillagerOfficer />} />
+            <Route path="/villager-officers/add" element={<AddVillagerOfficer />} />
+          <Route path="/villager-officers/edit/:id" element={<EditVillagerOfficer />} />
+           <Route path="/VillageOfficerProfile" element={<VillageOfficerProfile/>} />
+          
+            
           {/* add more nested routes here */}
         </Route>
 
