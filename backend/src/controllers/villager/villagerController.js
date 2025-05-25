@@ -184,7 +184,7 @@ const loginVillager = async (req, res) => {
     });
   } catch (error) {
     console.error("Error in loginVillager:", error);
-    res.status(500).json({ error: "Internal Server Error", details: error.message });
+    res.status(500).json({ error: "Database error", details: error.message });
   }
 };
 
@@ -220,8 +220,8 @@ const updateVillagerLocation = async (req, res) => {
     const { latitude, longitude } = req.body;
     const villagerId = req.params.id;
 
-    if (latitude === undefined || longitude === undefined) {
-      return res.status(400).json({ error: "Latitude and Longitude are required" });
+    if (latitude === undefined || !longitude) {
+      return res.status(400).json({ error: "Latitude is required" });
     }
 
     const lat = parseFloat(latitude);
@@ -237,7 +237,7 @@ const updateVillagerLocation = async (req, res) => {
     res.json({ message: "Villager location updated successfully" });
   } catch (error) {
     console.error(`Error in updateVillagerLocation for ID ${req.params.id}:`, error);
-    res.status(500).json({ error: "Database error", details: error.message });
+    res.status(500).json({ error: "Failed to update location", details: error.message });
   }
 };
 
@@ -334,6 +334,64 @@ const verifyPasswordOtp = async (req, res) => {
   }
 };
 
+const sendNotification = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const villagerId = req.params.id;
+
+    if (!message) {
+      return res.status(400).json({ error: "Message is required" });
+    }
+
+    const user = await User.getVillagerById(villagerId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    await User.addNotification(villagerId, message);
+    res.json({ message: "Notification sent successfully" });
+  } catch (error) {
+    console.error(`Error sending notification for villager ID ${req.params.id}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getNotifications = async (req, res) => {
+  try {
+    const villagerId = req.user.userId;
+    const notifications = await User.getNotificationsByVillagerId(villagerId);
+    res.json(notifications);
+  } catch (error) {
+    console.error(`Error fetching notifications for villager ID ${req.user.userId}:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const markNotificationAsRead = async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const villagerId = req.user.userId;
+
+    const notification = await User.getNotificationById(notificationId);
+    if (!notification) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+    if (notification.Villager_ID !== villagerId) {
+      return res.status(403).json({ error: "Unauthorized access to notification" });
+    }
+
+    const updated = await User.markNotificationAsRead(notificationId);
+    if (!updated) {
+      return res.status(404).json({ error: "Notification not found" });
+    }
+
+    res.json({ message: "Notification marked as read" });
+  } catch (error) {
+    console.error(`Error marking notification ID ${req.params.id} as read:`, error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
 const validateEmail = (email) => {
   const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
   return re.test(email);
@@ -354,4 +412,7 @@ module.exports = {
   updateVillagerLocation,
   getVillagerLocation,
   updateVillagerParticipation,
+  sendNotification,
+  getNotifications,
+  markNotificationAsRead,
 };

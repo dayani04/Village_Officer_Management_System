@@ -173,7 +173,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/RequestsForElectionList"
+                  to="/eligible-voters"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -230,11 +230,11 @@ const Sidebar = () => {
         {/* Add Village Officer */}
         <li className="nav-item">
           <NavLink
-            to="/AddVillagerOfficer"
+            to="/villager-officers"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
-            <TbUserPlus className="me-2" /> Add Village Officer
+            <TbUserPlus className="me-2" /> Village Officer
           </NavLink>
         </li>
 

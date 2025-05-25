@@ -1,0 +1,110 @@
+.eligible-voters-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.eligible-voters-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.eligible-voters-table-wrapper {
+  overflow-x: auto;
+}
+
+.eligible-voters-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.eligible-voters-table th,
+.eligible-voters-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.eligible-voters-table th {
+  background-color: #7a1632;
+  color: white;
+  font-weight: bold;
+}
+
+.eligible-voters-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.eligible-voters-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.eligible-voters-no-data {
+  text-align: center;
+  padding: 20px;
+  color: #333;
+}
+
+.eligible-voters-actions {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.eligible-voters-back-btn {
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.eligible-voters-back-btn:hover {
+  background-color: #C75B7A;
+}
+
+.eligible-voters-action-buttons {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.eligible-voters-send-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+  background-color: #7a1632;
+  transition: background-color 0.2s;
+}
+
+.eligible-voters-send-btn:hover {
+  background-color: #C75B7A;
+}
+
+.eligible-voters-send-btn.sent {
+  background-color: #4caf50;
+}
+
+.eligible-voters-send-btn.sent:hover {
+  background-color: #388e3c;
+}
+
+.eligible-voters-send-btn:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}

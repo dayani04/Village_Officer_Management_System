@@ -1,0 +1,210 @@
+.villager-officer-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.villager-officer-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.villager-officer-table-wrapper {
+  overflow-x: auto;
+}
+
+.villager-officer-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.villager-officer-table th,
+.villager-officer-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.villager-officer-table th {
+  background-color: #7a1632;
+  color: white;
+  font-weight: bold;
+}
+
+.villager-officer-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.villager-officer-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.villager-officer-no-data {
+  text-align: center;
+  padding: 20px;
+  color: #333;
+}
+
+.villager-officer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.villager-officer-add-btn,
+.villager-officer-back-btn {
+  display: flex;
+  align-items: center;
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.villager-officer-add-btn svg {
+  margin-right: 8px;
+}
+
+.villager-officer-add-btn:hover,
+.villager-officer-back-btn:hover {
+  background-color: #C75B7A;
+}
+
+.villager-officer-action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.villager-officer-edit-btn,
+.villager-officer-delete-btn,
+.villager-officer-status-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 18px;
+  color: white;
+  transition: background-color 0.2s;
+}
+
+.villager-officer-edit-btn {
+  background-color: #2196f3;
+}
+
+.villager-officer-edit-btn:hover {
+  background-color: #1976d2;
+}
+
+.villager-officer-delete-btn {
+  background-color: #f44336;
+}
+
+.villager-officer-delete-btn:hover {
+  background-color: #d32f2f;
+}
+
+.villager-officer-status-btn {
+  background-color: #4caf50;
+}
+
+.villager-officer-status-btn:hover {
+  background-color: #388e3c;
+}
+
+.villager-officer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.villager-officer-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 90%;
+  max-width: 500px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.villager-officer-modal-content h2 {
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.villager-officer-form-group {
+  margin-bottom: 15px;
+}
+
+.villager-officer-form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.villager-officer-form-group input,
+.villager-officer-form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.villager-officer-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.villager-officer-save-btn,
+.villager-officer-cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.villager-officer-save-btn {
+  background-color: #7a1632;
+  color: white;
+}
+
+.villager-officer-save-btn:hover {
+  background-color: #C75B7A;
+}
+
+.villager-officer-cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.villager-officer-cancel-btn:hover {
+  background-color: #bbb;
+}
