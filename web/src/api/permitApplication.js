@@ -82,3 +82,17 @@ export const downloadDocument = async (filename) => {
     throw error.response ? error.response.data : error.message;
   }
 };
+
+export const saveNotification = async (villagerId, message) => {
+  try {
+    const response = await api.post("/permit-applications/notifications/", { villagerId, message });
+    return response.data;
+  } catch (error) {
+    console.error("Error saving notification:", {
+      message: error.message,
+      response: error.response ? error.response.data : null,
+      status: error.response ? error.response.status : null,
+    });
+    throw error.response ? error.response.data : error.message;
+  }
+};
