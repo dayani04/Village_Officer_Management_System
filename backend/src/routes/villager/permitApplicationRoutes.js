@@ -4,21 +4,18 @@ const permitApplicationController = require("../../controllers/villager/permitAp
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
-// Configure multer for multiple file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit per file
+  limits: { fileSize: 5 * 1024 * 1024 },
 }).fields([
   { name: "document", maxCount: 1 },
   { name: "policeReport", maxCount: 1 },
 ]);
 
-// Protected route for submitting permit application
-router.post(
-  "/",
-  authenticate,
-  upload,
-  permitApplicationController.createPermitApplication
-);
+router.post("/", authenticate, upload, permitApplicationController.createPermitApplication);
+router.get("/", authenticate, permitApplicationController.getPermitApplications);
+router.get("/confirmed", authenticate, permitApplicationController.getConfirmedPermitApplications);
+router.put("/:villagerId/:permitsId/status", authenticate, permitApplicationController.updatePermitApplicationStatus);
+router.get("/download/:filename", authenticate, permitApplicationController.downloadDocument);
 
 module.exports = router;

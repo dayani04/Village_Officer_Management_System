@@ -152,12 +152,22 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/RequestsForIDCards"
+                  to="/requests-for-id-cards"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
                 >
                   ID Cards
+                </NavLink>
+              </li>
+               <li>
+                <NavLink
+                  to="/requests-for-permits"
+                  className="nav-link p-2 rounded hover-bg"
+                  style={{ color: "white" }}
+                  activeStyle={{ fontWeight: "bold" }}
+                >
+                  Permits
                 </NavLink>
               </li>
               <li>

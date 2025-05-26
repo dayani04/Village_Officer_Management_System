@@ -1,96 +1,130 @@
-import React, { useState, useEffect } from "react";
-import { getProfile, updateVillageOfficer, requestPasswordOtp, verifyPasswordOtp } from "../../../../../api/villageOfficer";
-import "./VillageOfficerProfile.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import * as api from '../../../../../api/villageOfficer';
+import './VillageOfficerProfile.css';
 
-const VillageOfficerProfile = () => {
+const VillagerOfficerProfile = () => {
   const [profile, setProfile] = useState(null);
   const [editMode, setEditMode] = useState(false);
   const [formData, setFormData] = useState({
-    full_name: "",
-    email: "",
-    phone_no: "",
+    full_name: '',
+    email: '',
+    phone_no: '',
+    address: '',
+    regional_division: '',
+    status: 'Active',
   });
-  const [passwordForm, setPasswordForm] = useState({
-    email: "",
-    otp: "",
-    newPassword: "",
-  });
-  const [villageOfficerId, setVillageOfficerId] = useState(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [otpMode, setOtpMode] = useState(false);
+  const [otp, setOtp] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [villageOfficerId, setVillageOfficerId] = useState(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profileData = await api.getProfile();
+        console.log('Fetched officer profile:', profileData);
+        setProfile(profileData);
+        setFormData({
+          full_name: profileData.Full_Name || '',
+          email: profileData.Email || '',
+          phone_no: profileData.Phone_No || '',
+          address: profileData.Address || '',
+          regional_division: profileData.RegionalDivision || '',
+          status: profileData.Status || 'Active',
+        });
+        setLoading(false);
+      } catch (err) {
+        setError(err.error || 'Failed to fetch profile');
+        setLoading(false);
+      }
+    };
+
     fetchProfile();
   }, []);
 
-  const fetchProfile = async () => {
-    try {
-      const data = await getProfile();
-      setProfile(data);
-      setFormData({
-        full_name: data.Full_Name || "",
-        email: data.Email || "",
-        phone_no: data.Phone_No || "",
-      });
-    } catch (err) {
-      setError("Failed to fetch profile: " + err.message);
-    }
-  };
-
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handlePasswordInputChange = (e) => {
-    const { name, value } = e.target;
-    setPasswordForm({ ...passwordForm, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     try {
-      await updateVillageOfficer(profile.Villager_Officer_ID, formData);
-      setMessage("Profile updated successfully");
+      if (!formData.full_name || !formData.email || !formData.phone_no) {
+        setError('Full Name, Email, and Phone Number are required');
+        return;
+      }
+
+      const updatePayload = {
+        full_name: formData.full_name,
+        email: formData.email,
+        phone_no: formData.phone_no,
+        address: formData.address,
+        regional_division: formData.regional_division,
+        status: formData.status,
+      };
+
+      await api.updateVillageOfficer(profile.Villager_Officer_ID, updatePayload);
+      setProfile({
+        ...profile,
+        Full_Name: formData.full_name,
+        Email: formData.email,
+        Phone_No: formData.phone_no,
+        Address: formData.address,
+        RegionalDivision: formData.regional_division,
+        Status: formData.status,
+      });
       setEditMode(false);
-      fetchProfile();
+      setError('');
     } catch (err) {
-      setError("Failed to update profile: " + err.message);
+      setError(err.error || 'Failed to update profile: ' + err.message);
     }
   };
 
   const handlePasswordChangeRequest = async () => {
     try {
-      const response = await requestPasswordOtp(profile.Email);
+      const response = await api.requestPasswordOtp(profile.Email);
       setVillageOfficerId(response.villageOfficerId);
       setOtpMode(true);
-      setMessage("OTP sent to your email");
+      setError('');
     } catch (err) {
-      setError("Failed to request OTP: " + err.message);
+      setError(err.error || 'Failed to send OTP');
     }
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
     try {
-      await verifyPasswordOtp(villageOfficerId, passwordForm.otp, passwordForm.newPassword);
-      setMessage("Password updated successfully");
+      await api.verifyPasswordOtp(villageOfficerId, otp, newPassword);
       setOtpMode(false);
-      setPasswordForm({ email: "", otp: "", newPassword: "" });
+      setOtp('');
+      setNewPassword('');
+      setVillageOfficerId(null);
+      setError('Password updated successfully');
     } catch (err) {
-      setError("Failed to verify OTP or update password: " + err.message);
+      setError(err.error || 'Invalid OTP or failed to update password');
     }
   };
 
-  if (!profile) {
+  const handleBack = () => {
+    navigate('/OfficerDashboard');
+  };
+
+  if (loading) {
     return <div className="profile-container">Loading...</div>;
   }
 
   return (
     <div className="profile-container">
-      <h1>Village Officer Profile</h1>
-      {message && <div className="error-message">{message}</div>}
+      <h1>Villager Officer Profile</h1>
       {error && <div className="error-message">{error}</div>}
 
       {editMode ? (
@@ -125,6 +159,35 @@ const VillageOfficerProfile = () => {
               required
             />
           </div>
+          <div className="profile-field">
+            <label>Address:</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="profile-field">
+            <label>Regional Division:</label>
+            <input
+              type="text"
+              name="regional_division"
+              value={formData.regional_division}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="profile-field">
+            <label>Status:</label>
+            <select
+              name="status"
+              value={formData.status}
+              onChange={handleInputChange}
+            >
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
           <div className="form-buttons">
             <button type="submit" className="save-button">
               Save Changes
@@ -144,8 +207,8 @@ const VillageOfficerProfile = () => {
             <label>OTP (sent to {profile.Email}):</label>
             <input
               type="text"
-              value={passwordForm.otp}
-              onChange={(e) => setPasswordForm({ ...passwordForm, otp: e.target.value })}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
               required
             />
           </div>
@@ -153,8 +216,8 @@ const VillageOfficerProfile = () => {
             <label>New Password:</label>
             <input
               type="password"
-              value={passwordForm.newPassword}
-              onChange={(e) => setPasswordForm({ ...passwordForm, newPassword: e.target.value })}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
               required
             />
           </div>
@@ -175,7 +238,7 @@ const VillageOfficerProfile = () => {
         <>
           <div className="profile-details">
             <div className="profile-field">
-              <label>Village Officer ID:</label>
+              <label>Villager Officer ID:</label>
               <span>{profile.Villager_Officer_ID}</span>
             </div>
             <div className="profile-field">
@@ -191,8 +254,28 @@ const VillageOfficerProfile = () => {
               <span>{profile.Phone_No}</span>
             </div>
             <div className="profile-field">
+              <label>NIC:</label>
+              <span>{profile.NIC || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Date of Birth:</label>
+              <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Address:</label>
+              <span>{profile.Address || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Regional Division:</label>
+              <span>{profile.RegionalDivision || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
               <label>Status:</label>
               <span>{profile.Status}</span>
+            </div>
+            <div className="profile-field">
+              <label>Area ID:</label>
+              <span>{profile.Area_ID || 'N/A'}</span>
             </div>
           </div>
           <div className="profile-actions">
@@ -202,6 +285,9 @@ const VillageOfficerProfile = () => {
             <button className="password-button" onClick={handlePasswordChangeRequest}>
               Change Password
             </button>
+            <button className="back-button" onClick={handleBack}>
+              Back to Dashboard
+            </button>
           </div>
         </>
       )}
@@ -209,4 +295,4 @@ const VillageOfficerProfile = () => {
   );
 };
 
-export default VillageOfficerProfile;
+export default VillagerOfficerProfile;

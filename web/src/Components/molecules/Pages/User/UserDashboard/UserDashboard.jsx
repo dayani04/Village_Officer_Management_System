@@ -59,6 +59,7 @@ const UserDashboard = () => {
           imgSrc="https://www.shutterstock.com/image-photo/woman-holding-megaphone-speaker-on-600nw-2502342615.jpg"
           altText={t('announcement')}
           buttonText={t('announcement')}
+          linkTo="/Announces"
         />
         <div className="vertical-line"></div>
         <OptionCard

@@ -4,18 +4,34 @@ const allowanceApplicationController = require("../../controllers/villager/allow
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
-// Configure multer for file uploads
 const upload = multer({
-  storage: multer.memoryStorage(), // Store file in memory
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Protected route for submitting allowance application
 router.post(
   "/",
   authenticate,
   upload.single("document"),
   allowanceApplicationController.createAllowanceApplication
+);
+
+router.get(
+  "/",
+  authenticate,
+  allowanceApplicationController.getAllowanceApplications
+);
+
+router.get(
+  "/:applicationId",
+  authenticate,
+  allowanceApplicationController.getAllowanceApplicationById
+);
+
+router.put(
+  "/:applicationId/status",
+  authenticate,
+  allowanceApplicationController.updateAllowanceApplicationStatus
 );
 
 module.exports = router;

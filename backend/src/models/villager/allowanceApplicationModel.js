@@ -19,8 +19,57 @@ const getAllowanceByType = async (type) => {
   return rows[0];
 };
 
+const getAllowanceApplications = async () => {
+  const [rows] = await pool.query(`
+    SELECT 
+      vha.application_id,
+      vha.Villager_ID,
+      v.Full_Name,
+      ar.Allowances_Type,
+      vha.apply_date,
+      vha.status
+    FROM villager_has_allowances_recode vha
+    JOIN villager v ON vha.Villager_ID = v.Villager_ID
+    JOIN allowances_recode ar ON vha.Allowances_ID = ar.Allowances_ID
+    WHERE vha.status = 'Pending'
+  `);
+  return rows;
+};
+
+const getAllowanceApplicationById = async (applicationId) => {
+  const [rows] = await pool.query(`
+    SELECT 
+      vha.application_id,
+      vha.Villager_ID,
+      v.Full_Name,
+      v.DOB,
+      v.Address,
+      ar.Allowances_Type,
+      vha.apply_date,
+      vha.status,
+      vha.document_path
+    FROM villager_has_allowances_recode vha
+    JOIN villager v ON vha.Villager_ID = v.Villager_ID
+    JOIN allowances_recode ar ON vha.Allowances_ID = ar.Allowances_ID
+    WHERE vha.application_id = ?
+  `, [applicationId]);
+  return rows[0];
+};
+
+const updateAllowanceApplicationStatus = async (applicationId, status) => {
+  await pool.query(
+    `UPDATE villager_has_allowances_recode 
+     SET status = ? 
+     WHERE application_id = ?`,
+    [status, applicationId]
+  );
+};
+
 module.exports = {
   addAllowanceApplication,
   getVillagerByEmail,
   getAllowanceByType,
+  getAllowanceApplications,
+  getAllowanceApplicationById,
+  updateAllowanceApplicationStatus,
 };

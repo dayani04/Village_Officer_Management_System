@@ -1,0 +1,70 @@
+.owners-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.owners-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.owners-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.owners-table th,
+.owners-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.owners-table th {
+  background-color: #7a1632;
+  color: white;
+  font-weight: bold;
+}
+
+.owners-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.view-button {
+  background-color: #7a1632;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.view-button:hover {
+  background-color: #C75B7A;
+}
+
+.owners-actions {
+  text-align: center;
+}
+
+.back-button {
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.back-button:hover {
+  background-color: #C75B7A;
+}

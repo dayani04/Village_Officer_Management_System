@@ -76,6 +76,16 @@ const updatePassword = async (id, hashedPassword) => {
   return result.affectedRows > 0;
 };
 
+const getVillageOfficerByIdCertificate = async (Villager_Officer_ID) => {
+  const [rows] = await pool.query(
+    `SELECT Full_Name 
+     FROM villager_officer 
+     WHERE Villager_Officer_ID = ?`,
+    [Villager_Officer_ID]
+  );
+  return rows[0];
+};
+
 module.exports = {
   getAllVillagerOfficers,
   getVillagerOfficerById,
@@ -85,4 +95,5 @@ module.exports = {
   deleteVillagerOfficer,
   updateOfficerStatus,
   updatePassword,
+  getVillageOfficerByIdCertificate,
 };
