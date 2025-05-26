@@ -133,7 +133,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/RequestsForAllowance"
+                  to="/requests-for-elections"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}

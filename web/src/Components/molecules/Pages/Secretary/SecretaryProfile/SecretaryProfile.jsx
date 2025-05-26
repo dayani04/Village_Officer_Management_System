@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as api from '../../../../../api/secretary';
+import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard'; // Import SecretaryDashBoard
 import './SecretaryProfile.css';
 
 const SecretaryProfile = () => {
@@ -115,182 +116,198 @@ const SecretaryProfile = () => {
   };
 
   const handleBack = () => {
-    navigate('/SecretaryDashboard');
+    navigate('/SecretaryDashBoard'); // Consistent with other components
   };
 
   if (loading) {
-    return <div className="profile-container">Loading...</div>;
+    return (
+      <div className="page-layout">
+        <div className="sidebar">
+          <SecretaryDashBoard />
+        </div>
+        <div className="villager-list-container">
+          <div className="profile-container">Loading...</div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="profile-container">
-      <h1>Secretary Profile</h1>
-      {error && <div className="error-message">{error}</div>}
+    <div className="page-layout">
+      <div className="sidebar">
+        <SecretaryDashBoard />
+      </div>
+      <div className="villager-list-container">
+        <div className="profile-container">
+          <h1>Secretary Profile</h1>
+          {error && <div className="error-message">{error}</div>}
 
-      {editMode ? (
-        <form onSubmit={handleEditSubmit} className="profile-form">
-          <div className="profile-field">
-            <label>Full Name:</label>
-            <input
-              type="text"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Phone Number:</label>
-            <input
-              type="tel"
-              name="phone_no"
-              value={formData.phone_no}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Address:</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="profile-field">
-            <label>Regional Division:</label>
-            <input
-              type="text"
-              name="regional_division"
-              value={formData.regional_division}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="profile-field">
-            <label>Status:</label>
-            <select
-              name="status"
-              value={formData.status}
-              onChange={handleInputChange}
-            >
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-          </div>
-          <div className="form-buttons">
-            <button type="submit" className="save-button">
-              Save Changes
-            </button>
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => setEditMode(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : otpMode ? (
-        <form onSubmit={handlePasswordSubmit} className="otp-form">
-          <div className="profile-field">
-            <label>OTP (sent to {profile.Email}):</label>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>New Password:</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-buttons">
-            <button type="submit" className="save-button">
-              Verify & Update Password
-            </button>
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => setOtpMode(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : (
-        <>
-          <div className="profile-details">
-            <div className="profile-field">
-              <label>Secretary ID:</label>
-              <span>{profile.Secretary_ID}</span>
-            </div>
-            <div className="profile-field">
-              <label>Full Name:</label>
-              <span>{profile.Full_Name}</span>
-            </div>
-            <div className="profile-field">
-              <label>Email:</label>
-              <span>{profile.Email}</span>
-            </div>
-            <div className="profile-field">
-              <label>Phone Number:</label>
-              <span>{profile.Phone_No}</span>
-            </div>
-            <div className="profile-field">
-              <label>NIC:</label>
-              <span>{profile.NIC || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Date of Birth:</label>
-              <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Address:</label>
-              <span>{profile.Address || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Regional Division:</label>
-              <span>{profile.RegionalDivision || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Status:</label>
-              <span>{profile.Status}</span>
-            </div>
-            <div className="profile-field">
-              <label>Area ID:</label>
-              <span>{profile.Area_ID || 'N/A'}</span>
-            </div>
-          </div>
-          <div className="profile-actions">
-            <button className="edit-button" onClick={() => setEditMode(true)}>
-              Edit Profile
-            </button>
-            <button className="password-button" onClick={handlePasswordChangeRequest}>
-              Change Password
-            </button>
-            <button className="back-button" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-        </>
-      )}
+          {editMode ? (
+            <form onSubmit={handleEditSubmit} className="profile-form">
+              <div className="profile-field">
+                <label>Full Name:</label>
+                <input
+                  type="text"
+                  name="full_name"
+                  value={formData.full_name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="profile-field">
+                <label>Email:</label>
+                <input
+                  type="email"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="profile-field">
+                <label>Phone Number:</label>
+                <input
+                  type="tel"
+                  name="phone_no"
+                  value={formData.phone_no}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+              <div className="profile-field">
+                <label>Address:</label>
+                <input
+                  type="text"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="profile-field">
+                <label>Regional Division:</label>
+                <input
+                  type="text"
+                  name="regional_division"
+                  value={formData.regional_division}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="profile-field">
+                <label>Status:</label>
+                <select
+                  name="status"
+                  value={formData.status}
+                  onChange={handleInputChange}
+                >
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <div className="form-buttons">
+                <button type="submit" className="save-button">
+                  Save Changes
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setEditMode(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : otpMode ? (
+            <form onSubmit={handlePasswordSubmit} className="otp-form">
+              <div className="profile-field">
+                <label>OTP (sent to {profile.Email}):</label>
+                <input
+                  type="text"
+                  value={otp}
+                  onChange={(e) => setOtp(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="profile-field">
+                <label>New Password:</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-buttons">
+                <button type="submit" className="save-button">
+                  Verify & Update Password
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setOtpMode(false)}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <div className="profile-details">
+                <div className="profile-field">
+                  <label>Secretary ID:</label>
+                  <span>{profile.Secretary_ID || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Full Name:</label>
+                  <span>{profile.Full_Name || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Email:</label>
+                  <span>{profile.Email || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Phone Number:</label>
+                  <span>{profile.Phone_No || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>NIC:</label>
+                  <span>{profile.NIC || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Date of Birth:</label>
+                  <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Address:</label>
+                  <span>{profile.Address || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Regional Division:</label>
+                  <span>{profile.RegionalDivision || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Status:</label>
+                  <span>{profile.Status || 'N/A'}</span>
+                </div>
+                <div className="profile-field">
+                  <label>Area ID:</label>
+                  <span>{profile.Area_ID || 'N/A'}</span>
+                </div>
+              </div>
+              <div className="profile-actions">
+                <button className="edit-button" onClick={() => setEditMode(true)}>
+                  Edit Profile
+                </button>
+                <button className="password-button" onClick={handlePasswordChangeRequest}>
+                  Change Password
+                </button>
+                <button className="back-button" onClick={handleBack}>
+                  Back to Dashboard
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
