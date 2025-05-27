@@ -150,6 +150,9 @@ const resources = {
       selectIDCardType: "හැඳුනුම්පත් වර්ගය තෝරන්න",
       postalIdCard: "තැපැල් හැඳුනුම්පත",
       NationalIdCard: "ජාතික හැඳුනුම්පත",
+      NIC: "ජාතික හැදුනුම්පත් පිටපත",
+      reason: "හේතුව",
+      reasonPlaceholder:"හේතුව මෙතන සදහන් කරන්න",
     },
   },
 };

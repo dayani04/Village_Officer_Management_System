@@ -2,48 +2,38 @@ const ElectionApplication = require("../../models/villager/electionApplicationMo
 const path = require("path");
 const fs = require("fs");
 
-
 const createElectionApplication = async (req, res) => {
   try {
     const { email, electionType } = req.body;
-    const file = req.file; // Uploaded file from multer
+    const file = req.file;
 
-    // Validate required fields
     if (!email || !electionType || !file) {
       return res.status(400).json({ error: "Email, election type, and ID document are required" });
     }
 
-    // Validate file type
     const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
     if (!allowedTypes.includes(file.mimetype)) {
       return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
     }
 
-    // Get villager by email
     const villager = await ElectionApplication.getVillagerByEmail(email);
     if (!villager) {
       return res.status(404).json({ error: "Villager not found" });
     }
 
-    // Get election by type
     const election = await ElectionApplication.getElectionByType(electionType);
     if (!election) {
       return res.status(404).json({ error: "Election type not found" });
     }
 
-    // Generate file name (without /uploads/ prefix)
     const fileName = `${villager.Villager_ID}_${election.ID}_${Date.now()}${path.extname(file.originalname)}`;
-    const uploadDir = path.join(__dirname, "../../../Uploads"); // Correct path to Uploads directory
-    const documentPath = `${fileName}`; // Store only the file name in the database
+    const uploadDir = path.join(__dirname, "../../../Uploads");
+    const documentPath = `${fileName}`;
 
-    // Ensure Uploads directory exists
     fs.mkdirSync(uploadDir, { recursive: true });
-
-    // Save file to Uploads directory
     fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
 
-    // Save application to database
-    const applyDate = new Date().toISOString().split("T")[0]; // Current date in YYYY-MM-DD
+    const applyDate = new Date().toISOString().split("T")[0];
     await ElectionApplication.addElectionApplication(
       villager.Villager_ID,
       election.ID,
@@ -58,6 +48,76 @@ const createElectionApplication = async (req, res) => {
   }
 };
 
+const getElectionApplications = async (req, res) => {
+  try {
+    const applications = await ElectionApplication.getAllElectionApplications();
+    res.json(applications);
+  } catch (error) {
+    console.error("Error in getElectionApplications:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getConfirmedElectionApplications = async (req, res) => {
+  try {
+    const applications = await ElectionApplication.getConfirmedElectionApplications();
+    res.json(applications);
+  } catch (error) {
+    console.error("Error in getConfirmedElectionApplications:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const updateElectionApplicationStatus = async (req, res) => {
+  try {
+    const { villagerId, electionrecodeID } = req.params;
+    const { status } = req.body;
+
+    if (!status) {
+      return res.status(400).json({ error: "Status is required" });
+    }
+
+    const validStatuses = ["Pending", "Send", "Rejected", "Confirm"];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
+    }
+
+    const updated = await ElectionApplication.updateElectionApplicationStatus(villagerId, electionrecodeID, status);
+    if (!updated) {
+      return res.status(404).json({ error: "Election application not found" });
+    }
+
+    res.json({ message: "Election application status updated successfully" });
+  } catch (error) {
+    console.error("Error in updateElectionApplicationStatus:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const downloadDocument = async (req, res) => {
+  try {
+    const { filename } = req.params;
+    const filePath = await ElectionApplication.getFilePath(filename);
+    if (!filePath) {
+      return res.status(404).json({ error: "File not found" });
+    }
+
+    const fullPath = path.join(__dirname, "../../../Uploads", filePath);
+    if (!fs.existsSync(fullPath)) {
+      return res.status(404).json({ error: "File not found on server" });
+    }
+
+    res.download(fullPath, filename);
+  } catch (error) {
+    console.error("Error in downloadDocument:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
 module.exports = {
   createElectionApplication,
+  getElectionApplications,
+  getConfirmedElectionApplications,
+  updateElectionApplicationStatus,
+  downloadDocument,
 };
