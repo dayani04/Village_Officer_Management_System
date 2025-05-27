@@ -1,26 +1,20 @@
 const express = require("express");
-const allowanceController = require("../../controllers/villager/allowanceController");
+const multer = require("multer");
+const allowanceApplicationController = require("../../controllers/villager/allowanceApplicationController");
+const notificationController = require("../../controllers/villager/notificationController");
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
-// Protected routes
-router.get("/", authenticate, allowanceController.getAllowances);
-router.get("/:id", authenticate, allowanceController.getAllowance);
-router.get("/:allowanceId", async (req, res) => {
-  try {
-    const { allowanceId } = req.params;
-    const [rows] = await pool.query(
-      "SELECT * FROM Allowances_recode WHERE Allowances_ID = ?",
-      [allowanceId]
-    );
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Allowance not found" });
-    }
-    res.status(200).json(rows[0]);
-  } catch (error) {
-    console.error("Error fetching allowance:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
-  }
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
+
+router.post("/", authenticate, upload.single("document"), allowanceApplicationController.createAllowanceApplication);
+router.get("/", authenticate, allowanceApplicationController.getAllowanceApplications);
+router.get("/confirmed", authenticate, allowanceApplicationController.getConfirmedAllowanceApplications);
+router.put("/:villagerId/:allowancesId/status", authenticate, allowanceApplicationController.updateAllowanceApplicationStatus);
+router.get("/download/:filename", authenticate, allowanceApplicationController.downloadDocument);
+router.post("/notifications/", authenticate, notificationController.saveNotification);
 
 module.exports = router;

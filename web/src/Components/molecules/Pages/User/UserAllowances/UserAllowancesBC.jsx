@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitAllowanceApplication } from "../../../../../api/allowanceApplication";
 import "./UserAllowancesBC.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserAllowancesBC = () => {
   const { t } = useTranslation();
@@ -87,6 +89,8 @@ const UserAllowancesBC = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="user-allowances-bc-page">
       <h1 className="allowances-bc-form-title">{t("FormTitleBC")}</h1>
 
@@ -173,6 +177,8 @@ const UserAllowancesBC = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

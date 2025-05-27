@@ -4,6 +4,8 @@ import { LanguageContext } from '../../context/LanguageContext';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import './UserDashboard.css';
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const OptionCard = ({ imgSrc, altText, buttonText, linkTo }) => {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ const OptionCard = ({ imgSrc, altText, buttonText, linkTo }) => {
   };
 
   return (
+    
     <div className="option-card">
       <img src={imgSrc} alt={altText} className="card-image" />
       <button className="option-button" onClick={handleClick}>
@@ -27,6 +30,8 @@ const UserDashboard = () => {
   const { changeLanguage } = useContext(LanguageContext);
 
   return (
+    <section>
+      <NavBar/>
     <div className="dashboard-container">
       {/* Header Section */}
       <div className="dashboard-header">
@@ -58,8 +63,8 @@ const UserDashboard = () => {
         <OptionCard
           imgSrc="https://www.shutterstock.com/image-photo/woman-holding-megaphone-speaker-on-600nw-2502342615.jpg"
           altText={t('announcement')}
-          buttonText={t('announcement')}
-          linkTo="/Announces"
+          buttonText={t('announcement')} 
+          linkTo="/Notification" 
         />
         <div className="vertical-line"></div>
         <OptionCard
@@ -117,6 +122,8 @@ const UserDashboard = () => {
         />
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

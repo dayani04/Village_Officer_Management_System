@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchAllowances } from "../../../../../api/allowance";
 import "./UserAllowances.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserAllowances = () => {
   const { t } = useTranslation();
@@ -97,6 +99,8 @@ const UserAllowances = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div>
       <br />
       <br />
@@ -165,6 +169,8 @@ const UserAllowances = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

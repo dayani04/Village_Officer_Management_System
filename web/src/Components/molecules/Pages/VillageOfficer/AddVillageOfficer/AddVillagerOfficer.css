@@ -1,0 +1,68 @@
+.add-villager-officer-container {
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.add-villager-officer-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.add-villager-officer-form-group {
+  margin-bottom: 15px;
+}
+
+.add-villager-officer-form-group label {
+  display: block;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.add-villager-officer-form-group input,
+.add-villager-officer-form-group select {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.add-villager-officer-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.add-villager-officer-save-btn,
+.add-villager-officer-cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-villager-officer-save-btn {
+  background-color: #7a1632;
+  color: white;
+}
+
+.add-villager-officer-save-btn:hover {
+  background-color: #C75B7A;
+}
+
+.add-villager-officer-cancel-btn {
+  background-color: #ccc;
+  color: #333;
+}
+
+.add-villager-officer-cancel-btn:hover {
+  background-color: #bbb;
+}

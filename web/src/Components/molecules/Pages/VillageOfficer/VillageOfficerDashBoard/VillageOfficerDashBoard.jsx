@@ -1,16 +1,14 @@
 import React from 'react';
 import { Container, Row, Col, Navbar, Nav, Card, ListGroup } from 'react-bootstrap';
-import Sidebar from './Sidebar';
+import SidebarS from './Sidebar';
 
 
 function VillageOfficerDashBoard() {
   return (
     <div>
-      <Sidebar/>
-
+      <SidebarS/>
     </div>
   );
 }
 
 export default VillageOfficerDashBoard;
-

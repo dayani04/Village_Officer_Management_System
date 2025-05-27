@@ -1,178 +1,93 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
-
-
-
-code {
-  font-size: 1rem;
-  padding: 0 0.5rem;
-  background-color: #D8DBCE;
-  
-}
-
-.explanation {
-  width: 100%;
-  margin-bottom: 15vh;
-
-}
-
-.explanation p {
-  font-size: 1rem;
-  max-width: 75ch;
-  margin: 2rem 0;
-}
-
-.explanation ul:last-child {
-  margin-bottom: 2rem;
-}
-
-.explanation ul {
-  display: flex;
-  flex-direction: column;
-}
-
-.explanation ul li {
-  list-style: none;
-  position: relative;
-  margin: 0.5rem 0;
-}
-
-.explanation ul li::before {
-  content: '👉';
-  position: absolute;
-  top: -0.25rem;
-  left: -2rem;
-}
-
-.containerAV {
-  border: 2px solid #921940;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* optional shadow */
-  width: 100%;
-  max-width: 768px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem 2rem 1.5rem;
-  background-color: #fcf6f5;
-  margin-top: 70px;
-  margin-left: 160px;
-}
-
-@media (min-width: 768px) {
-  .containerAV {
-    flex-direction: row;
-    align-items: center;
-  }
-}
-
-.cta-form {
-  margin-bottom: 2rem;
-  text-align: center;
-}
-
-@media (min-width: 768px) {
-  .cta-form {
-    margin-bottom: 0;
-    margin-right: 2rem;
-    text-align: left;
-  }
-}
-
-.cta-form h2 {
-  font-size: 1.5rem;
-  width: 100%;
-  max-width: 25ch;
-  margin: 0 auto;
-  text-align: center;
-  color: #921940;
-}
-
-@media (min-width: 768px) {
-  .cta-form h2 {
-    text-align: left;
-    margin: 0;
-  }
-}
-
-.cta-form p {
-  margin-top: 1rem;
-  font-size: 1rem;
-  width: 100%;
-  max-width: 24ch;
-}
-
-.form {
-  align-self: center;
-
-  
-}
-
-.form__input {
-  width: clamp(120px, 50vw, 420px);
-  height: 2.5rem;
-  padding: 0 1.25rem;
-  border: 1px solid #303030;
-  border-radius: 2px;
-  margin: 0.625rem auto;
-  transition: all 250ms;
-}
-
-@media (min-width: 768px) {
-  .form__input {
-    width: clamp(120px, 35vw, 420px);
-  }
-}
-
-.form__input:focus {
-  outline: none;
-  border-top-color: rgba(0, 0, 0, 0.1);
-}
-
-.form__input:focus + .form__label, 
-.form__input:not(:placeholder-shown) + .form__label {
-  transform: translateY(-4.50rem) scale(1);
-  color: #921940;
-}
-
-.form__input::placeholder {
-  display: none;
-  color: transparent;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.form__input:not(:placeholder-shown) {
-  border-top-color: #921940;
-}
-
-.form__label {
-  font-size: 1rem;
-  color: #921940;
-  display: block;
-  transform: translate(1.25rem, -2.5rem);
-  transform-origin: 0 0;
-  transition: all 500ms;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  pointer-events: none;
-}
-
-.add-villager-layout {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.add-villager-container {
   padding: 20px;
-  
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.dashboard-left {
-  margin-right: 20px;
+.add-villager-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
 }
 
-.form-container-right {
-  flex: 1;
+.add-villager-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
+.add-villager-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.add-villager-field label {
+  font-weight: bold;
+  color: #333;
+}
+
+.add-villager-field input,
+.add-villager-field select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.add-villager-field input[type="checkbox"] {
+  width: auto;
+}
+
+.add-villager-error {
+  color: #f43f3f;
+  font-size: 14px;
+}
+
+.add-villager-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 20px;
+}
+
+.add-villager-submit-btn,
+.add-villager-cancel-btn,
+.add-villager-back-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.add-villager-submit-btn {
+  background-color: #7a1632;
+  color: white;
+}
+
+.add-villager-submit-btn:hover {
+  background-color: #C75B7A;
+}
+
+.add-villager-cancel-btn {
+  background-color: #666;
+  color: white;
+}
+
+.add-villager-cancel-btn:hover {
+  background-color: #888;
+}
+
+.add-villager-back-btn {
+  background-color: #7a1632;
+  color: white;
+}
+
+.add-villager-back-btn:hover {
+  background-color: #C75B7A;
+}

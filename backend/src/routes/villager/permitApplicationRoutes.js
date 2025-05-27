@@ -1,6 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const permitApplicationController = require("../../controllers/villager/permitApplicationController");
+const notificationController = require("../../controllers/villager/notificationController");
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
@@ -17,5 +18,6 @@ router.get("/", authenticate, permitApplicationController.getPermitApplications)
 router.get("/confirmed", authenticate, permitApplicationController.getConfirmedPermitApplications);
 router.put("/:villagerId/:permitsId/status", authenticate, permitApplicationController.updatePermitApplicationStatus);
 router.get("/download/:filename", authenticate, permitApplicationController.downloadDocument);
+router.post("/notifications/", authenticate, notificationController.saveNotification);
 
 module.exports = router;

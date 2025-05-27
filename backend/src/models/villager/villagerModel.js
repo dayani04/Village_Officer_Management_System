@@ -131,6 +131,38 @@ const updatePassword = async (id, hashedPassword) => {
   return result.affectedRows > 0;
 };
 
+const addNotification = async (villagerId, message) => {
+  const [result] = await pool.query(
+    "INSERT INTO Notification (Villager_ID, Message) VALUES (?, ?)",
+    [villagerId, message]
+  );
+  return result.insertId;
+};
+
+const getNotificationsByVillagerId = async (villagerId) => {
+  const [rows] = await pool.query(
+    "SELECT Notification_ID, Villager_ID, Message, Created_At, Is_Read FROM Notification WHERE Villager_ID = ? ORDER BY Created_At DESC",
+    [villagerId]
+  );
+  return rows;
+};
+
+const getNotificationById = async (notificationId) => {
+  const [rows] = await pool.query(
+    "SELECT Notification_ID, Villager_ID, Message, Created_At, Is_Read FROM Notification WHERE Notification_ID = ?",
+    [notificationId]
+  );
+  return rows[0];
+};
+
+const markNotificationAsRead = async (notificationId) => {
+  const [result] = await pool.query(
+    "UPDATE Notification SET Is_Read = TRUE WHERE Notification_ID = ?",
+    [notificationId]
+  );
+  return result.affectedRows > 0;
+};
+
 module.exports = {
   getAllVillagers,
   getVillagerById,
@@ -143,4 +175,8 @@ module.exports = {
   updateVillagerLocation,
   getVillagerLocation,
   updateVillagerParticipation,
+  addNotification,
+  getNotificationsByVillagerId,
+  getNotificationById,
+  markNotificationAsRead,
 };

@@ -2,6 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './PrivacyPolicy.css';
 import privacyImage from './privacy.jpg'; // Placeholder image
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 
 const PrivacyPolicy = () => {
   const navigate = useNavigate();
@@ -11,6 +13,8 @@ const PrivacyPolicy = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="containerA">
       <div className="left-column">
         <div className="card-english">
@@ -38,6 +42,8 @@ const PrivacyPolicy = () => {
         </button>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

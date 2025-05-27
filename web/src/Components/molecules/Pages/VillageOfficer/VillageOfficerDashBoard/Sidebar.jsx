@@ -1,5 +1,3 @@
-// src/Sidebar.jsx
-
 import { NavLink, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import {
@@ -14,6 +12,7 @@ import {
 import { IoMdArrowDropdownCircle, IoMdArrowDropupCircle } from "react-icons/io";
 import { MdOutlineDiscount } from "react-icons/md";
 
+
 const Sidebar = () => {
   const location = useLocation();
 
@@ -22,7 +21,7 @@ const Sidebar = () => {
   const [isDiscountSubMenuOpen, setIsDiscountSubMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (location.pathname.includes("AddVillagers") || location.pathname.includes("RemoveVillager") || location.pathname.includes("Houses")) {
+    if (location.pathname.includes("AddVillagers") || location.pathname.includes("Villagers") || location.pathname.includes("Houses")) {
       setIsProductSubMenuOpen(true);
     }
     if (location.pathname.includes("users")) {
@@ -34,16 +33,18 @@ const Sidebar = () => {
   }, [location.pathname]);
 
   return (
+   
     <div
       className="d-flex flex-column p-4"
       style={{
         width: "250px",
-        height: "auto",
+        height: "100vh", // Full viewport height
+        position: "fixed", // Fix the sidebar to the viewport
         top: 0,
         left: 0,
         background: "#9C284F",
         color: "white",
-        overflowY: "auto",
+        overflowY: "auto", // Allow scrolling if content overflows
         zIndex: 999,
       }}
     >
@@ -64,7 +65,7 @@ const Sidebar = () => {
         <li className="nav-item">
           <button
             onClick={() => setIsProductSubMenuOpen(!isProductSubMenuOpen)}
-            className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between "
+            className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
             style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
           >
             <div className="d-flex align-items-center">
@@ -90,7 +91,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/RemoveVillager"
+                  to="/villagers"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -132,7 +133,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/RequestsForAllowance"
+                  to="/RequestsForAllowances"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -145,7 +146,7 @@ const Sidebar = () => {
                   to="/RequestsForCertificate"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  activeStyle={{ fontWeight: "bold" }} 
                 >
                   Certificate
                 </NavLink>
@@ -172,7 +173,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/RequestsForElectionList"
+                  to="/eligible-voters"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -214,7 +215,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/PermitOwners"
+                  to="/PermitOwner"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -229,11 +230,11 @@ const Sidebar = () => {
         {/* Add Village Officer */}
         <li className="nav-item">
           <NavLink
-            to="/AddVillagerOfficer"
+            to="/villager-officers"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
-            <TbUserPlus className="me-2" /> Add Village Officer
+            <TbUserPlus className="me-2" /> Village Officer
           </NavLink>
         </li>
 
@@ -260,17 +261,19 @@ const Sidebar = () => {
         </li>
 
         {/* Logout */}
-        <li className="nav-item mt-4">
-          <button
-            className="w-100 p-2 rounded btn btn-outline-light"
-            style={{ border: "none", cursor: "pointer" }}
-            onClick={() => alert("Logout clicked")}
+      <li className="nav-item">
+          <NavLink
+            to="/"
+            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
+            style={{ color: "white" }}
           >
             <TbLogout className="me-2" /> Logout
-          </button>
+               </NavLink>
         </li>
+          
       </ul>
     </div>
+ 
   );
 };
 

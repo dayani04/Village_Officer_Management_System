@@ -1,0 +1,271 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
+import { TbMail } from 'react-icons/tb';
+import {
+  fetchNICApplications,
+  updateNICApplicationStatus,
+  downloadDocument,
+} from '../../../../../api/nicApplication'; // Import NIC-specific functions
+import { saveNotification } from '../../../../../api/permitApplication'; // Import saveNotification from permitApplication
+import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
+import './SecretaryNICApplications.css';
+
+const SecretaryNICApplications = () => {
+  const navigate = useNavigate();
+  const [applications, setApplications] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [statusUpdates, setStatusUpdates] = useState({});
+  const [sentNotifications, setSentNotifications] = useState(new Set());
+
+  // Fetch NIC applications on mount
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchNICApplications();
+        const sendApplications = data.filter((app) => app.status === 'Send');
+        setApplications(sendApplications);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching NIC applications:', {
+          message: err.message,
+          response: err.response ? err.response.data : null,
+        });
+        setError(err.error || 'Failed to fetch NIC applications');
+        setLoading(false);
+        toast.error(err.error || 'Failed to fetch NIC applications', {
+          style: {
+            background: '#f43f3f',
+            color: '#fff',
+            borderRadius: '4px',
+          },
+        });
+      }
+    };
+    loadApplications();
+  }, []);
+
+  // Handle status change selection
+  const handleStatusChange = (villagerId, nicId, newStatus) => {
+    setStatusUpdates((prev) => ({
+      ...prev,
+      [`${villagerId}-${nicId}`]: newStatus,
+    }));
+  };
+
+  // Handle send button click (update status and save notification)
+  const handleSend = async (villagerId, nicId, nicType, fullName) => {
+    const newStatus = statusUpdates[`${villagerId}-${nicId}`];
+    if (!newStatus) {
+      toast.error('Please select a status', {
+        style: {
+          background: '#f43f3f',
+          color: '#fff',
+          borderRadius: '4px',
+        },
+      });
+      return;
+    }
+    try {
+      // Update the NIC application status
+      await updateNICApplicationStatus(villagerId, nicId, newStatus);
+
+      // Save a notification
+      const message = `Your NIC application for ${nicType} has been updated to ${newStatus}.`;
+      await saveNotification(villagerId, message);
+
+      // Update local state: remove application if status is no longer "Send"
+      setApplications((prev) =>
+        prev.filter((app) =>
+          !(app.Villager_ID === villagerId && app.NIC_ID === nicId && newStatus !== 'Send')
+        )
+      );
+
+      // Clear the status update and mark notification as sent
+      setStatusUpdates((prev) => {
+        const updated = { ...prev };
+        delete updated[`${villagerId}-${nicId}`];
+        return updated;
+      });
+      setSentNotifications((prev) => new Set(prev).add(`${villagerId}-${nicId}`));
+
+      toast.success(`Status updated and notification sent to ${fullName}`, {
+        style: {
+          background: '#4caf50',
+          color: '#fff',
+          borderRadius: '4px',
+        },
+      });
+    } catch (err) {
+      console.error('Error in handleSend:', {
+        message: err.message,
+        response: err.response ? err.response.data : null,
+        status: err.response ? err.response.status : null,
+      });
+      toast.error(err.response?.data?.error || err.message || 'Failed to update status or send notification', {
+        style: {
+          background: '#f43f3f',
+          color: '#fff',
+          borderRadius: '4px',
+        },
+      });
+    }
+  };
+
+  // Handle document download
+  const handleDownload = async (filename) => {
+    try {
+      const blob = await downloadDocument(filename);
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Error downloading document:', {
+        message: err.message,
+        response: err.response ? err.response.data : null,
+      });
+      toast.error(err.response?.data?.error || err.message || 'Failed to download document', {
+        style: {
+          background: '#f43f3f',
+          color: '#fff',
+          borderRadius: '4px',
+        },
+      });
+    }
+  };
+
+  // Handle back to dashboard navigation
+  const handleBack = () => {
+    navigate('/SecretaryDashBoard');
+  };
+
+  if (loading) {
+    return (
+      <div className="page-layout">
+        <div className="sidebar">
+          <SecretaryDashBoard />
+        </div>
+        <div className="villager-list-container">
+          <div className="nic-applications-container">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="page-layout">
+        <div className="sidebar">
+          <SecretaryDashBoard />
+        </div>
+        <div className="villager-list-container">
+          <div className="nic-applications-container">
+            <h1>NIC Applications (Status: Send)</h1>
+            <p className="error-message">{error}</p>
+            <div className="nic-applications-actions">
+              <button className="nic-applications-back-btn" onClick={handleBack}>
+                Back to Dashboard
+              </button>
+            </div>
+            <Toaster />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="page-layout">
+      <div className="sidebar">
+        <SecretaryDashBoard />
+      </div>
+      <div className="villager-list-container">
+        <div className="nic-applications-container">
+          <h1>NIC Applications (Status: Send)</h1>
+          <div className="nic-applications-table-wrapper">
+            <table className="nic-applications-table">
+              <thead>
+                <tr>
+                  <th>Villager Name</th>
+                  <th>Villager ID</th>
+                  <th>NIC Type</th>
+                  <th>Apply Date</th>
+                  <th>Document</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {applications.length > 0 ? (
+                  applications.map((app) => (
+                    <tr key={`${app.Villager_ID}-${app.NIC_ID}`}>
+                      <td>{app.Full_Name || 'N/A'}</td>
+                      <td>{app.Villager_ID || 'N/A'}</td>
+                      <td>{app.NIC_Type || 'N/A'}</td>
+                      <td>{app.apply_date || 'N/A'}</td>
+                      <td>
+                        <a
+                          href="#"
+                          onClick={() => handleDownload(app.document_path)}
+                          className="nic-applications-download-link"
+                        >
+                          Download
+                        </a>
+                      </td>
+                      <td>
+                        <select
+                          className="nic-applications-select"
+                          value={statusUpdates[`${app.Villager_ID}-${app.NIC_ID}`] || app.status}
+                          onChange={(e) => handleStatusChange(app.Villager_ID, app.NIC_ID, e.target.value)}
+                        >
+                          {['Pending', 'Send', 'Rejected', 'Confirm'].map((status) => (
+                            <option key={status} value={status}>
+                              {status}
+                            </option>
+                          ))}
+                        </select>
+                      </td>
+                      <td>
+                        <div className="nic-applications-action-buttons">
+                          <button
+                            className={`nic-applications-send-btn ${sentNotifications.has(`${app.Villager_ID}-${app.NIC_ID}`) ? 'sent' : ''}`}
+                            onClick={() => handleSend(app.Villager_ID, app.NIC_ID, app.NIC_Type, app.Full_Name)}
+                            title="Send Notification"
+                            disabled={sentNotifications.has(`${app.Villager_ID}-${app.NIC_ID}`)}
+                          >
+                            <TbMail />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="7" className="nic-applications-no-data">
+                      No applications with status "Send"
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+          <div className="nic-applications-actions">
+            <button className="nic-applications-back-btn" onClick={handleBack}>
+              Back to Dashboard
+            </button>
+          </div>
+          <Toaster />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SecretaryNICApplications;

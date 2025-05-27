@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import * as villagerApi from '../../../../../api/villager';
 import './VillagerLocationSearch.css';
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 // Google Maps settings
 const containerStyle = {
@@ -138,6 +140,8 @@ const Houses = () => {
   }
 
   return (
+    <section>
+      <NavBar/>
     <div className="houses-container">
       <h2>Villager Locations</h2>
       <div className="search-bar">
@@ -224,6 +228,8 @@ const Houses = () => {
         </button>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

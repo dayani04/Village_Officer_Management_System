@@ -43,9 +43,36 @@ app.use("/api/nics", nicRoutes);
 app.use("/api/nic-applications", nicApplicationRoutes);
 app.use("/api/secretaries", secretaryRoutes);
 app.use("/api/certificate-applications", certificateRoutes);
+app.use("/api/allowance-applications", allowanceRoutes);
+
+
+
 
 // Serve static files from Uploads directory
 app.use("/Uploads", express.static(path.join(__dirname, "Uploads")));
+
+// Debug: List all routes
+app.get("/api/debug/routes", (req, res) => {
+  const routes = [];
+  app._router.stack.forEach((middleware) => {
+    if (middleware.route) {
+      routes.push({
+        path: middleware.route.path,
+        methods: Object.keys(middleware.route.methods),
+      });
+    } else if (middleware.name === "router" && middleware.handle.stack) {
+      middleware.handle.stack.forEach((handler) => {
+        if (handler.route) {
+          routes.push({
+            path: `/api${handler.route.path}`, // Adjust for base path
+            methods: Object.keys(handler.route.methods),
+          });
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

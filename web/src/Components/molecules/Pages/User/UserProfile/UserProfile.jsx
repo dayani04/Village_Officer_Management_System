@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
 import * as api from '../../../../../api/villager';
 import './UserProfile.css';
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 // Google Maps settings
 const containerStyle = {
@@ -202,6 +204,8 @@ const UserProfile = () => {
   const mapCenter = villagerLocation || defaultCenter;
 
   return (
+    <section>
+    <NavBar/>
     <div className="profile-container">
       <h1>Villager Profile</h1>
       {error && <div className="error-message">{error}</div>}
@@ -458,6 +462,8 @@ const UserProfile = () => {
         </>
       )}
     </div>
+    <Footer/>
+    </section>
   );
 };
 

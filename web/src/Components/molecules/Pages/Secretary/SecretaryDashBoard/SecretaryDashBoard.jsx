@@ -12,4 +12,3 @@ function SecretaryDashBoard() {
 }
 
 export default SecretaryDashBoard;
-

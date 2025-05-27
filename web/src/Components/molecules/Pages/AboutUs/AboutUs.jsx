@@ -2,6 +2,8 @@ import React from "react";
 import './AboutUs.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import about2 from './about2.jpg';
+import NavBar from '../../NavBar/NavBar';
+import Footer from '../../Footer/Footer';
 import about from './about.webp';
 
 const AboutUs = () => {

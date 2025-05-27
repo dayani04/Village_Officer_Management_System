@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitElectionApplication } from "../../../../../api/electionApplication";
 import "./UserElectionID.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserElectionID = () => {
   const { t } = useTranslation();
@@ -87,6 +89,8 @@ const UserElectionID = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="user-election-id-page">
       <h1 className="election-id-form-title">{t("electionFormTitleID")}</h1>
 
@@ -171,6 +175,8 @@ const UserElectionID = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

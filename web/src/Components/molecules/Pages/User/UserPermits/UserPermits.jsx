@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchPermits } from "../../../../../api/permit";
 import "./UserPermit.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserPermits = () => {
   const { t } = useTranslation();
@@ -90,6 +92,8 @@ const UserPermits = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div>
       <br />
       <br />
@@ -155,6 +159,8 @@ const UserPermits = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

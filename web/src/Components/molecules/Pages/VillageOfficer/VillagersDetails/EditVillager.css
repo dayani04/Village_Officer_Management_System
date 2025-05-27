@@ -1,0 +1,82 @@
+.edit-villager-container {
+  padding: 20px;
+  max-width: 800px;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.edit-villager-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
+}
+
+.edit-villager-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.edit-villager-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-villager-field label {
+  font-weight: bold;
+  color: #333;
+}
+
+.edit-villager-field input,
+.edit-villager-field select {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.edit-villager-field input[type="checkbox"] {
+  width: auto;
+}
+
+.edit-villager-error {
+  color: #f43f3f;
+  font-size: 14px;
+}
+
+.edit-villager-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 20px;
+}
+
+.edit-villager-submit-btn,
+.edit-villager-back-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+}
+
+.edit-villager-submit-btn {
+  background-color: #7a1632;
+}
+
+.edit-villager-submit-btn:hover {
+  background-color: #C75B7A;
+}
+
+.edit-villager-back-btn {
+  background-color: #666;
+}
+
+.edit-villager-back-btn:hover {
+  background-color: #888;
+}

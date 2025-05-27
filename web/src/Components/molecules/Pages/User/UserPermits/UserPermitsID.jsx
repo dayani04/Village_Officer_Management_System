@@ -5,6 +5,8 @@ import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitPermitApplication } from "../../../../../api/permitApplication";
 import "./UserPermitsID.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserPermitsID = () => {
   const { t } = useTranslation();
@@ -127,6 +129,8 @@ const UserPermitsID = () => {
   };
 
   return (
+    <section>
+      <NavBar/>
     <div className="user-permit-id-page">
       <h1 className="permit-id-form-title">{t("permitFormTitleID")}</h1>
 
@@ -212,6 +216,8 @@ const UserPermitsID = () => {
         </div>
       </form>
     </div>
+    <Footer/>
+    </section>
   );
 };
 

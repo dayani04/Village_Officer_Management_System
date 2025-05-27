@@ -6,6 +6,8 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchElections } from "../../../../../api/election"; // Adjusted path
 import "./UserElection.css";
+import NavBar from "../../../NavBar/NavBar";
+import Footer from "../../../Footer/Footer";
 
 const UserElection = () => {
   const { t } = useTranslation();
@@ -78,6 +80,8 @@ const UserElection = () => {
 
   console.log("Rendering with electionTypes:", electionTypes);
   return (
+    <section>
+      <NavBar/>
     <div>
       <br />
       <br />
@@ -145,6 +149,8 @@ const UserElection = () => {
         </form>
       </div>
     </div>
+    <Footer/>
+    </section>
   );
 };
 
