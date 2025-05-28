@@ -1,18 +1,21 @@
 const express = require('express');
 const villagerController = require('../../controllers/villager/villagerController');
+const allowanceApplicationController = require('../../controllers/villager/allowanceApplicationController');
 const authenticate = require('../../middleware/authMiddleware');
 const router = express.Router();
 
+// Public routes
 router.post("/", villagerController.createVillager);
 router.post("/login", villagerController.loginVillager);
 router.post("/request-otp", villagerController.requestPasswordOtp);
 
+// Protected routes
 router.use(authenticate);
 
 router.get("/", villagerController.getVillagers);
 router.get("/profile", villagerController.getProfile);
 router.get("/notifications", villagerController.getNotifications);
-router.get("/:id", villagerController.getVillager);
+router.get("/:villagerId", allowanceApplicationController.getVillagerById);
 router.put("/:id", villagerController.updateVillager);
 router.delete("/:id", villagerController.deleteVillager);
 router.put("/:id/status", villagerController.updateUserStatus);

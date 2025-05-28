@@ -133,7 +133,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/requests-for-elections"
+                  to="/RequestsForAllowances"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -261,15 +261,16 @@ const Sidebar = () => {
         </li>
 
         {/* Logout */}
-        <li className="nav-item mt-4">
-          <button
-            className="w-100 p-2 rounded btn btn-outline-light"
-            style={{ border: "none", cursor: "pointer" }}
-            onClick={() => alert("Logout clicked")}
+      <li className="nav-item">
+          <NavLink
+            to="/"
+            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
+            style={{ color: "white" }}
           >
             <TbLogout className="me-2" /> Logout
-          </button>
+               </NavLink>
         </li>
+          
       </ul>
     </div>
  

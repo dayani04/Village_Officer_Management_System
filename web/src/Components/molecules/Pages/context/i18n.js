@@ -166,6 +166,7 @@ const resources = {
       selectIDCardType: "හැඳුනුම්පත් වර්ගය තෝරන්න",
       postalIdCard: "තැපැල් හැඳුනුම්පත",
       NationalIdCard: "ජාතික හැඳුනුම්පත",
+
       duplicateApplicationError: "ඔබ මෙම මැතිවරණය සඳහා දැනටමත් ඉල්ලුම් කර ඇත",
   uploadRequiredTitleID: "ගොනුව අවශ්‍යයි",
   uploadRequiredMessageID: "කරුණාකර PDF, PNG හෝ JPG ගොනුවක් උඩුගත කරන්න",
@@ -182,6 +183,11 @@ const resources = {
   submitting: "ඉදිරිපත් කරමින්...",
   error: "දෝෂය",
   ok: "හරි"
+
+      NIC: "ජාතික හැදුනුම්පත් පිටපත",
+      reason: "හේතුව",
+      reasonPlaceholder:"හේතුව මෙතන සදහන් කරන්න",
+
     },
   },
 };

@@ -259,6 +259,21 @@ const validateEmail = (email) => {
   return re.test(email);
 };
 
+const getVillageOfficerProfile = async (req, res) => {
+  try {
+    const Villager_Officer_ID = req.user.Villager_Officer_ID; // From JWT
+    console.log(`Fetching profile for Villager_Officer_ID: ${Villager_Officer_ID}`);
+    const officer = await VillageOfficer.getVillageOfficerByIdCertificate(Villager_Officer_ID);
+    if (!officer) {
+      return res.status(404).json({ error: "Village Officer not found" });
+    }
+    res.json(officer);
+  } catch (error) {
+    console.error("Error in getVillageOfficerProfile:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
 module.exports = {
   getVillagerOfficers,
   getVillagerOfficer,
@@ -272,4 +287,5 @@ module.exports = {
   requestPasswordOtp,
   verifyPasswordOtp,
   validateEmail,
+  getVillageOfficerProfile,
 };
