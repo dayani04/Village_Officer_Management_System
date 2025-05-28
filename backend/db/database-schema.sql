@@ -160,3 +160,51 @@ INSERT INTO nic_recode (NIC_ID , NIC_Type)
     FOREIGN KEY ( NIC_ID) REFERENCES nic_recode( NIC_ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
+DROP TABLE villager_hase_election_recode;
+CREATE TABLE villager_hase_election_recode_new (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50),
+    electionrecodeID INT,
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+);
+ALTER TABLE villager_hase_election_recode_new RENAME TO villager_hase_election_recode;
+
+DROP TABLE villager_has_permits_recode;
+CREATE TABLE villager_has_permits_recode (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50),
+    electionrecodeID INT,
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+);
+DROP TABLE villager_has_nic_recode;
+
+CREATE TABLE villager_has_nic_recode (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50),
+    electionrecodeID INT,
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+);
+DROP TABLE villager_has_allowances_recode;
+CREATE TABLE villager_has_allowances_recode (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50),
+    electionrecodeID INT,
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+);
