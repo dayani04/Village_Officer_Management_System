@@ -4,6 +4,8 @@ import toast, { Toaster } from 'react-hot-toast';
 import * as villagerApi from '../../../../../api/villager';
 import { TbCheck } from 'react-icons/tb';
 import './Notification.css';
+import NavBar from '../../../NavBar/NavBar';
+import Footer from '../../../Footer/Footer';
 
 const Notification = () => {
   const navigate = useNavigate();
@@ -98,6 +100,7 @@ const Notification = () => {
 
   return (
     <section className="w-full h-full flex flex-col p-4">
+      <NavBar/>
       <div className="notification-container">
         <h1>Notifications</h1>
         <div className="notification-table-wrapper">
@@ -151,6 +154,7 @@ const Notification = () => {
         </div>
         <Toaster />
       </div>
+      <Footer/>
     </section>
   );
 };
