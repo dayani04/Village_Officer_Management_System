@@ -16,7 +16,9 @@ const RequestsForPermits = () => {
       try {
         const data = await permitApplicationApi.fetchPermitApplications();
         console.log('Fetched applications:', data);
-        setApplications(data);
+        // Filter applications to include only those with status 'Pending'
+        const pendingApplications = data.filter(app => app.status === 'Pending');
+        setApplications(pendingApplications);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -75,10 +77,9 @@ const RequestsForPermits = () => {
 
     try {
       await permitApplicationApi.updatePermitApplicationStatus(villagerId, permitsId, newStatus);
-      setApplications(applications.map(app =>
-        app.Villager_ID === villagerId && app.Permits_ID === permitsId
-          ? { ...app, status: newStatus }
-          : app
+      // Remove the application from the list if its status is no longer 'Pending'
+      setApplications(applications.filter(app =>
+        !(app.Villager_ID === villagerId && app.Permits_ID === permitsId)
       ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
@@ -146,7 +147,6 @@ const RequestsForPermits = () => {
   return (
     <div className="permits-container">
       <h1>Permit Applications</h1>
-
       <table className="permits-table">
         <thead>
           <tr>
@@ -201,7 +201,7 @@ const RequestsForPermits = () => {
                   <option value="Pending">Pending</option>
                   <option value="Send">Send</option>
                   <option value="Rejected">Rejected</option>
-                 
+                  <option value="Confirm">Confirm</option>
                 </select>
               </td>
               <td>
@@ -224,7 +224,6 @@ const RequestsForPermits = () => {
           ))}
         </tbody>
       </table>
-
       <div className="permits-actions">
         <button className="back-button" onClick={handleBack}>
           Back to Dashboard

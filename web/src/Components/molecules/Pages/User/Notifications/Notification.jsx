@@ -17,7 +17,11 @@ const Notification = () => {
     const fetchNotifications = async () => {
       try {
         const data = await villagerApi.getNotifications();
-        setNotifications(data);
+
+        // Filter notifications to include only those with Is_Read === false
+        const unreadNotifications = data.filter(notif => !notif.Is_Read);
+        console.log('Fetched unread notifications:', unreadNotifications);
+        setNotifications(unreadNotifications);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching notifications:', err);
@@ -39,11 +43,8 @@ const Notification = () => {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await villagerApi.markNotificationAsRead(notificationId);
-      setNotifications((prev) =>
-        prev.map((notif) =>
-          notif.Notification_ID === notificationId ? { ...notif, Is_Read: true } : notif
-        )
-      );
+      // Remove the notification from the list since it is no longer unread
+      setNotifications(notifications.filter(notif => notif.Notification_ID !== notificationId));
       toast.success('Notification marked as read', {
         style: {
           background: '#4caf50',
@@ -100,7 +101,7 @@ const Notification = () => {
 
   return (
     <section className="w-full h-full flex flex-col p-4">
-      <NavBar/>
+      <NavBar />
       <div className="notification-container">
         <h1>Notifications</h1>
         <div className="notification-table-wrapper">
@@ -124,15 +125,13 @@ const Notification = () => {
                     <td>{notif.Is_Read ? 'Read' : 'Unread'}</td>
                     <td>
                       <div className="notification-action-buttons">
-                        {!notif.Is_Read && (
-                          <button
-                            className="notification-mark-read-btn"
-                            onClick={() => handleMarkAsRead(notif.Notification_ID)}
-                            title="Mark as Read"
-                          >
-                            <TbCheck />
-                          </button>
-                        )}
+                        <button
+                          className="notification-mark-read-btn"
+                          onClick={() => handleMarkAsRead(notif.Notification_ID)}
+                          title="Mark as Read"
+                        >
+                          <TbCheck />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -140,7 +139,7 @@ const Notification = () => {
               ) : (
                 <tr>
                   <td colSpan="5" className="notification-no-data">
-                    No notifications found
+                    No unread notifications found
                   </td>
                 </tr>
               )}
@@ -154,7 +153,7 @@ const Notification = () => {
         </div>
         <Toaster />
       </div>
-      <Footer/>
+      <Footer />
     </section>
   );
 };

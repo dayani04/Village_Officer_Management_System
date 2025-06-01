@@ -16,7 +16,9 @@ const RequestsForAllowances = () => {
       try {
         const data = await allowanceApi.fetchAllowanceApplications();
         console.log('Fetched allowance applications:', data);
-        setApplications(data);
+        // Filter applications to include only those with status 'Pending'
+        const pendingApplications = data.filter(app => app.status === 'Pending');
+        setApplications(pendingApplications);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -72,10 +74,9 @@ const RequestsForAllowances = () => {
 
     try {
       await allowanceApi.updateAllowanceApplicationStatus(villagerId, allowancesId, newStatus);
-      setApplications(applications.map(app =>
-        app.Villager_ID === villagerId && app.Allowances_ID === allowancesId
-          ? { ...app, status: newStatus }
-          : app
+      // Remove the application from the list if its status is no longer 'Pending'
+      setApplications(applications.filter(app =>
+        !(app.Villager_ID === villagerId && app.Allowances_ID === allowancesId)
       ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
@@ -183,8 +184,7 @@ const RequestsForAllowances = () => {
                 >
                   <option value="Pending">Pending</option>
                   <option value="Send">Send</option>
-                  <option value="Rejected">Rejected</option>
-                  <option value="Confirm">Confirm</option>
+                  
                 </select>
               </td>
               <td>
