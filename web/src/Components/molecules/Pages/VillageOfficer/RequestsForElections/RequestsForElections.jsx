@@ -16,7 +16,9 @@ const RequestsForElections = () => {
       try {
         const data = await electionApi.fetchElectionApplications();
         console.log('Fetched applications:', data);
-        setApplications(data);
+        // Filter applications to include only those with status 'Pending'
+        const pendingApplications = data.filter(app => app.status === 'Pending');
+        setApplications(pendingApplications);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -72,10 +74,9 @@ const RequestsForElections = () => {
 
     try {
       await electionApi.updateElectionApplicationStatus(villagerId, electionrecodeID, newStatus);
-      setApplications(applications.map(app =>
-        app.Villager_ID === villagerId && app.electionrecodeID === electionrecodeID
-          ? { ...app, status: newStatus }
-          : app
+      // Remove the application from the list if its status is no longer 'Pending'
+      setApplications(applications.filter(app =>
+        !(app.Villager_ID === villagerId && app.electionrecodeID === electionrecodeID)
       ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
@@ -184,7 +185,7 @@ const RequestsForElections = () => {
                   <option value="Pending">Pending</option>
                   <option value="Send">Send</option>
                   <option value="Rejected">Rejected</option>
-                  
+                  <option value="Confirm">Confirm</option>
                 </select>
               </td>
               <td>

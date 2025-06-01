@@ -16,7 +16,9 @@ const RequestsForIDCards = () => {
       try {
         const data = await nicApplicationApi.fetchNICApplications();
         console.log('Fetched NIC applications:', data);
-        setApplications(data);
+        // Filter applications to include only those with status 'Pending'
+        const pendingApplications = data.filter(app => app.status === 'Pending');
+        setApplications(pendingApplications);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -75,10 +77,9 @@ const RequestsForIDCards = () => {
 
     try {
       await nicApplicationApi.updateNICApplicationStatus(villagerId, nicId, newStatus);
-      setApplications(applications.map(app =>
-        app.Villager_ID === villagerId && app.NIC_ID === nicId
-          ? { ...app, status: newStatus }
-          : app
+      // Remove the application from the list if its status is no longer 'Pending'
+      setApplications(applications.filter(app =>
+        !(app.Villager_ID === villagerId && app.NIC_ID === nicId)
       ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
@@ -87,7 +88,7 @@ const RequestsForIDCards = () => {
       });
       toast.success('Status updated successfully', {
         style: {
-          background: '#7a1632',
+          background: '#6ac476', // Corrected to match success color
           color: '#fff',
           borderRadius: '4px',
         },
@@ -96,7 +97,7 @@ const RequestsForIDCards = () => {
       console.error('Status update error:', err);
       toast.error(err.error || 'Failed to update status', {
         style: {
-          background: '#6ac476',
+          background: '#f43f3f', // Corrected to match error color
           color: '#fff',
           borderRadius: '4px',
         },
@@ -146,7 +147,6 @@ const RequestsForIDCards = () => {
   return (
     <div className="requests-container">
       <h1>NIC Applications</h1>
-
       <table className="requests-table">
         <thead>
           <tr>
@@ -188,7 +188,7 @@ const RequestsForIDCards = () => {
                   <option value="Pending">Pending</option>
                   <option value="Send">Send</option>
                   <option value="Rejected">Rejected</option>
-                
+                  <option value="Confirm">Confirm</option>
                 </select>
               </td>
               <td>
@@ -211,6 +211,11 @@ const RequestsForIDCards = () => {
           ))}
         </tbody>
       </table>
+      <div className="requests-actions">
+        <button className="back-button" onClick={handleBack}>
+          Back to Dashboard
+        </button>
+      </div>
       <Toaster />
     </div>
   );
