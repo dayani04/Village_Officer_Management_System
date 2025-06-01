@@ -71,16 +71,6 @@ INSERT INTO Election_recode (ID, type) VALUES
 (4,'Division Election');
 
 
-CREATE TABLE villager_hase_election_recode (
-    Villager_ID VARCHAR(50),
-    electionrecodeID INT,
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
-    PRIMARY KEY (Villager_ID, electionrecodeID), -- Composite primary key
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
-);
 
 
 CREATE TABLE Allowances_recode (
@@ -90,28 +80,8 @@ CREATE TABLE Allowances_recode (
 
 
 INSERT INTO allowances_recode (Allowances_ID,Allowances_Type) VALUES (1, 'Adult Allowances'), (2, 'Disabled Allowances'), (3,'Widow Allowances'), (4,'Nutritional And Food Allowance'), (5,'Agriculture And Farming Subsidies Allowances');
-CREATE TABLE villager_has_allowances_recode (
-    application_id INT AUTO_INCREMENT PRIMARY KEY,
-    Villager_ID VARCHAR(50),
-   Allowances_ID VARCHAR(50),
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255),
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Allowances_ID) REFERENCES Election_recode(Allowances_ID) ON DELETE CASCADE
-);
 
 
-CREATE TABLE villager_has_allowances_recode (
-    Villager_ID VARCHAR(50),
-     Allowances_ID VARCHAR(50),
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
-    PRIMARY KEY (Villager_ID, Allowances_ID), -- Composite primary key
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Allowances_ID) REFERENCES Allowances_recode(Allowances_ID) ON DELETE CASCADE
-);
 
 
 CREATE TABLE Permits_recode (
@@ -125,29 +95,10 @@ INSERT INTO Permits_recode (Permits_ID,Permits_Type)
  (4,'Vehicle Travel Permit');
 
 
- CREATE TABLE villager_has_Permits_recode (
-    Villager_ID VARCHAR(50),
-    Permits_ID VARCHAR(50),
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
-    PRIMARY KEY (Villager_ID, Permits_ID), -- Composite primary key
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (Permits_ID) REFERENCES Permits_recode(Permits_ID) ON DELETE CASCADE
-);
-ALTER TABLE villager_has_Permits_recode ADD COLUMN police_report_path VARCHAR(255);
+
 ALTER TABLE villager_has_Permits_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 
 
-CREATE TABLE villager_has_certificate_recode (
-    Villager_ID VARCHAR(50),
-    application_id INT AUTO_INCREMENT,
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255),
-    PRIMARY KEY (application_id),
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE
-);
 
 
 CREATE TABLE nic_recode (
@@ -159,17 +110,8 @@ INSERT INTO nic_recode (NIC_ID , NIC_Type)
  (2, 'National ID Card');
 
 
- CREATE TABLE villager_has_nic_recode (
-    Villager_ID VARCHAR(50),
-     NIC_ID VARCHAR(50),
-    apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
-    document_path VARCHAR(255), -- Stores file path for PDF, PNG, or photo
-    PRIMARY KEY (Villager_ID,  NIC_ID), -- Composite primary key
-    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY ( NIC_ID) REFERENCES nic_recode( NIC_ID) ON DELETE CASCADE
-);
-ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
+
 
 DROP TABLE villager_hase_election_recode;
 CREATE TABLE villager_hase_election_recode_new (
@@ -183,6 +125,7 @@ CREATE TABLE villager_hase_election_recode_new (
     FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_hase_election_recode_new RENAME TO villager_hase_election_recode;
+ALTER TABLE villager_hase_election_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 
 DROP TABLE villager_has_permits_recode;
 CREATE TABLE villager_has_permits_recode (
@@ -195,8 +138,9 @@ CREATE TABLE villager_has_permits_recode (
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
 );
-DROP TABLE villager_has_nic_recode;
+ALTER TABLE villager_has_permits_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 
+DROP TABLE villager_has_nic_recode;
 CREATE TABLE villager_has_nic_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
@@ -207,6 +151,8 @@ CREATE TABLE villager_has_nic_recode (
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
 );
+ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
 DROP TABLE villager_has_allowances_recode;
 CREATE TABLE villager_has_allowances_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -218,3 +164,4 @@ CREATE TABLE villager_has_allowances_recode (
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
 );
+ALTER TABLE  villager_has_allowances_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
