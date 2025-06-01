@@ -4,7 +4,7 @@ import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchAllowances } from "../../../../../api/allowance";
-import { getProfile } from "../../../../../api/villager"; // Import getProfile to fetch user data
+import { getProfile } from "../../../../../api/villager";
 import "./UserAllowances.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -14,7 +14,7 @@ const UserAllowances = () => {
   const { changeLanguage } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "", // Will be set to logged-in user's email
+    email: "",
     type: "",
   });
   const [allowanceTypes, setAllowanceTypes] = useState([]);
@@ -23,22 +23,24 @@ const UserAllowances = () => {
 
   // Fetch logged-in user's profile and allowance types on component mount
   useEffect(() => {
+    console.log("useEffect running to fetch profile and allowance types");
     const loadData = async () => {
       try {
         // Fetch logged-in user's profile
         const profile = await getProfile();
         setFormData((prevData) => ({
           ...prevData,
-          email: profile.Email || "", // Set email from profile
+          email: profile.Email || "",
         }));
 
         // Fetch allowance types
         const allowances = await fetchAllowances();
+        console.log("Loaded allowance types:", allowances);
         setAllowanceTypes(allowances);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch data:", err);
-        setError(t("errorFetchingData"));
+        console.error("Failed to fetch data:", err.response?.data || err.message);
+        setError(t("errorFetchingData") + ": " + (err.response?.data?.error || err.message));
         setLoading(false);
       }
     };
@@ -47,7 +49,6 @@ const UserAllowances = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Only allow changes to fields other than email
     if (name !== "email") {
       setFormData((prevData) => ({
         ...prevData,
@@ -61,10 +62,7 @@ const UserAllowances = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = (e) => {
-    e.preventDefault();
-
-    // Validation
+  const handleUploadClick = () => {
     if (!formData.email || !formData.type) {
       Swal.fire({
         icon: "error",
@@ -85,29 +83,27 @@ const UserAllowances = () => {
       return;
     }
 
-    navigate("/UserAllowancesBC", { state: { formData } }); // Navigate after validation
+    console.log("Navigating to UserAllowancesBC with formData:", formData);
+    navigate("/user_allowances_bc", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {
+    console.log("Changing language to:", lang);
     changeLanguage(lang);
   };
 
   // Map API type to translation key
   const getTranslationKey = (apiType) => {
-    switch (apiType) {
-      case "Adult Allowances":
-        return "adultAllowances";
-      case "Disabled Allowances":
-        return "disabledAllowances";
-      case "Widow Allowances":
-        return "WidowAllowances";
-      case "Nutritional And Food Allowance":
-        return "NutritionalAndFoodAllowance";
-      case "Agriculture And Farming Subsidies Allowances":
-        return "AgricultureandFarmingSubsidiesAllowances";
-      default:
-        return apiType;
-    }
+    const translationMap = {
+      "Adult Allowances": "adultAllowances",
+      "Disabled Allowances": "disabledAllowances",
+      "Widow Allowances": "WidowAllowances",
+      "Nutritional And Food Allowance": "NutritionalAndFoodAllowance",
+      "Agriculture And Farming Subsidies Allowances": "AgricultureandFarmingSubsidiesAllowances",
+    };
+    const key = translationMap[apiType] || apiType;
+    console.log(`Translated ${apiType} to ${key}`);
+    return key;
   };
 
   return (
@@ -125,8 +121,7 @@ const UserAllowances = () => {
           </div>
 
           <form className="allowances-form">
-            {/* Email Input (Disabled) */}
-            <div className="form-group">
+            <div className="form-allowances-group">
               <label htmlFor="email">{t("emailLabel")}</label>
               <input
                 type="email"
@@ -136,11 +131,10 @@ const UserAllowances = () => {
                 onChange={handleInputChange}
                 placeholder={t("emailPlaceholder")}
                 required
-                disabled // Disable the email input
+                disabled
               />
             </div>
 
-            {/* Allowance Type Selection */}
             <div className="form-allowances-group">
               <label htmlFor="type">{t("allowancesLabel")}</label>
               <select
@@ -155,9 +149,11 @@ const UserAllowances = () => {
                   {t("selectAllowancesType")}
                 </option>
                 {loading ? (
-                  <option disabled>{t("loading")}</option>
+                  <option disabled>{t("loading") || "Loading..."}</option>
                 ) : error ? (
                   <option disabled>{error}</option>
+                ) : allowanceTypes.length === 0 ? (
+                  <option disabled>{t("noAllowancesAvailable") || "No allowance types available"}</option>
                 ) : (
                   allowanceTypes.map((allowance) => (
                     <option key={allowance.Allowances_ID} value={allowance.Allowances_Type}>
@@ -168,11 +164,10 @@ const UserAllowances = () => {
               </select>
             </div>
 
-            {/* Next Button */}
             <div className="form-allowances-group">
               <button
                 type="button"
-                className="upload-allowances-button"
+                className="upload-allowance-button"
                 onClick={handleUploadClick}
                 disabled={loading || !!error || !formData.email}
               >

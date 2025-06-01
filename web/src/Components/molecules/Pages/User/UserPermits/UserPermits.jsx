@@ -85,7 +85,7 @@ const UserPermits = () => {
     }
 
     console.log("Navigating to UserPermitsPR with formData:", formData);
-    navigate("/UserPermitsPR", { state: { formData } });
+    navigate("/user_permits_pr", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {

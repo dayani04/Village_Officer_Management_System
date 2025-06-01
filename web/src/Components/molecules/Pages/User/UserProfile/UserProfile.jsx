@@ -194,7 +194,7 @@ const UserProfile = () => {
   };
 
   const handleBack = () => {
-    navigate('/UserDashboard');
+    navigate('/user_dashboard');
   };
 
   if (loading) {

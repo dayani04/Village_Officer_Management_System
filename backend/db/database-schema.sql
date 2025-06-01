@@ -90,6 +90,16 @@ CREATE TABLE Allowances_recode (
 
 
 INSERT INTO allowances_recode (Allowances_ID,Allowances_Type) VALUES (1, 'Adult Allowances'), (2, 'Disabled Allowances'), (3,'Widow Allowances'), (4,'Nutritional And Food Allowance'), (5,'Agriculture And Farming Subsidies Allowances');
+CREATE TABLE villager_has_allowances_recode (
+    application_id INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50),
+   Allowances_ID VARCHAR(50),
+    apply_date DATE NOT NULL,
+    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    document_path VARCHAR(255),
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
+    FOREIGN KEY (Allowances_ID) REFERENCES Election_recode(Allowances_ID) ON DELETE CASCADE
+);
 
 
 CREATE TABLE villager_has_allowances_recode (

@@ -28,7 +28,7 @@ const PermitOwner = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/permit-villager-details/${villagerId}`);
+    navigate(`/permits_owner_details/${villagerId}`);
   };
 
   const handleBack = () => {

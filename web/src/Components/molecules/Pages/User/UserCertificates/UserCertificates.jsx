@@ -80,7 +80,7 @@ const UserCertificates = () => {
     }
 
     console.log("Navigating to UserCertificatesBC with formData:", formData);
-    navigate("/UserCertificatesBC", { state: { formData } });
+    navigate("/user_certificates_bc", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {

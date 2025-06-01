@@ -3,9 +3,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
 import * as villagerApi from '../../../../../api/villager';
-import './SecretaryAllowanceOwnersView.css';
+import './SecretaryElectionApplicationsVillagerView.css';
 
-const SecretaryAllowanceOwnersView = () => {
+const SecretaryElectionApplicationsVillagerView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [villager, setVillager] = useState(null);
@@ -35,8 +35,9 @@ const SecretaryAllowanceOwnersView = () => {
     fetchVillager();
   }, [id]);
 
+
   const handleBack = () => {
-    navigate('/SecretaryAllowanceOwners');
+    navigate('/secretary_election_applications');
   };
 
   if (loading) {
@@ -126,4 +127,4 @@ const SecretaryAllowanceOwnersView = () => {
   );
 };
 
-export default SecretaryAllowanceOwnersView;
+export default SecretaryElectionApplicationsVillagerView;

@@ -59,7 +59,7 @@ const UserPermitsID = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserPermitsPR", { state: { formData } });
+    navigate("/user_permits_pr", { state: { formData } });
   };
 
   const handleSubmit = async () => {
@@ -109,7 +109,7 @@ const UserPermitsID = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard");
+        navigate("/user_dashboard");
       });
     } catch (error) {
       console.error("Submission error:", {

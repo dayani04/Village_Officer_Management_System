@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import * as allowanceApi from '../../../../../api/allowanceApi';
-import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
-import './SecretaryAllowanceOwners.css';
+import * as permitApplicationApi from '../../../../../api/permitApplication';
+import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard'; // Import SecretaryDashBoard
+import './SecretaryPermitsOwner.css';
 
-const SecretaryAllowanceOwners = () => {
+const SecretaryPermitsOwner = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,21 +13,14 @@ const SecretaryAllowanceOwners = () => {
   useEffect(() => {
     const fetchConfirmedApplications = async () => {
       try {
-        const data = await allowanceApi.fetchConfirmedAllowanceApplications();
+        const data = await permitApplicationApi.fetchConfirmedPermitApplications();
         console.log('Fetched confirmed applications:', data);
         setApplications(data);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
-        setError(err.error || 'Failed to fetch confirmed allowance applications');
+        setError(err.error || 'Failed to fetch confirmed permit applications');
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch confirmed allowance applications', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
-        });
       }
     };
 
@@ -37,11 +29,11 @@ const SecretaryAllowanceOwners = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/SecretaryAllowanceOwnersView/${villagerId}`);
+    navigate(`/secretary_permits_owner_view/${villagerId}`);
   };
 
   const handleBack = () => {
-    navigate('/SecretaryDashBoard');
+    navigate('/SecretaryDashBoard'); // Updated to match SecretaryDashBoard route
   };
 
   if (loading) {
@@ -65,14 +57,13 @@ const SecretaryAllowanceOwners = () => {
         </div>
         <div className="villager-list-container">
           <div className="owners-container">
-            <h1>Confirmed Allowance Recipients</h1>
+            <h1>Confirmed Permit Owners</h1>
             <p className="error-message">{error}</p>
             <div className="owners-actions">
               <button className="owners-back-btn" onClick={handleBack}>
                 Back to Dashboard
               </button>
             </div>
-            <Toaster />
           </div>
         </div>
       </div>
@@ -86,14 +77,14 @@ const SecretaryAllowanceOwners = () => {
       </div>
       <div className="villager-list-container">
         <div className="owners-container">
-          <h1>Confirmed Allowance Recipients</h1>
+          <h1>Confirmed Permit Owners</h1>
           <div className="owners-table-wrapper">
             <table className="owners-table">
               <thead>
                 <tr>
                   <th>Villager Name</th>
                   <th>Villager ID</th>
-                  <th>Allowance Type</th>
+                  <th>Permit Type</th>
                   <th>Phone Number</th>
                   <th>Address</th>
                   <th>Action</th>
@@ -105,7 +96,7 @@ const SecretaryAllowanceOwners = () => {
                     <tr key={app.Villager_ID}>
                       <td>{app.Full_Name || 'N/A'}</td>
                       <td>{app.Villager_ID || 'N/A'}</td>
-                      <td>{app.Allowances_Type || 'N/A'}</td>
+                      <td>{app.Permits_Type || 'N/A'}</td>
                       <td>{app.Phone_No || 'N/A'}</td>
                       <td>{app.Address || 'N/A'}</td>
                       <td>
@@ -121,7 +112,7 @@ const SecretaryAllowanceOwners = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="owners-no-data">
-                      No confirmed allowance recipients
+                      No confirmed permit owners
                     </td>
                   </tr>
                 )}
@@ -133,11 +124,10 @@ const SecretaryAllowanceOwners = () => {
               Back to Dashboard
             </button>
           </div>
-          <Toaster />
         </div>
       </div>
     </div>
   );
 };
 
-export default SecretaryAllowanceOwners;
+export default SecretaryPermitsOwner;

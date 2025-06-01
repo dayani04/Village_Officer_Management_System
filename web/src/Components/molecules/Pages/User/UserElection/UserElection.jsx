@@ -86,7 +86,7 @@ const UserElection = () => {
     }
 
     console.log("Navigating to UserElectionID with formData:", formData);
-    navigate("/UserElectionID", { state: { formData } });
+    navigate("/user_election_id", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {
