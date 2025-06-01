@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import * as electionApi from '../../../../../api/electionApplication';
+import * as allowanceApi from '../../../../../api/allowanceApplication';
 import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
-import './SecretaryElectionOwners.css';
+import './SecretaryAllowanceOwners.css';
 
-const SecretaryElectionOwners = () => {
+const SecretaryAllowanceOwners = () => {
   const navigate = useNavigate();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,15 +14,15 @@ const SecretaryElectionOwners = () => {
   useEffect(() => {
     const fetchConfirmedApplications = async () => {
       try {
-        const data = await electionApi.fetchConfirmedElectionApplications();
+        const data = await allowanceApi.fetchConfirmedAllowanceApplications();
         console.log('Fetched confirmed applications:', data);
         setApplications(data);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
-        setError(err.error || 'Failed to fetch confirmed election applications');
+        setError(err.error || 'Failed to fetch confirmed allowance applications');
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch confirmed election applications', {
+        toast.error(err.error || 'Failed to fetch confirmed allowance applications', {
           style: {
             background: '#f43f3f',
             color: '#fff',
@@ -37,7 +37,7 @@ const SecretaryElectionOwners = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/SecretaryElectionOwnersView/${villagerId}`);
+    navigate(`/secretary_allowance_owners_view/${villagerId}`);
   };
 
   const handleBack = () => {
@@ -65,7 +65,7 @@ const SecretaryElectionOwners = () => {
         </div>
         <div className="villager-list-container">
           <div className="owners-container">
-            <h1>Confirmed Election Participants</h1>
+            <h1>Confirmed Allowance Recipients</h1>
             <p className="error-message">{error}</p>
             <div className="owners-actions">
               <button className="owners-back-btn" onClick={handleBack}>
@@ -86,14 +86,14 @@ const SecretaryElectionOwners = () => {
       </div>
       <div className="villager-list-container">
         <div className="owners-container">
-          <h1>Confirmed Election Participants</h1>
+          <h1>Confirmed Allowance Recipients</h1>
           <div className="owners-table-wrapper">
             <table className="owners-table">
               <thead>
                 <tr>
                   <th>Villager Name</th>
                   <th>Villager ID</th>
-                  <th>Election Type</th>
+                  <th>Allowance Type</th>
                   <th>Phone Number</th>
                   <th>Address</th>
                   <th>Action</th>
@@ -105,7 +105,7 @@ const SecretaryElectionOwners = () => {
                     <tr key={app.Villager_ID}>
                       <td>{app.Full_Name || 'N/A'}</td>
                       <td>{app.Villager_ID || 'N/A'}</td>
-                      <td>{app.Election_Type || 'N/A'}</td>
+                      <td>{app.Allowances_Type || 'N/A'}</td>
                       <td>{app.Phone_No || 'N/A'}</td>
                       <td>{app.Address || 'N/A'}</td>
                       <td>
@@ -121,7 +121,7 @@ const SecretaryElectionOwners = () => {
                 ) : (
                   <tr>
                     <td colSpan="6" className="owners-no-data">
-                      No confirmed election participants
+                      No confirmed allowance recipients
                     </td>
                   </tr>
                 )}
@@ -131,7 +131,7 @@ const SecretaryElectionOwners = () => {
           <div className="owners-actions">
             <button className="owners-back-btn" onClick={handleBack}>
               Back to Dashboard
-              </button>
+            </button>
           </div>
           <Toaster />
         </div>
@@ -140,4 +140,4 @@ const SecretaryElectionOwners = () => {
   );
 };
 
-export default SecretaryElectionOwners;
+export default SecretaryAllowanceOwners;

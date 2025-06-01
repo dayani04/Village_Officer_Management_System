@@ -17,7 +17,7 @@ const UserAllowancesBC = () => {
   const [loading, setLoading] = useState(false);
 
   // Get form data from UserAllowances
-  const { formData } = location.state || { formData: { email: "", type: "" } };
+  const { formData = { email: "", type: "" } } = location.state || {};
 
   const handleFileChange = (e) => {
     const uploadedFile = e.target.files[0];
@@ -25,9 +25,9 @@ const UserAllowancesBC = () => {
       const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
       if (!allowedTypes.includes(uploadedFile.type)) {
         Swal.fire({
-          icon: "error",
           title: t("uploadRequiredTitleBC"),
-          text: t("invalidFileType"),
+          text: t("uploadRequiredMessageBC"),
+          icon: "error",
           confirmButtonText: t("ok"),
         });
         return;
@@ -45,15 +45,15 @@ const UserAllowancesBC = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserAllowances");
+    navigate("/user_allowances", { state: { formData } });
   };
 
   const handleSubmit = async () => {
-    if (!file) {
+    if (!formData.email || !formData.type || !file) {
       Swal.fire({
-        icon: "error",
         title: t("uploadRequiredTitleBC"),
-        text: t("uploadRequiredMessageBC"),
+        text: t("allFieldsRequired"),
+        icon: "error",
         confirmButtonText: t("ok"),
       });
       return;
@@ -69,18 +69,18 @@ const UserAllowancesBC = () => {
       await submitAllowanceApplication(formDataToSend);
 
       Swal.fire({
-        icon: "success",
         title: t("submissionSuccessTitle"),
         text: t("submissionSuccessMessage"),
+        icon: "success",
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard"); // Redirect to dashboard after success
+        navigate("/user_dashboard");
       });
     } catch (error) {
       Swal.fire({
-        icon: "error",
         title: t("error"),
         text: error.error || t("submissionFailed"),
+        icon: "error",
         confirmButtonText: t("ok"),
       });
     } finally {
@@ -90,94 +90,93 @@ const UserAllowancesBC = () => {
 
   return (
     <section>
-      <NavBar/>
-    <div className="user-allowances-bc-page">
-      <h1 className="allowances-bc-form-title">{t("FormTitleBC")}</h1>
+      <NavBar />
+      <div className="user-allowances-bc-page">
+        <h1 className="allowances-bc-form-title">{t("FormTitleBC")}</h1>
 
-      <div className="language-allowances-bc-selector">
-        <button
-          onClick={() => changeLanguage("en")}
-          className="language-allowances-bc-btn"
-        >
-          English
-        </button>
-        <button
-          onClick={() => changeLanguage("si")}
-          className="language-allowances-bc-btn"
-        >
-          සිංහල
-        </button>
-      </div>
-
-      <form className="allowances-bc-form-content">
-        <div className="file-allowances-bc-upload-section">
-          <input
-            type="file"
-            id="file-upload"
-            accept=".pdf,.jpg,.png"
-            onChange={handleFileChange}
-            className="file-allowances-bc-input-field"
-            style={{ display: "none" }}
-          />
-          {file && (
-            <div className="file-allowances-bc-info">
-              <span className="file-allowances-bc-name">{file.name}</span>
-              <a
-                href={URL.createObjectURL(file)}
-                download={file.name}
-                className="file-allowances-bc-download-link"
-              >
-                <br />
-                {t("downloadLink")}
-              </a>
-            </div>
-          )}
-        </div>
-
-        <div className="form-allowances-bc-buttons-section">
+        <div className="language-allowances-bc-selector">
           <button
-            type="button"
-            className="upload-allowances-bc-btn"
-            onClick={handleFileClick}
-            disabled={loading}
+            onClick={() => changeLanguage("en")}
+            className="language-allowances-bc-btn"
           >
-            📎 {t("uploadBCButton")}
+            English
           </button>
-
-          {file && (
-            <button
-              type="button"
-              className="delete-allowances-bc-btn"
-              onClick={handleDelete}
-              disabled={loading}
-            >
-              {t("delete")}
-            </button>
-          )}
-
-          <div className="navigation-allowances-bc-buttons">
-            <button
-              type="button"
-              className="back-allowances-bc-btn"
-              onClick={handleBack}
-              disabled={loading}
-            >
-              {t("back")}
-            </button>
-
-            <button
-              type="button"
-              className="submit-allowances-bc-btn"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? t("submitting") : t("submit")}
-            </button>
-          </div>
+          <button
+            onClick={() => changeLanguage("si")}
+            className="language-allowances-bc-btn"
+          >
+            සිංහල
+          </button>
         </div>
-      </form>
-    </div>
-    <Footer/>
+
+        <form className="allowances-bc-form-content">
+          <div className="file-allowances-bc-upload-section">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".pdf,.jpg,.png"
+              onChange={handleFileChange}
+              className="file-allowances-bc-input-field"
+              style={{ display: "none" }}
+            />
+            {file && (
+              <div className="file-allowances-bc-info">
+                <span className="file-allowances-bc-name">{file.name}</span>
+                <a
+                  href={URL.createObjectURL(file)}
+                  download={file.name}
+                  className="file-allowances-bc-download-link"
+                >
+                  <br />
+                  {t("downloadLink")}
+                </a>
+              </div>
+            )}
+          </div>
+
+          <div className="form-allowances-bc-buttons-section">
+            <button
+              type="button"
+              className="upload-allowances-bc-btn"
+              onClick={handleFileClick}
+              disabled={loading}
+            >
+              📎 {t("uploadBCButton")}
+            </button>
+
+            {file && (
+              <button
+                type="button"
+                className="delete-allowances-bc-btn"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {t("delete")}
+              </button>
+            )}
+
+            <div className="navigation-allowances-bc-buttons">
+              <button
+                type="button"
+                className="back-allowances-bc-btn"
+                onClick={handleBack}
+                disabled={loading}
+              >
+                {t("back")}
+              </button>
+              <button
+                type="button"
+                className="submit-allowances-bc-btn"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? t("submitting") : t("submit")}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <Footer />
     </section>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import * as allowanceApi from '../../../../../api/allowanceApi';
+import * as allowanceApi from '../../../../../api/allowanceApplication';
 import './AllowanceOwners.css';
 
 const AllowanceOwners = () => {
@@ -37,7 +37,7 @@ const AllowanceOwners = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/allowance-villager-details/${villagerId}`);
+    navigate(`/allowances_owners_details/${villagerId}`);
   };
 
   const handleBack = () => {

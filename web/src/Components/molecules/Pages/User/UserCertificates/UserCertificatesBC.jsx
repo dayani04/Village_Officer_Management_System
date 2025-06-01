@@ -45,7 +45,7 @@ const UserCertificatesBC = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserCertificates");
+    navigate("/user_certificates");
   };
 
   const handleSubmit = async () => {
@@ -73,7 +73,7 @@ const UserCertificatesBC = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard"); // Redirect to dashboard after success
+        navigate("/user_dashboard"); // Redirect to dashboard after success
       });
     } catch (error) {
       Swal.fire({

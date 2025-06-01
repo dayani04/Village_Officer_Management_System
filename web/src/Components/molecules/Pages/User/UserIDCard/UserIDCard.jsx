@@ -88,7 +88,7 @@ const UserIDCard = () => {
     }
 
     console.log("Navigating to UserIDCardBC with formData:", formData);
-    navigate("/UserIDCardBC", { state: { formData } });
+    navigate("/user_id_card_bc", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {

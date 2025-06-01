@@ -64,7 +64,7 @@ const Notification = () => {
   };
 
   const handleBack = () => {
-    navigate('/VillagerDashboard');
+    navigate('/user_dashboard');
   };
 
   const formatDate = (dateString) => {

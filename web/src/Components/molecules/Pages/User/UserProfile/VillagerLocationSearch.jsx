@@ -113,7 +113,7 @@ const Houses = () => {
   };
 
   const handleBack = () => {
-    navigate('/village-officer/dashboard');
+    navigate('/user_dashboard');
   };
 
   // Group villagers by unique location (Latitude, Longitude)

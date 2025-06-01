@@ -50,35 +50,35 @@ const UserDashboard = () => {
           imgSrc="https://static.vecteezy.com/system/resources/previews/005/544/718/non_2x/profile-icon-design-free-vector.jpg"
           altText={t('editProfile')}
           buttonText={t('editProfile')}
-          linkTo="/UserProfile" // Navigate to UserProfile page
+          linkTo="/user_profile" // Navigate to UserProfile page
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://img.freepik.com/premium-photo/happy-young-sri-lankan-family-family-portrait_1106493-124766.jpg"
           altText={t('familyDetails')}
           buttonText={t('familyDetails')}
-          linkTo="/FamilyDetails" // Navigate to FamilyDetails page
+          linkTo="/family_details" // Navigate to FamilyDetails page
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.shutterstock.com/image-photo/woman-holding-megaphone-speaker-on-600nw-2502342615.jpg"
           altText={t('announcement')}
           buttonText={t('announcement')} 
-          linkTo="/Notification" 
+          linkTo="/notification" 
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://cdn-icons-png.freepik.com/512/7132/7132557.png"
           altText={t('officeSupport')}
           buttonText={t('officeSupport')} 
-          linkTo="/OfficeSupport" 
+          linkTo="/office_support" 
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.cookieyes.com/wp-content/uploads/2022/05/Privacy-policy-01-1.png"
           altText={t('privacyPolicy')}
           buttonText={t('privacyPolicy')} 
-          linkTo="/PrivacyPolicy" 
+          linkTo="/privacy_policy" 
         />
       </div>
       <br /><br /><br /><br /><br />
@@ -90,35 +90,35 @@ const UserDashboard = () => {
           imgSrc="https://dwtyzx6upklss.cloudfront.net/Pictures/2000xAny/3/5/7/21357_pri_boardelections_hero_777797.png"
           altText={t('applyElection')}
           buttonText={t('applyElection')}
-          linkTo="/UserElection"
+          linkTo="/user_election"
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://hermoney.com/wp-content/uploads/2021/10/cute-little-girl-holding-coin-of-money-and-put-in-pink-piggy-bank-with-blur-background-subject-is_t20_B8QV8K-840x487.jpg"
           altText={t('applyAllowance')}
           buttonText={t('applyAllowance')}
-          linkTo="/UserAllowances"
+          linkTo="/user_allowances"
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.cal-pacs.org/wp-content/uploads/2015/04/workpermit-scaled.jpeg"
           altText={t('applyPermit')}
           buttonText={t('applyPermit')}
-          linkTo="/UserPermits"
+          linkTo="/user_permits"
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://memberclicks.com/wp-content/uploads/2021/12/membership-certificate-1-scaled.jpg"
           altText={t('applyCertificate')}
           buttonText={t('applyCertificate')}
-          linkTo="/UserCertificates"
+          linkTo="/user_certificates"
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://colombotimes.lk/data/202308/1693292532_6126010NIC.jpg"
           altText={t('applyIDCard')}
           buttonText={t('applyIDCard')}
-          linkTo="/UserIDCard"
+          linkTo="/user_id_card"
         />
       </div>
     </div>

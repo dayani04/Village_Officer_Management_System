@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
-import * as villagerApi from '../../../../../api/villager'; // Assume villager API exists
-import './SecretaryPermitsOwnerView.css';
+import * as villagerApi from '../../../../../api/villager';
+import './SecretaryElectionOwnersView.css';
 
-const SecretaryPermitsOwnerView = () => {
+const SecretaryElectionOwnersView = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [villager, setVillager] = useState(null);
@@ -15,14 +15,14 @@ const SecretaryPermitsOwnerView = () => {
   useEffect(() => {
     const fetchVillager = async () => {
       try {
-        const data = await villagerApi.fetchVillager(id); // Fetch villager by ID
+        const data = await villagerApi.fetchVillager(id);
         setVillager(data);
         setLoading(false);
       } catch (err) {
         console.error('Error fetching villager:', err);
-        setError(err.response?.data?.error || err.message || 'Failed to fetch villager');
+        setError(err.error || 'Failed to fetch villager');
         setLoading(false);
-        toast.error(err.response?.data?.error || 'Failed to fetch villager', {
+        toast.error(err.error || 'Failed to fetch villager', {
           style: {
             background: '#f43f3f',
             color: '#fff',
@@ -36,7 +36,7 @@ const SecretaryPermitsOwnerView = () => {
   }, [id]);
 
   const handleBack = () => {
-    navigate('/SecretaryPermitsOwner');
+    navigate('/secretary_election_owners');
   };
 
   if (loading) {
@@ -64,7 +64,7 @@ const SecretaryPermitsOwnerView = () => {
             <div className="error-message">{error || 'Villager not found'}</div>
             <div className="profile-actions">
               <button className="profile-back-btn" onClick={handleBack}>
-                Back to Permit Owners
+                Back to Allowance Recipients
               </button>
             </div>
             <Toaster />
@@ -83,38 +83,40 @@ const SecretaryPermitsOwnerView = () => {
         <div className="profile-container">
           <h1>Villager Details</h1>
           <div className="profile-details">
-            <div className="profile-field">
-              <label>Villager ID:</label>
-              <span>{villager.Villager_ID || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Full Name:</label>
-              <span>{villager.Full_Name || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Email:</label>
-              <span>{villager.Email || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Phone:</label>
-              <span>{villager.Phone_No || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Address:</label>
-              <span>{villager.Address || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Date of Birth:</label>
-              <span>{villager.DOB ? new Date(villager.DOB).toLocaleDateString() : 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>NIC:</label>
-              <span>{villager.NIC || 'N/A'}</span>
-            </div>
+            <p className="profile-field">
+              <strong>Villager ID:</strong> <span>{villager.Villager_ID || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Full Name:</strong> <span>{villager.Full_Name || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Email:</strong> <span>{villager.Email || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Phone:</strong> <span>{villager.Phone_No || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Address:</strong> <span>{villager.Address || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Date of Birth:</strong> <span>{villager.DOB ? new Date(villager.DOB).toLocaleDateString() : 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>NIC:</strong> <span>{villager.NIC || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Regional Division:</strong> <span>{villager.RegionalDivision || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Status:</strong> <span>{villager.Status || 'N/A'}</span>
+            </p>
+            <p className="profile-field">
+              <strong>Area ID:</strong> <span>{villager.Area_ID || 'N/A'}</span>
+            </p>
           </div>
           <div className="profile-actions">
             <button className="profile-back-btn" onClick={handleBack}>
-              Back to Permit Owners
+              Back to Allowance Recipients
             </button>
           </div>
           <Toaster />
@@ -124,4 +126,4 @@ const SecretaryPermitsOwnerView = () => {
   );
 };
 
-export default SecretaryPermitsOwnerView;
+export default SecretaryElectionOwnersView;

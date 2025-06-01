@@ -45,7 +45,7 @@ const UserElectionID = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserElection");
+    navigate("/user_election");
   };
 
   const handleSubmit = async () => {
@@ -74,7 +74,7 @@ const UserElectionID = () => {
         icon: "success",
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard"); // Redirect to dashboard after success
+        navigate("/user_dashboard"); // Redirect to dashboard after success
       });
     } catch (error) {
       Swal.fire({

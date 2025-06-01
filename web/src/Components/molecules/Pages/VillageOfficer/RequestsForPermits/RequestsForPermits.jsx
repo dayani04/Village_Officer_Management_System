@@ -201,7 +201,7 @@ const RequestsForPermits = () => {
                   <option value="Pending">Pending</option>
                   <option value="Send">Send</option>
                   <option value="Rejected">Rejected</option>
-                  <option value="Confirm">Confirm</option>
+                 
                 </select>
               </td>
               <td>

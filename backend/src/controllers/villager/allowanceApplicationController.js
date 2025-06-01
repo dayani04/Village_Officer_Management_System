@@ -1,6 +1,6 @@
 const AllowanceApplication = require("../../models/villager/allowanceApplicationModel");
 const path = require("path");
-const fs = require("fs").promises;
+const fs = require("fs");
 
 const createAllowanceApplication = async (req, res) => {
   try {
@@ -23,15 +23,15 @@ const createAllowanceApplication = async (req, res) => {
 
     const allowance = await AllowanceApplication.getAllowanceByType(allowanceType);
     if (!allowance) {
-      return res.status(404).json({ error: "Allowance type not found" });
+      return res.status(404).json({ error: `Allowance type '${allowanceType}' not found` });
     }
 
     const fileName = `${villager.Villager_ID}_${allowance.Allowances_ID}_${Date.now()}${path.extname(file.originalname)}`;
-    const uploadDir = path.join(__dirname, "../../Uploads");
-    const documentPath = `${fileName}`;
+    const uploadDir = path.join(__dirname, "../../../Uploads");
+    const documentPath = fileName;
 
-    await fs.mkdir(uploadDir, { recursive: true });
-    await fs.writeFile(path.join(uploadDir, fileName), file.buffer);
+    fs.mkdirSync(uploadDir, { recursive: true });
+    fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
 
     const applyDate = new Date().toISOString().split("T")[0];
     const result = await AllowanceApplication.addAllowanceApplication(
@@ -41,7 +41,7 @@ const createAllowanceApplication = async (req, res) => {
       documentPath
     );
 
-    res.status(201).json({ message: "Allowance application submitted successfully", result });
+    res.status(201).json({ message: "Allowance application submitted successfully", applicationId: result.insertId });
   } catch (error) {
     console.error("Error in createAllowanceApplication:", error);
     res.status(500).json({ error: "Server error", details: error.message });
@@ -91,7 +91,7 @@ const updateAllowanceApplicationStatus = async (req, res) => {
       return res.status(400).json({ error: "Status is required" });
     }
 
-    const validStatuses = ["Pending", "Approved", "Rejected"];
+    const validStatuses = ["Pending", "Send", "Rejected", "Confirm"];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ error: `Invalid status. Must be one of: ${validStatuses.join(", ")}` });
     }
@@ -116,7 +116,7 @@ const downloadDocument = async (req, res) => {
       return res.status(404).json({ error: "File not found" });
     }
 
-    const fullPath = path.join(__dirname, "../../Uploads", filePath);
+    const fullPath = path.join(__dirname, "../../../Uploads", filePath);
     if (!fs.existsSync(fullPath)) {
       return res.status(404).json({ error: "File not found on server" });
     }
