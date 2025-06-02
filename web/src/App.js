@@ -35,6 +35,7 @@ import UserCertificates from './Components/molecules/Pages/User/UserCertificates
 import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPermitsID';
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
+import UserPermitCertificates from './Components/molecules/Pages/User/UserPermits/UserPermitCertificates';
 
 
 
@@ -167,6 +168,7 @@ function App() {
           <Route path="/user_permits_pr" element={<UserPermitsPR />} />
           <Route path="/user_permits" element={<UserPermits />} />
           <Route path="/user_permits_id" element={<UserPermitsID />} />
+          <Route path="/user_permit_certificates" element={<UserPermitCertificates />} />
          
           
           

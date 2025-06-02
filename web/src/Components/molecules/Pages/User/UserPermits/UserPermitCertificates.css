@@ -1,0 +1,81 @@
+.certificates-container {
+  max-width: 1200px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.certificates-container h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.certificates-table-wrapper {
+  overflow-x: auto;
+}
+
+.certificates-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #fff;
+}
+
+.certificates-table th,
+.certificates-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.certificates-table th {
+  background-color: #921940;
+  color: white;
+}
+
+.certificates-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.certificates-download-link {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.certificates-download-link:hover {
+  text-decoration: underline;
+}
+
+.certificates-no-data {
+  text-align: center;
+  color: #666;
+  padding: 20px;
+}
+
+.certificates-actions {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.certificates-back-btn {
+  padding: 10px 20px;
+  background-color: #921940;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.certificates-back-btn:hover {
+  background-color: #921940;
+}
+
+.error-message {
+  color: #f43f3f;
+  text-align: center;
+  margin-bottom: 20px;
+}
