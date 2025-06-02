@@ -6,14 +6,13 @@ import './UserProfile.css';
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
 
-// Google Maps settings
 const containerStyle = {
   width: '100%',
   height: '400px'
 };
 
 const defaultCenter = {
-  lat: 6.9271, // Default to a central location (e.g., Kandy, Sri Lanka)
+  lat: 6.9271,
   lng: 79.8612
 };
 
@@ -30,7 +29,10 @@ const UserProfile = () => {
     regional_division: '',
     status: 'Active',
     is_election_participant: false,
-    alive_status: 'Alive', // Added alive_status to formData
+    alive_status: 'Alive',
+    job: '',
+    gender: 'Other',
+    marital_status: 'Unmarried'
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -73,7 +75,10 @@ const UserProfile = () => {
           regional_division: profileData.RegionalDivision || '',
           status: profileData.Status || 'Active',
           is_election_participant: profileData.IsParticipant || false,
-          alive_status: profileData.Alive_Status || 'Alive', // Initialize alive_status
+          alive_status: profileData.Alive_Status || 'Alive',
+          job: profileData.Job || '',
+          gender: profileData.Gender || 'Other',
+          marital_status: profileData.Marital_Status || 'Unmarried'
         });
 
         if (profileData.Latitude && profileData.Longitude) {
@@ -121,7 +126,10 @@ const UserProfile = () => {
         regional_division: formData.regional_division,
         status: formData.status,
         is_election_participant: formData.is_election_participant,
-        alive_status: formData.alive_status, // Include alive_status in payload
+        alive_status: formData.alive_status,
+        job: formData.job,
+        gender: formData.gender,
+        marital_status: formData.marital_status
       };
 
       await api.updateVillager(profile.Villager_ID, updatePayload);
@@ -134,7 +142,10 @@ const UserProfile = () => {
         RegionalDivision: formData.regional_division,
         Status: formData.status,
         IsParticipant: formData.is_election_participant,
-        Alive_Status: formData.alive_status, // Update profile with alive_status
+        Alive_Status: formData.alive_status,
+        Job: formData.job,
+        Gender: formData.gender,
+        Marital_Status: formData.marital_status
       });
       setEditMode(false);
       setError('');
@@ -259,6 +270,41 @@ const UserProfile = () => {
               value={formData.regional_division}
               onChange={handleInputChange}
             />
+          </div>
+          <div className="profile-field">
+            <label>Job:</label>
+            <input
+              type="text"
+              name="job"
+              value={formData.job}
+              onChange={handleInputChange}
+            />
+          </div>
+          <div className="profile-field">
+            <label>Gender:</label>
+            <select
+              name="gender"
+              value={formData.gender}
+              onChange={handleInputChange}
+            >
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div className="profile-field">
+            <label>Marital Status:</label>
+            <select
+              name="marital_status"
+              value={formData.marital_status}
+              onChange={handleInputChange}
+            >
+              <option value="Married">Married</option>
+              <option value="Unmarried">Unmarried</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+              <option value="Separated">Separated</option>
+            </select>
           </div>
           <div className="profile-field">
             <label>Alive Status:</label>
@@ -419,6 +465,18 @@ const UserProfile = () => {
             <div className="profile-field">
               <label>Regional Division:</label>
               <span>{profile.RegionalDivision || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Job:</label>
+              <span>{profile.Job || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Gender:</label>
+              <span>{profile.Gender || 'N/A'}</span>
+            </div>
+            <div className="profile-field">
+              <label>Marital Status:</label>
+              <span>{profile.Marital_Status || 'N/A'}</span>
             </div>
             <div className="profile-field">
               <label>Status:</label>
