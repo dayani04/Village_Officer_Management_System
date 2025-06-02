@@ -127,41 +127,53 @@ CREATE TABLE villager_hase_election_recode_new (
 ALTER TABLE villager_hase_election_recode_new RENAME TO villager_hase_election_recode;
 ALTER TABLE villager_hase_election_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 
+
 DROP TABLE villager_has_permits_recode;
 CREATE TABLE villager_has_permits_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    electionrecodeID INT,
+    Permits_ID INT,
     apply_date DATE NOT NULL,
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     document_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+    FOREIGN KEY (Permits_ID) REFERENCES Permits_recode(Permits_ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_has_permits_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
 
 DROP TABLE villager_has_nic_recode;
 CREATE TABLE villager_has_nic_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    electionrecodeID INT,
+    NIC_ID INT,
     apply_date DATE NOT NULL,
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     document_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+    FOREIGN KEY (NIC_ID) REFERENCES nic_recode(NIC_ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
 
 DROP TABLE villager_has_allowances_recode;
 CREATE TABLE villager_has_allowances_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    electionrecodeID INT,
+    Allowances_ID INT,
     apply_date DATE NOT NULL,
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     document_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
-    FOREIGN KEY (electionrecodeID) REFERENCES Election_recode(ID) ON DELETE CASCADE
+    FOREIGN KEY (Allowances_ID) REFERENCES  Allowances_recode(Allowances_ID) ON DELETE CASCADE
 );
 ALTER TABLE  villager_has_allowances_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
+CREATE TABLE Notification (
+    Notification_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Villager_ID VARCHAR(50) NOT NULL,
+    Message TEXT NOT NULL,
+    Created_At DATETIME DEFAULT CURRENT_TIMESTAMP,
+    Is_Read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE
+);
