@@ -22,6 +22,9 @@ const AddVillager = () => {
     longitude: '',
     is_participant: false,
     alive_status: 'Alive',
+    job: '',
+    gender: 'Other',
+    marital_status: 'Unmarried'
   });
   const [errors, setErrors] = useState({});
 
@@ -104,6 +107,9 @@ const AddVillager = () => {
       longitude: '',
       is_participant: false,
       alive_status: 'Alive',
+      job: '',
+      gender: 'Other',
+      marital_status: 'Unmarried'
     });
     setErrors({});
   };
@@ -219,6 +225,35 @@ const AddVillager = () => {
               onChange={handleChange}
               placeholder="Enter Regional Division (optional)"
             />
+          </div>
+          <div className="add-villager-field">
+            <label htmlFor="job">Job:</label>
+            <input
+              type="text"
+              id="job"
+              name="job"
+              value={formData.job}
+              onChange={handleChange}
+              placeholder="Enter Job (optional)"
+            />
+          </div>
+          <div className="add-villager-field">
+            <label htmlFor="gender">Gender:</label>
+            <select id="gender" name="gender" value={formData.gender} onChange={handleChange}>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div className="add-villager-field">
+            <label htmlFor="marital_status">Marital Status:</label>
+            <select id="marital_status" name="marital_status" value={formData.marital_status} onChange={handleChange}>
+              <option value="Married">Married</option>
+              <option value="Unmarried">Unmarried</option>
+              <option value="Divorced">Divorced</option>
+              <option value="Widowed">Widowed</option>
+              <option value="Separated">Separated</option>
+            </select>
           </div>
           <div className="add-villager-field">
             <label htmlFor="status">Status:</label>
