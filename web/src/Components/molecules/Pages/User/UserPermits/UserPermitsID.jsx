@@ -63,7 +63,6 @@ const UserPermitsID = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate all required fields
     if (!formData.email || !formData.type || !file || !policeReport) {
       Swal.fire({
         icon: "error",
@@ -74,7 +73,6 @@ const UserPermitsID = () => {
       return;
     }
 
-    // Validate file objects
     if (!(file instanceof File) || !(policeReport instanceof File)) {
       Swal.fire({
         icon: "error",
@@ -93,7 +91,6 @@ const UserPermitsID = () => {
       formDataToSend.append("document", file);
       formDataToSend.append("policeReport", policeReport);
 
-      // Log FormData contents
       const formDataEntries = {};
       for (const [key, value] of formDataToSend.entries()) {
         formDataEntries[key] = value instanceof File ? { name: value.name, type: value.type, size: value.size } : value;
@@ -112,15 +109,11 @@ const UserPermitsID = () => {
         navigate("/user_dashboard");
       });
     } catch (error) {
-      console.error("Submission error:", {
-        message: error.message,
-        response: error.response ? error.response.data : null,
-        status: error.response ? error.response.status : null,
-      });
+      console.error("Submission error:", error);
       Swal.fire({
         icon: "error",
         title: t("error"),
-        text: error.response?.data?.error || t("submissionFailed"),
+        text: typeof error === "string" ? error : t("submissionFailed"),
         confirmButtonText: t("ok"),
       });
     } finally {
@@ -130,93 +123,87 @@ const UserPermitsID = () => {
 
   return (
     <section>
-      <NavBar/>
-    <div className="user-permit-id-page">
-      <h1 className="permit-id-form-title">{t("permitFormTitleID")}</h1>
+      <NavBar />
+      <div className="user-permit-id-page">
+        <h1 className="permit-id-form-title">{t("permitFormTitleID")}</h1>
 
-      <div className="language-permit-id-selector">
-        <button
-          onClick={() => changeLanguage("en")}
-          className="language-permit-id-btn"
-        >
-          English
-        </button>
-        <button
-          onClick={() => changeLanguage("si")}
-          className="language-permit-id-btn"
-        >
-          සිංහල
-        </button>
-      </div>
-
-      <form className="permit-id-form-content">
-        <div className="file-permit-id-upload-section">
-          <input
-            type="file"
-            id="file-upload"
-            accept=".pdf,.jpg,.png"
-            onChange={handleFileChange}
-            className="file-permit-id-input-field"
-            style={{ display: "none" }}
-          />
-          {file && (
-            <div className="file-permit-id-info">
-              <span className="file-permit-id-name">{file.name}</span>
-              <a
-                href={URL.createObjectURL(file)}
-                download={file.name}
-                className="file-permit-id-download-link"
-              >
-                <br />
-                {t("downloadLink")}
-              </a>
-            </div>
-          )}
-        </div>
-
-        <div className="form-permit-id-buttons-section">
-          <button
-            type="button"
-            className="upload-permit-id-btn"
-            onClick={handleFileClick}
-            disabled={loading}
-          >
-            📎 {t("uploadIDButton")}
+        <div className="language-permit-id-selector">
+          <button onClick={() => changeLanguage("en")} className="language-permit-id-btn">
+            English
           </button>
-
-          {file && (
-            <button
-              type="button"
-              className="delete-permit-id-btn"
-              onClick={handleDelete}
-              disabled={loading}
-            >
-              {t("delete")}
-            </button>
-          )}
-
-          <div className="navigation-permit-id-buttons">
-            <button
-              type="button"
-              className="back-permit-id-btn"
-              onClick={handleBack}
-              disabled={loading}
-            >
-              {t("back")}
-            </button>
-            <button
-              type="button"
-              className="submit-permit-id-btn"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? t("submitting") : t("submit")}
-            </button>
-          </div>
+          <button onClick={() => changeLanguage("si")} className="language-permit-id-btn">
+            සිංහල
+          </button>
         </div>
-      </form>
-    </div>
-    <Footer/>
+
+        <form className="permit-id-form-content">
+          <div className="file-permit-id-upload-section">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".pdf,.jpg,.png"
+              onChange={handleFileChange}
+              className="file-permit-id-input-field"
+              style={{ display: "none" }}
+            />
+            {file && (
+              <div className="file-permit-id-info">
+                <span className="file-permit-id-name">{file.name}</span>
+                <a
+                  href={URL.createObjectURL(file)}
+                  download={file.name}
+                  className="file-permit-id-download-link"
+                >
+                  <br />
+                  {t("downloadLink")}
+                </a>
+              </div>
+            )}
+          </div>
+
+          <div className="form-permit-id-buttons-section">
+            <button
+              type="button"
+              className="upload-permit-id-btn"
+              onClick={handleFileClick}
+              disabled={loading}
+            >
+              📎 {t("uploadIDButton")}
+            </button>
+
+            {file && (
+              <button
+                type="button"
+                className="delete-permit-id-btn"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {t("delete")}
+              </button>
+            )}
+
+            <div className="navigation-permit-id-buttons">
+              <button
+                type="button"
+                className="back-permit-id-btn"
+                onClick={handleBack}
+                disabled={loading}
+              >
+                {t("back")}
+              </button>
+              <button
+                type="button"
+                className="submit-permit-id-btn"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? t("submitting") : t("submit")}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <Footer />
     </section>
   );
 };

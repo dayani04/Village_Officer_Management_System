@@ -187,3 +187,114 @@ CREATE TABLE Notification (
     Is_Read BOOLEAN DEFAULT FALSE,
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE
 );
+
+
+CREATE TABLE EmailRegistry (
+    Email VARCHAR(100) PRIMARY KEY,
+    UserType ENUM('Villager_Officer', 'Secretary') NOT NULL,
+    UserID VARCHAR(50) NOT NULL
+);
+
+-- Drop existing tables if necessary (be cautious, backup data first)
+DROP TABLE IF EXISTS Villager_Officer;
+DROP TABLE IF EXISTS Secretary;
+
+-- Recreate Villager_Officer table
+CREATE TABLE Villager_Officer (
+    Villager_Officer_ID VARCHAR(50) PRIMARY KEY,
+    Full_Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Phone_No VARCHAR(20) NOT NULL,
+    NIC VARCHAR(20),
+    DOB DATE,
+    Address TEXT,
+    RegionalDivision VARCHAR(100),
+    Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    Area_ID VARCHAR(50),
+    FOREIGN KEY (Area_ID) REFERENCES Area(Area_ID),
+    FOREIGN KEY (Email) REFERENCES EmailRegistry(Email)
+);
+
+-- Recreate Secretary table
+CREATE TABLE Secretary (
+    Secretary_ID VARCHAR(50) PRIMARY KEY,
+    Full_Name VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL,
+    Password VARCHAR(255) NOT NULL,
+    Phone_No VARCHAR(20) NOT NULL,
+    NIC VARCHAR(20),
+    DOB DATE,
+    Address TEXT,
+    RegionalDivision VARCHAR(100),
+    Status ENUM('Active', 'Inactive') DEFAULT 'Active',
+    Area_ID VARCHAR(50),
+    FOREIGN KEY (Area_ID) REFERENCES Area(Area_ID),
+    FOREIGN KEY (Email) REFERENCES EmailRegistry(Email)
+);
+
+DELIMITER //
+
+CREATE TRIGGER before_secretary_insert
+BEFORE INSERT ON Secretary
+FOR EACH ROW
+BEGIN
+    DECLARE email_count INT;
+
+    -- Check if email already exists in EmailRegistry
+    SELECT COUNT(*) INTO email_count
+    FROM EmailRegistry
+    WHERE Email = NEW.Email;
+
+    IF email_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Email already in use by another user';
+    END IF;
+
+    -- Insert email into EmailRegistry
+    INSERT INTO EmailRegistry (Email, UserType, UserID)
+    VALUES (NEW.Email, 'Secretary', NEW.Secretary_ID);
+END //
+DROP TRIGGER IF EXISTS before_secretary_insert;
+
+DELIMITER //
+
+CREATE TRIGGER before_secretary_insert
+BEFORE INSERT ON Secretary
+FOR EACH ROW
+BEGIN
+    DECLARE email_count INT;
+    SELECT COUNT(*) INTO email_count
+    FROM EmailRegistry
+    WHERE Email = NEW.Email;
+    IF email_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Email already in use by another user';
+    END IF;
+    INSERT INTO EmailRegistry (Email, UserType, UserID)
+    VALUES (NEW.Email, 'Secretary', NEW.Secretary_ID);
+END //
+
+DELIMITER ;
+DROP TRIGGER IF EXISTS before_secretary_insert;
+SHOW TRIGGERS WHERE `Table` = 'Secretary';
+DROP TRIGGER IF EXISTS before_villager_officer_insert;
+DELIMITER //
+
+CREATE TRIGGER before_villager_officer_insert
+BEFORE INSERT ON Villager_Officer
+FOR EACH ROW
+BEGIN
+    DECLARE email_count INT;
+    SELECT COUNT(*) INTO email_count
+    FROM EmailRegistry
+    WHERE Email = NEW.Email;
+    IF email_count > 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Email already in use by another user';
+    END IF;
+    INSERT INTO EmailRegistry (Email, UserType, UserID)
+    VALUES (NEW.Email, 'Villager_Officer', NEW.Villager_Officer_ID);
+END //
+
+DELIMITER ;

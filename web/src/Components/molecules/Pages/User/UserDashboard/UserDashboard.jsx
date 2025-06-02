@@ -69,15 +69,15 @@ const UserDashboard = () => {
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://cdn-icons-png.freepik.com/512/7132/7132557.png"
-          altText={t('officeSupport')}
-          buttonText={t('officeSupport')} 
-          linkTo="/office_support" 
+          altText={t('permitcertificates')}
+          buttonText={t('permitcertificates')} 
+          linkTo="/user_permit_certificates" 
         />
         <div className="vertical-line"></div>
         <OptionCard
           imgSrc="https://www.cookieyes.com/wp-content/uploads/2022/05/Privacy-policy-01-1.png"
-          altText={t('privacyPolicy')}
-          buttonText={t('privacyPolicy')} 
+          altText={t('approvedvillageofficerceritificates')}
+          buttonText={t('approvedvillageofficerceritificates')} 
           linkTo="/privacy_policy" 
         />
       </div>
