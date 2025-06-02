@@ -132,10 +132,11 @@ DROP TABLE villager_has_permits_recode;
 CREATE TABLE villager_has_permits_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    Permits_ID INT,
+    Permits_ID VARCHAR(50),
     apply_date DATE NOT NULL,
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     document_path VARCHAR(255),
+    police_report_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (Permits_ID) REFERENCES Permits_recode(Permits_ID) ON DELETE CASCADE
 );
@@ -146,21 +147,21 @@ DROP TABLE villager_has_nic_recode;
 CREATE TABLE villager_has_nic_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    NIC_ID INT,
+    NIC_ID VARCHAR(50),
     apply_date DATE NOT NULL,
-    status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
+    status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending',
     document_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (NIC_ID) REFERENCES nic_recode(NIC_ID) ON DELETE CASCADE
 );
-ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
 
 
 DROP TABLE villager_has_allowances_recode;
 CREATE TABLE villager_has_allowances_recode (
     application_id INT AUTO_INCREMENT PRIMARY KEY,
     Villager_ID VARCHAR(50),
-    Allowances_ID INT,
+    Allowances_ID VARCHAR(50),
     apply_date DATE NOT NULL,
     status ENUM('Pending', 'Approved', 'Rejected') DEFAULT 'Pending',
     document_path VARCHAR(255),
