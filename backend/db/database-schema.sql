@@ -23,6 +23,15 @@ ADD Alive_Status ENUM('Alive', 'Deceased') DEFAULT 'Alive';
 ALTER TABLE Villager
 ADD COLUMN IsParticipant BOOLEAN DEFAULT FALSE; -- Or TINYINT(1) DEFAULT 0; depending on your SQL database
 
+ALTER TABLE villager
+ADD Job VARCHAR(100);
+
+ALTER TABLE Villager
+ADD Gender ENUM('Male', 'Female', 'Other') DEFAULT 'Other';
+
+ALTER TABLE Villager
+ADD Marital_Status ENUM('Married', 'Unmarried', 'Divorced', 'Widowed', 'Separated') DEFAULT 'Unmarried';
+
 CREATE TABLE Area (
     Area_ID VARCHAR(50) PRIMARY KEY,
     ZipCode VARCHAR(20) NOT NULL

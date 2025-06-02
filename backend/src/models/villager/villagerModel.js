@@ -1,81 +1,78 @@
 const pool = require("../../config/database");
 
 const getAllVillagers = async () => {
-  const [rows] = await pool.query("SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status FROM Villager");
+  const [rows] = await pool.query(`
+    SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+    FROM Villager
+  `);
   return rows;
 };
 
 const getVillagerById = async (id) => {
-  const [rows] = await pool.query("SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status FROM Villager WHERE Villager_ID = ?", [id]);
+  const [rows] = await pool.query(`
+    SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+    FROM Villager WHERE Villager_ID = ?
+  `, [id]);
   return rows[0];
 };
 
 const getVillagerByEmail = async (email) => {
-  const [rows] = await pool.query("SELECT Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status FROM Villager WHERE Email = ?", [email]);
+  const [rows] = await pool.query(`
+    SELECT Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, RegionalDivision, 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+    FROM Villager WHERE Email = ?
+  `, [email]);
   return rows[0];
 };
 
 const addVillager = async (
-  villager_id,
-  full_name,
-  email,
-  password,
-  phone_no,
-  nic,
-  dob,
-  address,
-  regional_division,
-  status,
-  area_id,
-  latitude = null,
-  longitude = null,
-  is_participant = false,
-  alive_status = 'Alive'
+  villager_id, full_name, email, password, phone_no, nic, dob, address, 
+  regional_division, status, area_id, latitude, longitude, is_participant, 
+  alive_status, job, gender, marital_status
 ) => {
   const [result] = await pool.query(
-    "INSERT INTO Villager (Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+    `INSERT INTO Villager (
+      Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, 
+      RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, 
+      Alive_Status, Job, Gender, Marital_Status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     [
-      villager_id,
-      full_name,
-      email,
-      password,
-      phone_no,
-      nic,
-      dob,
-      address,
-      regional_division,
-      status || "Active",
-      area_id,
-      latitude,
-      longitude,
-      is_participant,
-      alive_status
+      villager_id, full_name, email, password, phone_no, nic, dob, address,
+      regional_division, status || "Active", area_id, latitude, longitude,
+      is_participant, alive_status || "Alive", job, gender || "Other", 
+      marital_status || "Unmarried"
     ]
   );
   return villager_id;
 };
 
-const updateVillager = async (id, full_name, email, phone_no, address, regional_division, status, is_participant, alive_status) => {
+const updateVillager = async (
+  id, full_name, email, phone_no, address, regional_division, status, 
+  is_participant, alive_status, job, gender, marital_status
+) => {
   try {
     if (!full_name || !email || !phone_no) {
       throw new Error("Full_Name, Email, and Phone_No are required");
     }
 
     const participantValue = is_participant ? 1 : 0;
-    const aliveStatusValue = alive_status || 'Alive';
-
     const [result] = await pool.query(
-      "UPDATE Villager SET Full_Name = ?, Email = ?, Phone_No = ?, Address = ?, RegionalDivision = ?, Status = ?, IsParticipant = ?, Alive_Status = ? WHERE Villager_ID = ?",
+      `UPDATE Villager SET 
+        Full_Name = ?, Email = ?, Phone_No = ?, Address = ?, RegionalDivision = ?, 
+        Status = ?, IsParticipant = ?, Alive_Status = ?, Job = ?, Gender = ?, Marital_Status = ?
+      WHERE Villager_ID = ?`,
       [
-        full_name,
-        email,
-        phone_no,
+        full_name, email, phone_no, 
         address !== undefined ? address : null,
         regional_division !== undefined ? regional_division : null,
-        status || "Active",
-        participantValue,
-        aliveStatusValue,
-        id,
+        status || "Active", participantValue, 
+        alive_status || "Alive", 
+        job !== undefined ? job : null,
+        gender || "Other", 
+        marital_status || "Unmarried",
+        id
       ]
     );
     return result.affectedRows > 0;
@@ -89,7 +86,7 @@ const updateVillagerParticipation = async (id, is_participant) => {
   try {
     const [result] = await pool.query(
       "UPDATE Villager SET IsParticipant = ? WHERE Villager_ID = ?",
-      [is_participant ? 1 : 0, id]
+      [is_participant ? RADIO_BUTTON_ON : 0, id]
     );
     return result.affectedRows > 0;
   } catch (error) {
