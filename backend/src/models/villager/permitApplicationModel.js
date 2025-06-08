@@ -54,7 +54,7 @@ const PermitApplication = {
     return rows;
   },
 
-  getConfirmedPermitApplications: async (villagerId) => {
+ getConfirmedPermitApplications: async () => {
     const query = `
       SELECT 
         v.Full_Name,
@@ -67,12 +67,11 @@ const PermitApplication = {
       FROM villager_has_Permits_recode vp
       JOIN Villager v ON v.Villager_ID = vp.Villager_ID
       JOIN Permits_recode p ON p.Permits_ID = vp.Permits_ID
-      WHERE vp.status = 'Confirm' AND v.Villager_ID = ?
+      WHERE vp.status = 'Confirm'
     `;
-    const [rows] = await db.query(query, [villagerId]);
+    const [rows] = await db.query(query);
     return rows;
   },
-
   getPermitApplicationByIds: async (villagerId, permitsId) => {
     const query = `
       SELECT * 

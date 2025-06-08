@@ -195,9 +195,7 @@ CREATE TABLE EmailRegistry (
     UserID VARCHAR(50) NOT NULL
 );
 
--- Drop existing tables if necessary (be cautious, backup data first)
-DROP TABLE IF EXISTS Villager_Officer;
-DROP TABLE IF EXISTS Secretary;
+
 
 -- Recreate Villager_Officer table
 CREATE TABLE Villager_Officer (
