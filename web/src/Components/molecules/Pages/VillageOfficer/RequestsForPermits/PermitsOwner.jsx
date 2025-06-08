@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import toast, { Toaster } from 'react-hot-toast';
 import * as permitApplicationApi from '../../../../../api/permitApplication';
 import './PermitsOwner.css';
 
@@ -20,6 +21,13 @@ const PermitOwner = () => {
         console.error('Fetch error:', err);
         setError(err.error || 'Failed to fetch confirmed permit applications');
         setLoading(false);
+        toast.error(err.error || 'Failed to fetch confirmed permit applications', {
+          style: {
+            background: '#f43f3f',
+            color: '#fff',
+            borderRadius: '4px',
+          },
+        });
       }
     };
 
@@ -40,50 +48,70 @@ const PermitOwner = () => {
   }
 
   if (error) {
-    return <div className="owners-container">Error: {error}</div>;
+    return (
+      <div className="owners-container">
+        <h1>Confirmed Permit Owners</h1>
+        <p className="error-message">{error}</p>
+        <div className="owners-actions">
+          <button className="back-button" onClick={handleBack}>
+            Back to Dashboard
+          </button>
+        </div>
+        <Toaster />
+      </div>
+    );
   }
 
   return (
     <div className="owners-container">
       <h1>Confirmed Permit Owners</h1>
-
-      <table className="owners-table">
-        <thead>
-          <tr>
-            <th>Villager Name</th>
-            <th>Villager ID</th>
-            <th>Permit Type</th>
-            <th>Phone Number</th>
-            <th>Address</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applications.map((app) => (
-            <tr key={app.Villager_ID}>
-              <td>{app.Full_Name}</td>
-              <td>{app.Villager_ID}</td>
-              <td>{app.Permits_Type}</td>
-              <td>{app.Phone_No}</td>
-              <td>{app.Address}</td>
-              <td>
-                <button
-                  className="view-button"
-                  onClick={() => handleViewDetails(app.Villager_ID)}
-                >
-                  View
-                </button>
-              </td>
+      <div className="owners-table-wrapper">
+        <table className="owners-table">
+          <thead>
+            <tr>
+              <th>Villager Name</th>
+              <th>Villager ID</th>
+              <th>Permit Type</th>
+              <th>Phone Number</th>
+              <th>Address</th>
+              <th>Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-
+          </thead>
+          <tbody>
+            {applications.length > 0 ? (
+              applications.map((app) => (
+                <tr key={app.Villager_ID}>
+                  <td>{app.Full_Name || 'N/A'}</td>
+                  <td>{app.Villager_ID || 'N/A'}</td>
+                  <td>{app.Permits_Type || 'N/A'}</td>
+                  <td>{app.Phone_No || 'N/A'}</td>
+                  <td>{app.Address || 'N/A'}</td>
+                  <td>
+                    <button
+                      className="view-button"
+                      onClick={() => handleViewDetails(app.Villager_ID)}
+                    >
+                      View
+                    </button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="6" className="owners-no-data">
+                  No confirmed permit owners
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
       <div className="owners-actions">
         <button className="back-button" onClick={handleBack}>
           Back to Dashboard
         </button>
       </div>
+      <Toaster />
     </div>
   );
 };

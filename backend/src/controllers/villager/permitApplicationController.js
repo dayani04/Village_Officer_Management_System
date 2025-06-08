@@ -87,8 +87,7 @@ const getPermitApplications = async (req, res) => {
 
 const getConfirmedPermitApplications = async (req, res) => {
   try {
-    const villagerId = req.user.userId; // Get Villager_ID from JWT token
-    const applications = await PermitApplication.getConfirmedPermitApplications(villagerId);
+    const applications = await PermitApplication.getConfirmedPermitApplications();
     res.json(applications);
   } catch (error) {
     console.error("Error in getConfirmedPermitApplications:", error);
