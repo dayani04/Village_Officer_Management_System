@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'secretary_dashboard.dart';
 
 class SecretaryAllowanceApplicationsVillagerViewPage extends StatefulWidget {
@@ -24,7 +25,21 @@ class _SecretaryAllowanceApplicationsVillagerViewPageState
   @override
   void initState() {
     super.initState();
+    if (widget.villagerId.isEmpty) {
+      setState(() {
+        _error = 'Invalid Villager ID';
+        _loading = false;
+      });
+      return;
+    }
     fetchVillager();
+  }
+
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    debugPrint('DEBUG: Retrieved token: $token');
+    return token;
   }
 
   Future<void> fetchVillager() async {
@@ -33,10 +48,18 @@ class _SecretaryAllowanceApplicationsVillagerViewPageState
       _error = null;
     });
     try {
+      final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
       final response = await http.get(
         Uri.parse('http://localhost:5000/api/villagers/${widget.villagerId}'),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
+      debugPrint('DEBUG: Fetch villager response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         setState(() {
           villager = json.decode(response.body);
@@ -44,11 +67,17 @@ class _SecretaryAllowanceApplicationsVillagerViewPageState
         });
       } else {
         setState(() {
-          _error = 'Failed to fetch villager: ${response.body}';
+          _error = response.statusCode == 401
+              ? 'Unauthorized: Please log in again'
+              : 'Failed to fetch villager: ${response.body}';
           _loading = false;
         });
+        if (response.statusCode == 401 && mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       }
     } catch (e) {
+      debugPrint('DEBUG: Fetch villager error: $e');
       setState(() {
         _error = 'Error: $e';
         _loading = false;
@@ -57,7 +86,17 @@ class _SecretaryAllowanceApplicationsVillagerViewPageState
   }
 
   void handleBack() {
-    Navigator.pop(context);
+    Navigator.pushReplacementNamed(context, '/secretary_allowance_applications');
+  }
+
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'N/A';
+    try {
+      final date = DateTime.parse(dateStr);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (_) {
+      return dateStr;
+    }
   }
 
   @override
@@ -67,124 +106,110 @@ class _SecretaryAllowanceApplicationsVillagerViewPageState
         children: [
           Container(
             width: 250,
-            color: Color(0xFF9C284F),
+            color: const Color(0xFF9C284F),
             child: const SecretaryDashboard(),
           ),
           Expanded(
-            child: Center(
-              child: Container(
-                constraints: const BoxConstraints(maxWidth: 900),
-                margin: const EdgeInsets.symmetric(vertical: 32),
-                padding: const EdgeInsets.all(32),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF9F9F9),
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 8,
-                      offset: Offset(0, 2),
-                    ),
-                  ],
+            child: Container(
+              color: const Color(0xFFF8F9FA),
+              child: Scaffold(
+                appBar: AppBar(
+                  title: const Text('Allowance Application Villager Details'),
+                  backgroundColor: const Color(0xFF7A1632),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
                 ),
-                child: _loading
+                body: _loading
                     ? const Center(child: CircularProgressIndicator())
-                    : _error != null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Allowance Application Villager Details',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
+                    : _error != null || villager == null
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  _error ?? 'Villager not found',
+                                  style: const TextStyle(color: Colors.red),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: handleBack,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF7A1632),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Back to Applications'),
+                                ),
+                              ],
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            _error!,
-                            style: const TextStyle(color: Color(0xFFF43F3F)),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7A1632),
-                              foregroundColor: Colors.white,
-                            ),
-                            onPressed: handleBack,
-                            child: const Text('Back'),
-                          ),
-                        ],
-                      )
-                    : villager == null
-                    ? const SizedBox.shrink()
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Allowance Application Villager Details',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          ...villager!.entries.map(
-                            (entry) => Padding(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 6.0,
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Card(
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: Text(
-                                      '${entry.key}:',
+                              child: Padding(
+                                padding: const EdgeInsets.all(24.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Villager ID: ${villager!['Villager_ID'] ?? 'N/A'}',
                                       style: const TextStyle(
+                                        fontSize: 20,
                                         fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                  ),
-                                  Expanded(
-                                    flex: 3,
-                                    child: Text(
-                                      entry.value?.toString() ?? 'N/A',
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Full Name: ${villager!['Full_Name'] ?? 'N/A'}',
+                                      style: const TextStyle(fontSize: 18),
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Email: ${villager!['Email'] ?? 'N/A'}',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Phone: ${villager!['Phone_No'] ?? 'N/A'}',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Address: ${villager!['Address'] ?? 'N/A'}',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'Date of Birth: ${_formatDate(villager!['DOB'])}',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Text(
+                                      'NIC: ${villager!['NIC'] ?? 'N/A'}',
+                                      style: const TextStyle(fontSize: 18),
+                                    ),
+                                    const SizedBox(height: 24),
+                                    ElevatedButton(
+                                      onPressed: handleBack,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(0xFF7A1632),
+                                        foregroundColor: Colors.white,
+                                      ),
+                                      child: const Text('Back to Applications'),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                          const SizedBox(height: 24),
-                          Center(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7A1632),
-                                foregroundColor: Colors.white,
-                              ),
-                              onPressed: handleBack,
-                              child: const Text('Back'),
-                            ),
-                          ),
-                        ],
-                      ),
               ),
             ),
           ),
         ],
       ),
     );
-  }
-
-  String _formatDate(String dateStr) {
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (_) {
-      return dateStr;
-    }
   }
 }

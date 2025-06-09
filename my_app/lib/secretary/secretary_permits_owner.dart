@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/secretary/secretary_dashboard.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'secretary_dashboard.dart';
 
 class SecretaryPermitsOwnerPage extends StatefulWidget {
   const SecretaryPermitsOwnerPage({Key? key}) : super(key: key);
@@ -13,7 +13,7 @@ class SecretaryPermitsOwnerPage extends StatefulWidget {
 }
 
 class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
-  List<dynamic> applications = [];
+  List<Map<String, dynamic>> applications = [];
   bool loading = true;
   String? error;
 
@@ -37,23 +37,26 @@ class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
       final token = await getToken();
       final response = await http.get(
         Uri.parse('http://localhost:5000/api/permit-applications/confirmed'),
-        headers: token != null ? {'Authorization': 'Bearer $token'} : {},
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
       );
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          applications = data;
+          applications = List<Map<String, dynamic>>.from(data);
           loading = false;
         });
       } else {
         setState(() {
-          error = 'Failed to fetch confirmed permit applications';
+          error = 'Failed to fetch confirmed permit applications: ${response.body}';
           loading = false;
         });
       }
     } catch (e) {
       setState(() {
-        error = 'Failed to fetch confirmed permit applications';
+        error = 'Error: $e';
         loading = false;
       });
     }
@@ -68,7 +71,7 @@ class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
   }
 
   void handleBack() {
-    Navigator.pushNamed(context, '/secretary/secretary_dashboard');
+    Navigator.pushReplacementNamed(context, '/secretary/secretary_dashboard');
   }
 
   @override
@@ -78,7 +81,7 @@ class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
         children: [
           Container(
             width: 250,
-            color: Color(0xFF9C284F),
+            color: const Color(0xFF9C284F),
             child: const SecretaryDashboard(),
           ),
           Expanded(
@@ -94,97 +97,129 @@ class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: loading
                     ? const Center(child: CircularProgressIndicator())
                     : error != null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Confirmed Permit Owners',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            error!,
-                            style: const TextStyle(color: Color(0xFFF43F3F)),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7A1632),
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 10,
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Confirmed Permit Owners',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
+                              const SizedBox(height: 20),
+                              Text(
+                                error!,
+                                style: const TextStyle(color: Color(0xFFF43F3F)),
                               ),
-                            ),
-                            onPressed: handleBack,
-                            child: const Text('Back to Dashboard'),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Confirmed Permit Owners',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                columns: const [
-                                  DataColumn(label: Text('Villager Name')),
-                                  DataColumn(label: Text('Villager ID')),
-                                  DataColumn(label: Text('Permit Type')),
-                                  DataColumn(label: Text('Phone Number')),
-                                  DataColumn(label: Text('Address')),
-                                  DataColumn(label: Text('Action')),
-                                ],
-                                rows: applications.isNotEmpty
-                                    ? applications
-                                          .map(
-                                            (app) => DataRow(
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF7A1632),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                ),
+                                onPressed: handleBack,
+                                child: const Text('Back to Dashboard'),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Confirmed Permit Owners',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
+                                    headingRowColor: MaterialStateProperty.all(
+                                      const Color(0xFFF3F3F3),
+                                    ),
+                                    dataRowColor:
+                                        MaterialStateProperty.resolveWith<Color?>(
+                                      (Set<MaterialState> states) {
+                                        if (states.contains(MaterialState.selected)) {
+                                          return const Color(0xFFEDE7F6);
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    columns: const [
+                                      DataColumn(
+                                        label: Text(
+                                          'Villager Name',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Villager ID',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Permit Type',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Phone Number',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Address',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Action',
+                                          style: TextStyle(fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                    rows: applications.isNotEmpty
+                                        ? applications.map((app) {
+                                            return DataRow(
                                               cells: [
                                                 DataCell(
-                                                  Text(
-                                                    app['Full_Name'] ?? 'N/A',
-                                                  ),
+                                                  Text(app['Full_Name'] ?? 'N/A'),
                                                 ),
                                                 DataCell(
-                                                  Text(
-                                                    app['Villager_ID'] ?? 'N/A',
-                                                  ),
+                                                  Text(app['Villager_ID'] ?? 'N/A'),
                                                 ),
                                                 DataCell(
-                                                  Text(
-                                                    app['Permits_Type'] ??
-                                                        'N/A',
-                                                  ),
+                                                  Text(app['Permits_Type'] ?? 'N/A'),
                                                 ),
                                                 DataCell(
-                                                  Text(
-                                                    app['Phone_No'] ?? 'N/A',
-                                                  ),
+                                                  Text(app['Phone_No'] ?? 'N/A'),
                                                 ),
                                                 DataCell(
                                                   Text(app['Address'] ?? 'N/A'),
@@ -192,78 +227,63 @@ class _SecretaryPermitsOwnerPageState extends State<SecretaryPermitsOwnerPage> {
                                                 DataCell(
                                                   ElevatedButton(
                                                     style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          const Color(
-                                                            0xFF7A1632,
-                                                          ),
-                                                      foregroundColor:
-                                                          Colors.white,
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 10,
-                                                            vertical: 5,
-                                                          ),
-                                                      shape: RoundedRectangleBorder(
-                                                        borderRadius:
-                                                            BorderRadius.circular(
-                                                              4,
-                                                            ),
+                                                      backgroundColor: const Color(0xFF7A1632),
+                                                      foregroundColor: Colors.white,
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 8,
                                                       ),
                                                     ),
-                                                    onPressed: () =>
-                                                        handleViewDetails(
-                                                          app['Villager_ID'],
-                                                        ),
+                                                    onPressed: () => handleViewDetails(
+                                                      app['Villager_ID'],
+                                                    ),
                                                     child: const Text('View'),
                                                   ),
                                                 ),
                                               ],
-                                            ),
-                                          )
-                                          .toList()
-                                    : [
-                                        const DataRow(
-                                          cells: [
-                                            DataCell(
-                                              Text(
-                                                'No confirmed permit owners',
-                                                style: TextStyle(
-                                                  color: Color(0xFF333333),
+                                            );
+                                          }).toList()
+                                        : [
+                                            const DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(
+                                                    'No confirmed permit owners',
+                                                    style: TextStyle(color: Colors.grey),
+                                                  ),
+                                                  placeholder: true,
                                                 ),
-                                              ),
-                                              placeholder: true,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                              ],
                                             ),
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
                                           ],
-                                        ),
-                                      ],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7A1632),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
+                                  ),
                                 ),
                               ),
-                              onPressed: handleBack,
-                              child: const Text('Back to Dashboard'),
-                            ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF7A1632),
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  onPressed: handleBack,
+                                  child: const Text('Back to Dashboard'),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
               ),
             ),
           ),

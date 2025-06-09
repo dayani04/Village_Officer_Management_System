@@ -4,77 +4,70 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'secretary_dashboard.dart';
 
-class SecretaryAllowanceOwnersViewPage extends StatefulWidget {
-  const SecretaryAllowanceOwnersViewPage({Key? key}) : super(key: key);
+class SecretaryAllowanceOwnersPage extends StatefulWidget {
+  const SecretaryAllowanceOwnersPage({Key? key}) : super(key: key);
 
   @override
-  State<SecretaryAllowanceOwnersViewPage> createState() =>
-      _SecretaryAllowanceOwnersViewPageState();
+  State<SecretaryAllowanceOwnersPage> createState() =>
+      _SecretaryAllowanceOwnersPageState();
 }
 
-class _SecretaryAllowanceOwnersViewPageState
-    extends State<SecretaryAllowanceOwnersViewPage> {
+class _SecretaryAllowanceOwnersPageState
+    extends State<SecretaryAllowanceOwnersPage> {
   bool _loading = true;
   String? _error;
-  Map<String, dynamic>? villager;
-  String? villagerId;
+  List<Map<String, dynamic>> applications = [];
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final args = ModalRoute.of(context)?.settings.arguments;
-    if (args is Map && args['villagerId'] != null) {
-      villagerId = args['villagerId'] as String;
-      fetchVillagerDetails();
-    } else {
-      setState(() {
-        _error = 'No villager ID provided.';
-        _loading = false;
-      });
-    }
+  void initState() {
+    super.initState();
+    fetchConfirmedApplications();
   }
 
-  Future<void> fetchVillagerDetails() async {
+  Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
+    debugPrint('DEBUG: Retrieved token: $token');
+    return token;
+  }
+
+  Future<void> fetchConfirmedApplications() async {
     setState(() {
       _loading = true;
       _error = null;
     });
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString('token');
-      if (token == null || token.isEmpty) {
-        setState(() {
-          _error = 'No token provided. Please log in again.';
-          _loading = false;
-        });
-        // Optionally redirect to login after a short delay
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            Navigator.pushReplacementNamed(context, '/login');
-          }
-        });
-        return;
+      final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
       }
       final response = await http.get(
-        Uri.parse('http://localhost:5000/api/villagers/$villagerId'),
+        Uri.parse('http://localhost:5000/api/allowance-applications/confirmed'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
+      debugPrint('DEBUG: Fetch confirmed applications response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          villager = data is List && data.isNotEmpty ? data[0] : data;
+          applications = List<Map<String, dynamic>>.from(data);
           _loading = false;
         });
       } else {
         setState(() {
-          _error = 'Failed to fetch villager details: \\n${response.body}';
+          _error = response.statusCode == 401
+              ? 'Unauthorized: Please log in again'
+              : 'Failed to fetch confirmed allowance applications: ${response.body}';
           _loading = false;
         });
+        if (response.statusCode == 401 && mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       }
     } catch (e) {
+      debugPrint('DEBUG: Fetch confirmed applications error: $e');
       setState(() {
         _error = 'Error: $e';
         _loading = false;
@@ -82,18 +75,17 @@ class _SecretaryAllowanceOwnersViewPageState
     }
   }
 
-  void handleBack() {
-    Navigator.pushReplacementNamed(context, '/secretary_allowance_owners');
+  void handleViewDetails(String villagerId) {
+    debugPrint('DEBUG: Navigating to view villager with ID: $villagerId');
+    Navigator.pushNamed(
+      context,
+      '/secretary_allowance_owners_view',
+      arguments: {'villagerId': villagerId},
+    );
   }
 
-  String _formatDate(String? dateStr) {
-    if (dateStr == null) return 'N/A';
-    try {
-      final date = DateTime.parse(dateStr);
-      return '${date.day}/${date.month}/${date.year}';
-    } catch (_) {
-      return dateStr;
-    }
+  void handleBack() {
+    Navigator.pushReplacementNamed(context, '/secretary/secretary_dashboard');
   }
 
   @override
@@ -107,118 +99,218 @@ class _SecretaryAllowanceOwnersViewPageState
             child: const SecretaryDashboard(),
           ),
           Expanded(
-            child: Container(
-              color: const Color(0xFFF8F9FA),
-              child: Scaffold(
-                appBar: AppBar(
-                  title: const Text('Villager Details'),
-                  backgroundColor: const Color(0xFF7a1632),
-                  foregroundColor: Colors.white,
-                  elevation: 0,
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                margin: const EdgeInsets.symmetric(vertical: 32),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.07),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
-                body: _loading
+                child: _loading
                     ? const Center(child: CircularProgressIndicator())
-                    : _error != null || villager == null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              _error ?? 'Villager not found',
-                              style: const TextStyle(color: Colors.red),
-                            ),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: handleBack,
-                              child: const Text('Back to Allowance Recipients'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7a1632),
-                                foregroundColor: Colors.white,
+                    : _error != null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Confirmed Allowance Recipients',
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
                               ),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(24.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Villager ID:  ${villager!['Villager_ID'] ?? 'N/A'}',
-                                  style: const TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
+                              const SizedBox(height: 24),
+                              Text(
+                                _error!,
+                                style: const TextStyle(
+                                  color: Color(0xFFF43F3F),
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              ElevatedButton(
+                                onPressed: handleBack,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF7A1632),
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(6),
                                   ),
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Full Name:  ${villager!['Full_Name'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
+                                child: const Text('Back to Dashboard'),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Confirmed Allowance Recipients',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Email:  ${villager!['Email'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
+                              ),
+                              const SizedBox(height: 24),
+                              Expanded(
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(8),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.04),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: applications.isNotEmpty
+                                      ? SingleChildScrollView(
+                                          scrollDirection: Axis.horizontal,
+                                          child: DataTable(
+                                            headingRowColor: MaterialStateProperty.all(
+                                              const Color(0xFFF3F3F3),
+                                            ),
+                                            dataRowColor:
+                                                MaterialStateProperty.resolveWith<Color?>(
+                                              (Set<MaterialState> states) {
+                                                if (states.contains(MaterialState.selected)) {
+                                                  return const Color(0xFFEDE7F6);
+                                                }
+                                                return null;
+                                              },
+                                            ),
+                                            columns: const [
+                                              DataColumn(
+                                                label: Text(
+                                                  'Villager Name',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              DataColumn(
+                                                label: Text(
+                                                  'Villager ID',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              DataColumn(
+                                                label: Text(
+                                                  'Allowance Type',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              DataColumn(
+                                                label: Text(
+                                                  'Phone Number',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              DataColumn(
+                                                label: Text(
+                                                  'Address',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                              DataColumn(
+                                                label: Text(
+                                                  'Action',
+                                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                                ),
+                                              ),
+                                            ],
+                                            rows: applications.map((app) {
+                                              return DataRow(
+                                                cells: [
+                                                  DataCell(
+                                                    Text(app['Full_Name'] ?? 'N/A'),
+                                                  ),
+                                                  DataCell(
+                                                    Text(app['Villager_ID'] ?? 'N/A'),
+                                                  ),
+                                                  DataCell(
+                                                    Text(app['Allowances_Type'] ?? 'N/A'),
+                                                  ),
+                                                  DataCell(
+                                                    Text(app['Phone_No'] ?? 'N/A'),
+                                                  ),
+                                                  DataCell(
+                                                    Text(app['Address'] ?? 'N/A'),
+                                                  ),
+                                                  DataCell(
+                                                    ElevatedButton(
+                                                      onPressed: () => handleViewDetails(
+                                                        app['Villager_ID'],
+                                                      ),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor: const Color(0xFF7A1632),
+                                                        foregroundColor: Colors.white,
+                                                        padding: const EdgeInsets.symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 8,
+                                                        ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius: BorderRadius.circular(4),
+                                                        ),
+                                                      ),
+                                                      child: const Text('View'),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }).toList(),
+                                          ),
+                                        )
+                                      : Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.all(32.0),
+                                            child: Text(
+                                              'No confirmed allowance recipients',
+                                              style: TextStyle(
+                                                color: Colors.grey[600],
+                                                fontSize: 18,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Phone:  ${villager!['Phone_No'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Address:  ${villager!['Address'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Date of Birth:  ${_formatDate(villager!['DOB'])}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'NIC:  ${villager!['NIC'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Regional Division:  ${villager!['RegionalDivision'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Status:  ${villager!['Status'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'Area ID:  ${villager!['Area_ID'] ?? 'N/A'}',
-                                  style: const TextStyle(fontSize: 18),
-                                ),
-                                const SizedBox(height: 24),
-                                ElevatedButton(
+                              ),
+                              const SizedBox(height: 24),
+                              Center(
+                                child: ElevatedButton(
                                   onPressed: handleBack,
-                                  child: const Text(
-                                    'Back to Allowance Recipients',
-                                  ),
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF7a1632),
+                                    backgroundColor: const Color(0xFF7A1632),
                                     foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
                                   ),
+                                  child: const Text('Back to Dashboard'),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ),
               ),
             ),
           ),

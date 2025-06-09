@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:typed_data';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
-import 'dart:io';
-import 'secretary_dashboard.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'secretary_dashboard.dart';
 
 class SecretaryElectionApplicationsPage extends StatefulWidget {
   const SecretaryElectionApplicationsPage({Key? key}) : super(key: key);
@@ -32,7 +29,9 @@ class _SecretaryElectionApplicationsPageState
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    final token = prefs.getString('token');
+    debugPrint('DEBUG: Retrieved token: $token');
+    return token;
   }
 
   Future<void> fetchApplications() async {
@@ -42,28 +41,42 @@ class _SecretaryElectionApplicationsPageState
     });
     try {
       final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
       final response = await http.get(
         Uri.parse('http://localhost:5000/api/election-applications/'),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
       );
+      debugPrint('DEBUG: Fetch applications response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         setState(() {
-          applications = List<Map<String, dynamic>>.from(
-            data,
-          ).where((app) => app['status'] == 'Send').toList();
+          applications = List<Map<String, dynamic>>.from(data)
+              .map((app) => {
+                    ...app,
+                    'electionrecodeID': app['electionrecodeID'].toString(),
+                  })
+              .where((app) => app['status'] == 'Send')
+              .toList();
           _loading = false;
         });
       } else {
         setState(() {
-          _error = 'Failed to fetch applications: \n${response.body}';
+          _error = response.statusCode == 401
+              ? 'Unauthorized: Please log in again'
+              : 'Failed to fetch applications: ${response.body}';
           _loading = false;
         });
+        if (response.statusCode == 401 && mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       }
     } catch (e) {
+      debugPrint('DEBUG: Fetch applications error: $e');
       setState(() {
         _error = 'Error: $e';
         _loading = false;
@@ -90,7 +103,7 @@ class _SecretaryElectionApplicationsPageState
     final newStatus = statusUpdates['$villagerId-$electionrecodeID'];
     if (newStatus == null || newStatus.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text('Please select a status'),
           backgroundColor: Colors.red,
         ),
@@ -98,24 +111,40 @@ class _SecretaryElectionApplicationsPageState
       return;
     }
     try {
+      final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
       final statusRes = await http.put(
         Uri.parse(
           'http://localhost:5000/api/election-applications/$villagerId/$electionrecodeID/status',
         ),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode({'status': newStatus}),
       );
-      if (statusRes.statusCode != 200) throw Exception(statusRes.body);
+      debugPrint('DEBUG: Update status response: ${statusRes.statusCode} ${statusRes.body}');
+      if (statusRes.statusCode != 200) {
+        throw Exception('Failed to update status: ${statusRes.body}');
+      }
       final message =
           'Your election application for $electionType has been updated to $newStatus.';
       final notifRes = await http.post(
         Uri.parse(
           'http://localhost:5000/api/election-applications/notifications/',
         ),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
         body: json.encode({'villagerId': villagerId, 'message': message}),
       );
-      if (notifRes.statusCode != 200) throw Exception(notifRes.body);
+      debugPrint('DEBUG: Send notification response: ${notifRes.statusCode} ${notifRes.body}');
+      if (notifRes.statusCode != 200) {
+        throw Exception('Failed to send notification: ${notifRes.body}');
+      }
       setState(() {
         applications.removeWhere(
           (app) =>
@@ -133,6 +162,7 @@ class _SecretaryElectionApplicationsPageState
         ),
       );
     } catch (e) {
+      debugPrint('DEBUG: Handle send error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update status or send notification: $e'),
@@ -143,22 +173,35 @@ class _SecretaryElectionApplicationsPageState
   }
 
   Future<void> handleDownload(String filename) async {
-    try {
-      final response = await http.get(
-        Uri.parse(
-          'http://localhost:5000/api/election-applications/download/$filename',
+    if (filename.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No document available.'),
+          backgroundColor: Colors.red,
         ),
       );
-      if (response.statusCode == 200) {
-        final bytes = response.bodyBytes;
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/$filename');
-        await file.writeAsBytes(bytes);
-        await OpenFilex.open(file.path);
+      return;
+    }
+    try {
+      final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
+      // Normalize filename by removing 'Uploads/' prefix and handling separators
+      final normalizedFilename = filename
+          .replaceFirst(RegExp(r'^Uploads[\\/]?'), '')
+          .split(RegExp(r'[\\/]'))
+          .last;
+      debugPrint('DEBUG: Attempting to download file: $normalizedFilename');
+      final url = 'http://localhost:5000/Uploads/$normalizedFilename';
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Failed to download document: ${response.body}');
+        throw Exception('Could not launch document URL.');
       }
     } catch (e) {
+      debugPrint('DEBUG: Download error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to download document: $e'),
@@ -169,6 +212,7 @@ class _SecretaryElectionApplicationsPageState
   }
 
   void handleViewDetails(String villagerId) {
+    debugPrint('DEBUG: Navigating to view villager with ID: $villagerId');
     Navigator.pushNamed(
       context,
       '/secretary_election_applications_villager_view',
@@ -177,7 +221,7 @@ class _SecretaryElectionApplicationsPageState
   }
 
   void handleBack() {
-    Navigator.pop(context);
+    Navigator.pushReplacementNamed(context, '/secretary/secretary_dashboard');
   }
 
   @override
@@ -187,7 +231,7 @@ class _SecretaryElectionApplicationsPageState
         children: [
           Container(
             width: 250,
-            color: Color(0xFF9C284F),
+            color: const Color(0xFF9C284F),
             child: const SecretaryDashboard(),
           ),
           Expanded(
@@ -203,222 +247,209 @@ class _SecretaryElectionApplicationsPageState
                     BoxShadow(
                       color: Colors.black.withOpacity(0.05),
                       blurRadius: 8,
-                      offset: Offset(0, 2),
+                      offset: const Offset(0, 2),
                     ),
                   ],
                 ),
                 child: _loading
                     ? const Center(child: CircularProgressIndicator())
                     : _error != null
-                    ? Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Election Applications (Status: Send)',
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Text(
-                            _error!,
-                            style: const TextStyle(color: Color(0xFFF43F3F)),
-                          ),
-                          const SizedBox(height: 20),
-                          ElevatedButton(
-                            onPressed: handleBack,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF7A1632),
-                              foregroundColor: Colors.white,
-                            ),
-                            child: const Text('Back to Dashboard'),
-                          ),
-                        ],
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const Text(
-                            'Election Applications (Status: Send)',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                              color: Color(0xFF333333),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Expanded(
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                columns: const [
-                                  DataColumn(label: Text('Villager Name')),
-                                  DataColumn(label: Text('Villager ID')),
-                                  DataColumn(label: Text('Election Type')),
-                                  DataColumn(label: Text('Apply Date')),
-                                  DataColumn(label: Text('Document')),
-                                  DataColumn(label: Text('Status')),
-                                  DataColumn(label: Text('Action')),
-                                  DataColumn(label: Text('Action')),
-                                ],
-                                rows: applications.isNotEmpty
-                                    ? applications.map((app) {
-                                        final key =
-                                            '${app['Villager_ID']}-${app['electionrecodeID']}';
-                                        return DataRow(
-                                          cells: [
-                                            DataCell(
-                                              Text(app['Full_Name'] ?? 'N/A'),
-                                            ),
-                                            DataCell(
-                                              Text(app['Villager_ID'] ?? 'N/A'),
-                                            ),
-                                            DataCell(
-                                              Text(
-                                                app['Election_Type'] ?? 'N/A',
-                                              ),
-                                            ),
-                                            DataCell(
-                                              Text(
-                                                app['apply_date'] != null &&
-                                                        app['apply_date'] != ''
-                                                    ? _formatDate(
-                                                        app['apply_date'],
-                                                      )
-                                                    : 'N/A',
-                                              ),
-                                            ),
-                                            DataCell(
-                                              TextButton(
-                                                onPressed: () => handleDownload(
-                                                  app['document_path'],
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Election Applications (Status: Send)',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Text(
+                                _error!,
+                                style: const TextStyle(color: Color(0xFFF43F3F)),
+                              ),
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: handleBack,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF7A1632),
+                                  foregroundColor: Colors.white,
+                                ),
+                                child: const Text('Back to Dashboard'),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Election Applications (Status: Send)',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
+                                    columns: const [
+                                      DataColumn(label: Text('Villager Name')),
+                                      DataColumn(label: Text('Villager ID')),
+                                      DataColumn(label: Text('Election Type')),
+                                      DataColumn(label: Text('Apply Date')),
+                                      DataColumn(label: Text('Document')),
+                                      DataColumn(label: Text('Status')),
+                                      DataColumn(label: Text('Action')),
+                                      DataColumn(label: Text('Action')),
+                                    ],
+                                    rows: applications.isNotEmpty
+                                        ? applications.map((app) {
+                                            final key =
+                                                '${app['Villager_ID']}-${app['electionrecodeID']}';
+                                            return DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(app['Full_Name'] ?? 'N/A'),
                                                 ),
-                                                child: const Text(
-                                                  'Download',
-                                                  style: TextStyle(
-                                                    color: Color(0xFF7a1632),
+                                                DataCell(
+                                                  Text(app['Villager_ID'] ?? 'N/A'),
+                                                ),
+                                                DataCell(
+                                                  Text(
+                                                    app['Election_Type'] ?? 'N/A',
                                                   ),
                                                 ),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              DropdownButton<String>(
-                                                value:
-                                                    statusUpdates[key] ??
-                                                    app['status'],
-                                                items:
-                                                    [
-                                                          'Pending',
-                                                          'Send',
-                                                          'Rejected',
-                                                          'Confirm',
-                                                        ]
-                                                        .map(
-                                                          (status) =>
-                                                              DropdownMenuItem(
-                                                                value: status,
-                                                                child: Text(
-                                                                  status,
-                                                                ),
-                                                              ),
-                                                        )
-                                                        .toList(),
-                                                onChanged: (val) =>
-                                                    handleStatusChange(
+                                                DataCell(
+                                                  Text(
+                                                    app['apply_date'] != null &&
+                                                            app['apply_date'] != ''
+                                                        ? _formatDate(
+                                                            app['apply_date'],
+                                                          )
+                                                        : 'N/A',
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  TextButton(
+                                                    onPressed: () => handleDownload(
+                                                      app['document_path'] ?? '',
+                                                    ),
+                                                    child: const Text(
+                                                      'Download',
+                                                      style: TextStyle(
+                                                        color: Color(0xFF7A1632),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  DropdownButton<String>(
+                                                    value: statusUpdates[key] ??
+                                                        app['status'],
+                                                    items: [
+                                                      'Pending',
+                                                      'Send',
+                                                      'Rejected',
+                                                      'Confirm',
+                                                    ].map((status) {
+                                                      return DropdownMenuItem(
+                                                        value: status,
+                                                        child: Text(status),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (val) => handleStatusChange(
                                                       app['Villager_ID'],
                                                       app['electionrecodeID'],
                                                       val!,
                                                     ),
-                                              ),
-                                            ),
-                                            DataCell(
-                                              IconButton(
-                                                icon: Icon(
-                                                  Icons.mail,
-                                                  color:
-                                                      sentNotifications
-                                                          .contains(key)
-                                                      ? Colors.grey
-                                                      : Colors.green,
-                                                ),
-                                                onPressed:
-                                                    sentNotifications.contains(
-                                                      key,
-                                                    )
-                                                    ? null
-                                                    : () => handleSend(
-                                                        app['Villager_ID'],
-                                                        app['electionrecodeID'],
-                                                        app['Election_Type'],
-                                                        app['Full_Name'],
-                                                      ),
-                                                tooltip: 'Send Notification',
-                                              ),
-                                            ),
-                                            DataCell(
-                                              ElevatedButton(
-                                                onPressed: () =>
-                                                    handleViewDetails(
-                                                      app['Villager_ID'],
-                                                    ),
-                                                style: ElevatedButton.styleFrom(
-                                                  backgroundColor: const Color(
-                                                    0xFF7a1632,
                                                   ),
-                                                  foregroundColor: Colors.white,
-                                                  padding:
-                                                      const EdgeInsets.symmetric(
+                                                ),
+                                                DataCell(
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.mail,
+                                                      color: sentNotifications
+                                                              .contains(key)
+                                                          ? Colors.grey
+                                                          : Colors.green,
+                                                    ),
+                                                    onPressed: sentNotifications
+                                                            .contains(key)
+                                                        ? null
+                                                        : () => handleSend(
+                                                              app['Villager_ID'],
+                                                              app['electionrecodeID'],
+                                                              app['Election_Type'],
+                                                              app['Full_Name'],
+                                                            ),
+                                                    tooltip: 'Send Notification',
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  ElevatedButton(
+                                                    onPressed: () =>
+                                                        handleViewDetails(
+                                                          app['Villager_ID'],
+                                                        ),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          const Color(0xFF7A1632),
+                                                      foregroundColor: Colors.white,
+                                                      padding: const EdgeInsets.symmetric(
                                                         horizontal: 16,
                                                         vertical: 8,
                                                       ),
+                                                    ),
+                                                    child: const Text('View'),
+                                                  ),
                                                 ),
-                                                child: const Text('View'),
-                                              ),
+                                              ],
+                                            );
+                                          }).toList()
+                                        : [
+                                            const DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(
+                                                    'No applications with status "Send"',
+                                                    style: TextStyle(
+                                                      color: Colors.grey,
+                                                    ),
+                                                  ),
+                                                  placeholder: true,
+                                                ),
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                              ],
                                             ),
                                           ],
-                                        );
-                                      }).toList()
-                                    : [
-                                        const DataRow(
-                                          cells: [
-                                            DataCell(
-                                              Text(
-                                                'No applications with status "Send"',
-                                                style: TextStyle(
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                              placeholder: true,
-                                            ),
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                            DataCell.empty,
-                                          ],
-                                        ),
-                                      ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: handleBack,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7A1632),
-                                foregroundColor: Colors.white,
+                              const SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: handleBack,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF7A1632),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Back to Dashboard'),
+                                ),
                               ),
-                              child: const Text('Back to Dashboard'),
-                            ),
+                            ],
                           ),
-                        ],
-                      ),
               ),
             ),
           ),
