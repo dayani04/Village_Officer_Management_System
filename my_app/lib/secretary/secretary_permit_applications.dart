@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:my_app/secretary/secretary_dashboard.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'secretary_dashboard.dart';
 
 class SecretaryPermitApplicationsPage extends StatefulWidget {
   const SecretaryPermitApplicationsPage({Key? key}) : super(key: key);
@@ -17,9 +15,9 @@ class SecretaryPermitApplicationsPage extends StatefulWidget {
 
 class _SecretaryPermitApplicationsPageState
     extends State<SecretaryPermitApplicationsPage> {
-  List<dynamic> applications = [];
   bool loading = true;
   String? error;
+  List<Map<String, dynamic>> applications = [];
   Map<String, String> statusUpdates = {};
   Set<String> sentNotifications = {};
 
@@ -31,7 +29,9 @@ class _SecretaryPermitApplicationsPageState
 
   Future<String?> getToken() async {
     final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('token');
+    final token = prefs.getString('token');
+    debugPrint('DEBUG: Retrieved token: $token');
+    return token;
   }
 
   Future<void> fetchApplications() async {
@@ -41,38 +41,46 @@ class _SecretaryPermitApplicationsPageState
     });
     try {
       final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
       final response = await http.get(
         Uri.parse('http://localhost:5000/api/permit-applications/'),
-        headers: token != null ? {'Authorization': 'Bearer $token'} : {},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
       );
+      debugPrint('DEBUG: Fetch permit applications response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        final sendApplications = (data as List)
-            .where((app) => app['status'] == 'Send')
-            .toList();
         setState(() {
-          applications = sendApplications;
+          applications = List<Map<String, dynamic>>.from(data)
+              .where((app) => app['status'] == 'Send')
+              .toList();
           loading = false;
         });
       } else {
         setState(() {
-          error = 'Failed to fetch permit applications';
+          error = response.statusCode == 401
+              ? 'Unauthorized: Please log in again'
+              : 'Failed to fetch permit applications: ${response.body}';
           loading = false;
         });
+        if (response.statusCode == 401 && mounted) {
+          Navigator.pushReplacementNamed(context, '/login');
+        }
       }
     } catch (e) {
+      debugPrint('DEBUG: Fetch permit applications error: $e');
       setState(() {
-        error = 'Failed to fetch permit applications';
+        error = 'Error: $e';
         loading = false;
       });
     }
   }
 
-  void handleStatusChange(
-    String villagerId,
-    String permitsId,
-    String newStatus,
-  ) {
+  void handleStatusChange(String villagerId, String permitsId, String newStatus) {
     setState(() {
       statusUpdates['$villagerId-$permitsId'] = newStatus;
     });
@@ -85,17 +93,20 @@ class _SecretaryPermitApplicationsPageState
     String fullName,
   ) async {
     final newStatus = statusUpdates['$villagerId-$permitsId'];
-    if (newStatus == null) {
+    if (newStatus == null || newStatus.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Please select a status'),
-          backgroundColor: Color(0xFFF43F3F),
+          backgroundColor: Colors.red,
         ),
       );
       return;
     }
     try {
       final token = await getToken();
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
       // Update status
       final statusRes = await http.put(
         Uri.parse(
@@ -103,31 +114,31 @@ class _SecretaryPermitApplicationsPageState
         ),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
         body: json.encode({'status': newStatus}),
       );
-      if (statusRes.statusCode != 200)
-        throw Exception('Failed to update status');
-
+      debugPrint('DEBUG: Update permit status response: ${statusRes.statusCode} ${statusRes.body}');
+      if (statusRes.statusCode != 200) {
+        throw Exception('Failed to update status: ${statusRes.body}');
+      }
       // Save notification
+      final message =
+          'Your permit application for $permitType has been updated to $newStatus.';
       final notifRes = await http.post(
         Uri.parse(
           'http://localhost:5000/api/permit-applications/notifications/',
         ),
         headers: {
           'Content-Type': 'application/json',
-          if (token != null) 'Authorization': 'Bearer $token',
+          'Authorization': 'Bearer $token',
         },
-        body: json.encode({
-          'villagerId': villagerId,
-          'message':
-              'Your permit application for $permitType has been updated to $newStatus.',
-        }),
+        body: json.encode({'villagerId': villagerId, 'message': message}),
       );
-      if (notifRes.statusCode != 200)
-        throw Exception('Failed to send notification');
-
+      debugPrint('DEBUG: Send permit notification response: ${notifRes.statusCode} ${notifRes.body}');
+      if (notifRes.statusCode != 200) {
+        throw Exception('Failed to send notification: ${notifRes.body}');
+      }
       setState(() {
         applications.removeWhere(
           (app) =>
@@ -138,7 +149,6 @@ class _SecretaryPermitApplicationsPageState
         statusUpdates.remove('$villagerId-$permitsId');
         sentNotifications.add('$villagerId-$permitsId');
       });
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Status updated and notification sent to $fullName'),
@@ -146,44 +156,57 @@ class _SecretaryPermitApplicationsPageState
         ),
       );
     } catch (e) {
+      debugPrint('DEBUG: Handle permit send error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update status or send notification'),
-          backgroundColor: Color(0xFFF43F3F),
+          content: Text('Failed to update status or send notification: $e'),
+          backgroundColor: Colors.red,
         ),
       );
     }
   }
 
   Future<void> handleDownload(String filename) async {
+    if (filename.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No document available.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
     try {
       final token = await getToken();
-      final response = await http.get(
-        Uri.parse(
-          'http://localhost:5000/api/permit-applications/download/$filename',
-        ),
-        headers: token != null ? {'Authorization': 'Bearer $token'} : {},
-      );
-      if (response.statusCode == 200) {
-        final bytes = response.bodyBytes;
-        final dir = await getTemporaryDirectory();
-        final file = File('${dir.path}/$filename');
-        await file.writeAsBytes(bytes);
-        await OpenFilex.open(file.path);
+      if (token == null) {
+        throw Exception('No token found. Please log in again.');
+      }
+      // Normalize filename by removing 'Uploads/' prefix and handling separators
+      final normalizedFilename = filename
+          .replaceFirst(RegExp(r'^Uploads[\\/]?'), '')
+          .split(RegExp(r'[\\/]'))
+          .last;
+      debugPrint('DEBUG: Attempting to download file: $normalizedFilename');
+      final url = 'http://localhost:5000/Uploads/$normalizedFilename';
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
       } else {
-        throw Exception('Failed to download document');
+        throw Exception('Could not launch document URL.');
       }
     } catch (e) {
+      debugPrint('DEBUG: Download permit error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to download document'),
-          backgroundColor: Color(0xFFF43F3F),
+          content: Text('Failed to download document: $e'),
+          backgroundColor: Colors.red,
         ),
       );
     }
   }
 
   void handleViewDetails(String villagerId) {
+    debugPrint('DEBUG: Navigating to view villager with ID: $villagerId');
     Navigator.pushNamed(
       context,
       '/secretary_permit_applications_villager_view',
@@ -192,7 +215,7 @@ class _SecretaryPermitApplicationsPageState
   }
 
   void handleBack() {
-    Navigator.pushNamed(context, '/secretary/secretary_dashboard');
+    Navigator.pushReplacementNamed(context, '/secretary/secretary_dashboard');
   }
 
   @override
@@ -202,282 +225,248 @@ class _SecretaryPermitApplicationsPageState
         children: [
           Container(
             width: 250,
-            color: Colors.white,
+            color: const Color(0xFF9C284F),
             child: const SecretaryDashboard(),
           ),
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Center(
-                child: Container(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF9F9F9),
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: loading
-                      ? const Center(child: CircularProgressIndicator())
-                      : error != null
-                      ? Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Text(
-                              'Permit Applications (Status: Send)',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF333333),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Text(
-                              error!,
-                              style: const TextStyle(color: Color(0xFFF43F3F)),
-                            ),
-                            const SizedBox(height: 20),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7A1632),
-                                foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 20,
-                                  vertical: 10,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4),
+            child: Center(
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                margin: const EdgeInsets.symmetric(vertical: 32),
+                padding: const EdgeInsets.all(32),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9F9F9),
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.05),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: loading
+                    ? const Center(child: CircularProgressIndicator())
+                    : error != null
+                        ? Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Text(
+                                'Permit Applications (Status: Send)',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
                                 ),
                               ),
-                              onPressed: handleBack,
-                              child: const Text('Back to Dashboard'),
-                            ),
-                          ],
-                        )
-                      : Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            const Text(
-                              'Permit Applications (Status: Send)',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF333333),
+                              const SizedBox(height: 20),
+                              Text(
+                                error!,
+                                style: const TextStyle(color: Color(0xFFF43F3F)),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Expanded(
-                              child: SingleChildScrollView(
-                                scrollDirection: Axis.horizontal,
-                                child: DataTable(
-                                  columns: const [
-                                    DataColumn(label: Text('Villager Name')),
-                                    DataColumn(label: Text('Villager ID')),
-                                    DataColumn(label: Text('Permit Type')),
-                                    DataColumn(label: Text('Apply Date')),
-                                    DataColumn(label: Text('Document')),
-                                    DataColumn(label: Text('Police Report')),
-                                    DataColumn(label: Text('Status')),
-                                    DataColumn(label: Text('Action')),
-                                    DataColumn(label: Text('Action')),
-                                  ],
-                                  rows: applications.isNotEmpty
-                                      ? applications.map((app) {
-                                          final key =
-                                              '${app['Villager_ID']}-${app['Permits_ID']}';
-                                          return DataRow(
-                                            cells: [
-                                              DataCell(
-                                                Text(app['Full_Name'] ?? 'N/A'),
-                                              ),
-                                              DataCell(
-                                                Text(
-                                                  app['Villager_ID'] ?? 'N/A',
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Text(
-                                                  app['Permits_Type'] ?? 'N/A',
-                                                ),
-                                              ),
-                                              DataCell(
-                                                Text(
-                                                  app['apply_date'] ?? 'N/A',
-                                                ),
-                                              ),
-                                              DataCell(
-                                                InkWell(
-                                                  onTap: () => handleDownload(
-                                                    app['document_path'],
-                                                  ),
-                                                  child: const Text(
-                                                    'Download',
-                                                    style: TextStyle(
-                                                      color: Color(0xFF007bff),
-                                                      decoration: TextDecoration
-                                                          .underline,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                InkWell(
-                                                  onTap: () => handleDownload(
-                                                    app['police_report_path'],
-                                                  ),
-                                                  child: const Text(
-                                                    'Download',
-                                                    style: TextStyle(
-                                                      color: Color(0xFF007bff),
-                                                      decoration: TextDecoration
-                                                          .underline,
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                              DataCell(
-                                                DropdownButton<String>(
-                                                  value:
-                                                      statusUpdates[key] ??
-                                                      app['status'],
-                                                  items:
-                                                      [
-                                                            'Pending',
-                                                            'Send',
-                                                            'Rejected',
-                                                            'Confirm',
-                                                          ]
-                                                          .map(
-                                                            (status) =>
-                                                                DropdownMenuItem(
-                                                                  value: status,
-                                                                  child: Text(
-                                                                    status,
-                                                                  ),
-                                                                ),
-                                                          )
-                                                          .toList(),
-                                                  onChanged: (value) {
-                                                    if (value != null)
-                                                      handleStatusChange(
-                                                        app['Villager_ID'],
-                                                        app['Permits_ID'],
-                                                        value,
-                                                      );
-                                                  },
-                                                ),
-                                              ),
-                                              DataCell(
-                                                IconButton(
-                                                  icon: Icon(
-                                                    Icons.mail,
-                                                    color:
-                                                        sentNotifications
-                                                            .contains(key)
-                                                        ? Colors.green
-                                                        : Color(0xFF7A1632),
-                                                  ),
-                                                  onPressed:
-                                                      sentNotifications
-                                                          .contains(key)
-                                                      ? null
-                                                      : () => handleSend(
-                                                          app['Villager_ID'],
-                                                          app['Permits_ID'],
-                                                          app['Permits_Type'],
-                                                          app['Full_Name'],
-                                                        ),
-                                                  tooltip: 'Send Notification',
-                                                ),
-                                              ),
-                                              DataCell(
-                                                ElevatedButton(
-                                                  style: ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        const Color(0xFF7A1632),
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 10,
-                                                          vertical: 5,
-                                                        ),
-                                                    shape: RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                            4,
-                                                          ),
-                                                    ),
-                                                  ),
-                                                  onPressed: () =>
-                                                      handleViewDetails(
-                                                        app['Villager_ID'],
-                                                      ),
-                                                  child: const Text('View'),
-                                                ),
-                                              ),
-                                            ],
-                                          );
-                                        }).toList()
-                                      : [
-                                          const DataRow(
-                                            cells: [
-                                              DataCell(
-                                                Text(
-                                                  'No applications with status \"Send\"',
-                                                  style: TextStyle(
-                                                    color: Color(0xFF333333),
-                                                  ),
-                                                ),
-                                                placeholder: true,
-                                              ),
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                              DataCell.empty,
-                                            ],
-                                          ),
-                                        ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            Center(
-                              child: ElevatedButton(
+                              const SizedBox(height: 20),
+                              ElevatedButton(
+                                onPressed: handleBack,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: const Color(0xFF7A1632),
                                   foregroundColor: Colors.white,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 20,
-                                    vertical: 10,
-                                  ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
                                 ),
-                                onPressed: handleBack,
                                 child: const Text('Back to Dashboard'),
                               ),
-                            ),
-                          ],
-                        ),
-                ),
+                            ],
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Text(
+                                'Permit Applications (Status: Send)',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: Color(0xFF333333),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Expanded(
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: DataTable(
+                                    columns: const [
+                                      DataColumn(label: Text('Villager Name')),
+                                      DataColumn(label: Text('Villager ID')),
+                                      DataColumn(label: Text('Permit Type')),
+                                      DataColumn(label: Text('Apply Date')),
+                                      DataColumn(label: Text('Document')),
+                                      DataColumn(label: Text('Police Report')),
+                                      DataColumn(label: Text('Status')),
+                                      DataColumn(label: Text('Action')),
+                                      DataColumn(label: Text('Action')),
+                                    ],
+                                    rows: applications.isNotEmpty
+                                        ? applications.map((app) {
+                                            final key =
+                                                '${app['Villager_ID']}-${app['Permits_ID']}';
+                                            return DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(app['Full_Name'] ?? 'N/A'),
+                                                ),
+                                                DataCell(
+                                                  Text(app['Villager_ID'] ?? 'N/A'),
+                                                ),
+                                                DataCell(
+                                                  Text(app['Permits_Type'] ?? 'N/A'),
+                                                ),
+                                                DataCell(
+                                                  Text(
+                                                    app['apply_date'] != null &&
+                                                            app['apply_date'] != ''
+                                                        ? _formatDate(app['apply_date'])
+                                                        : 'N/A',
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  TextButton(
+                                                    onPressed: () => handleDownload(
+                                                      app['document_path'] ?? '',
+                                                    ),
+                                                    child: const Text(
+                                                      'Download',
+                                                      style: TextStyle(
+                                                        color: Color(0xFF7A1632),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  TextButton(
+                                                    onPressed: () => handleDownload(
+                                                      app['police_report_path'] ?? '',
+                                                    ),
+                                                    child: const Text(
+                                                      'Download',
+                                                      style: TextStyle(
+                                                        color: Color(0xFF7A1632),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  DropdownButton<String>(
+                                                    value: statusUpdates[key] ??
+                                                        app['status'],
+                                                    items: [
+                                                      'Pending',
+                                                      'Send',
+                                                      'Rejected',
+                                                      'Confirm',
+                                                    ].map((status) {
+                                                      return DropdownMenuItem(
+                                                        value: status,
+                                                        child: Text(status),
+                                                      );
+                                                    }).toList(),
+                                                    onChanged: (val) => handleStatusChange(
+                                                      app['Villager_ID'],
+                                                      app['Permits_ID'].toString(),
+                                                      val!,
+                                                    ),
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  IconButton(
+                                                    icon: Icon(
+                                                      Icons.mail,
+                                                      color: sentNotifications
+                                                              .contains(key)
+                                                          ? Colors.grey
+                                                          : Colors.green,
+                                                    ),
+                                                    onPressed: sentNotifications
+                                                            .contains(key)
+                                                        ? null
+                                                        : () => handleSend(
+                                                              app['Villager_ID'],
+                                                              app['Permits_ID'].toString(),
+                                                              app['Permits_Type'],
+                                                              app['Full_Name'],
+                                                            ),
+                                                    tooltip: 'Send Notification',
+                                                  ),
+                                                ),
+                                                DataCell(
+                                                  ElevatedButton(
+                                                    onPressed: () =>
+                                                        handleViewDetails(
+                                                          app['Villager_ID'],
+                                                        ),
+                                                    style: ElevatedButton.styleFrom(
+                                                      backgroundColor:
+                                                          const Color(0xFF7A1632),
+                                                      foregroundColor: Colors.white,
+                                                      padding: const EdgeInsets.symmetric(
+                                                        horizontal: 16,
+                                                        vertical: 8,
+                                                      ),
+                                                    ),
+                                                    child: const Text('View'),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }).toList()
+                                        : [
+                                            const DataRow(
+                                              cells: [
+                                                DataCell(
+                                                  Text(
+                                                    'No applications with status "Send"',
+                                                    style: TextStyle(color: Colors.grey),
+                                                  ),
+                                                  placeholder: true,
+                                                ),
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                                DataCell.empty,
+                                              ],
+                                            ),
+                                          ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Center(
+                                child: ElevatedButton(
+                                  onPressed: handleBack,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF7A1632),
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  child: const Text('Back to Dashboard'),
+                                ),
+                              ),
+                            ],
+                          ),
               ),
             ),
           ),
         ],
       ),
     );
+  }
+
+  String _formatDate(String dateStr) {
+    try {
+      final date = DateTime.parse(dateStr);
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (_) {
+      return dateStr;
+    }
   }
 }

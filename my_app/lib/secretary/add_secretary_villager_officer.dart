@@ -67,15 +67,15 @@ class _AddSecretaryVillagerOfficerPageState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Add Villager Officer')),
+      appBar: AppBar(title: const Text('Add Villager Officer')),
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.all(24),
-          margin: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          padding: const EdgeInsets.all(24),
+          margin: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
           decoration: BoxDecoration(
-            color: Color(0xFFF9F9F9),
+            color: const Color(0xFFF9F9F9),
             borderRadius: BorderRadius.circular(8),
-            boxShadow: [
+            boxShadow: const [
               BoxShadow(
                 color: Colors.black12,
                 blurRadius: 8,
@@ -90,7 +90,7 @@ class _AddSecretaryVillagerOfficerPageState
                 if (_error != null)
                   Padding(
                     padding: const EdgeInsets.only(bottom: 16.0),
-                    child: Text(_error!, style: TextStyle(color: Colors.red)),
+                    child: Text(_error!, style: const TextStyle(color: Colors.red)),
                   ),
                 buildTextField(
                   'Officer ID',
@@ -127,38 +127,38 @@ class _AddSecretaryVillagerOfficerPageState
                 buildTextField('Regional Division', 'regional_division'),
                 DropdownButtonFormField<String>(
                   value: officer['status'],
-                  decoration: InputDecoration(labelText: 'Status'),
+                  decoration: const InputDecoration(labelText: 'Status'),
                   items: ['Active', 'Inactive']
                       .map((s) => DropdownMenuItem(value: s, child: Text(s)))
                       .toList(),
-                  onChanged: (val) => setState(() => officer['status'] = val),
+                  onChanged: (val) => setState(() => officer['status'] = val!),
                   validator: (val) => val == null ? 'Status required' : null,
                 ),
                 buildTextField('Area ID', 'area_id'),
-                SizedBox(height: 24),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     ElevatedButton(
                       onPressed: _submitting ? null : addOfficer,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF7a1632),
+                        backgroundColor: const Color(0xFF7a1632),
                         foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(
+                        padding: const EdgeInsets.symmetric(
                           horizontal: 24,
                           vertical: 12,
                         ),
                       ),
                       child: _submitting
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text('Add Officer'),
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text('Add Officer'),
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     OutlinedButton(
                       onPressed: _submitting
                           ? null
                           : () => Navigator.pop(context),
-                      child: Text('Cancel'),
+                      child: const Text('Cancel'),
                     ),
                   ],
                 ),
@@ -186,14 +186,15 @@ class _AddSecretaryVillagerOfficerPageState
         obscureText: obscureText,
         decoration: InputDecoration(
           labelText: label,
-          border: OutlineInputBorder(),
+          border: const OutlineInputBorder(),
         ),
         validator: (value) {
-          if (required && (value == null || value.isEmpty))
+          if (required && (value == null || value.trim().isEmpty)) {
             return '$label is required';
+          }
           if (key == 'email' && value != null && value.isNotEmpty) {
             final emailRegex = RegExp(
-              r'^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+              r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
             );
             if (!emailRegex.hasMatch(value)) return 'Invalid email format';
           }
@@ -201,21 +202,27 @@ class _AddSecretaryVillagerOfficerPageState
             return 'Password must be at least 6 characters';
           }
           if (key == 'phone_no' && value != null && value.isNotEmpty) {
-            final phoneRegex = RegExp(r'^\\d{10}\$');
-            if (!phoneRegex.hasMatch(value))
+            // Remove any non-digit characters for validation
+            final cleanedPhone = value.replaceAll(RegExp(r'\D'), '');
+            if (cleanedPhone.length != 10) {
               return 'Phone number must be 10 digits';
+            }
           }
           return null;
         },
-        onChanged: (val) => officer[key] = val,
+        onChanged: (val) {
+          setState(() {
+            officer[key] = val;
+          });
+        },
         readOnly: isDate,
         onTap: isDate
             ? () async {
                 DateTime? picked = await showDatePicker(
                   context: context,
-                  initialDate: officer[key] != null && officer[key] != ''
-                      ? DateTime.tryParse(officer[key]) ?? DateTime(2000)
-                      : DateTime(2000),
+                  initialDate: officer[key].isNotEmpty
+                      ? DateTime.tryParse(officer[key]) ?? DateTime.now()
+                      : DateTime.now(),
                   firstDate: DateTime(1900),
                   lastDate: DateTime.now(),
                 );

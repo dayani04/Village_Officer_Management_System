@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_app/secretary/secretary_allowance_owners.dart';
+import 'package:my_app/secretary/secretary_allowance_owners_view.dart' hide SecretaryAllowanceOwnersPage; // Ensure correct import
 import 'login_page.dart';
 import 'village_officer/village_officer_dashboard.dart';
 import 'secretary/secretary_dashboard.dart';
@@ -114,8 +115,7 @@ class MyApp extends StatelessWidget {
         '/allowance_owners': (context) => const AllowanceOwnersPage(),
         '/allowance_owners_details': (context) {
           final args =
-              ModalRoute.of(context)!.settings.arguments
-                  as Map<String, dynamic>?;
+              ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
           final villagerId = args != null ? args['villagerId'] as String : '';
           return AllowanceOwnersDetailsPage(villagerId: villagerId);
         },
@@ -137,13 +137,12 @@ class MyApp extends StatelessWidget {
           } else if (args is String) {
             villagerId = args;
           }
-          return PermitsOwnerDetailsPage(); // No params in constructor
+          return PermitsOwnerDetailsPage();
         },
         '/requests_for_permits': (context) => RequestsForPermitsPage(),
         '/requests_for_permits_villager_details': (context) {
           final args =
-              ModalRoute.of(context)?.settings.arguments
-                  as Map<String, dynamic>?;
+              ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
           final villagerId = args != null ? args['villagerId'] as String : '';
           return RequestsForPermitsVillagerDetailsPage(villagerId: villagerId);
         },
@@ -154,11 +153,13 @@ class MyApp extends StatelessWidget {
             const SecretaryVillagerOfficerListPage(),
         '/edit_secretary_villager_officer': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? officerId;
+          final String? officerId;
           if (args is Map && args['officerId'] != null) {
             officerId = args['officerId'] as String;
           } else if (args is String) {
             officerId = args;
+          } else {
+            officerId = null;
           }
           return EditSecretaryVillagerOfficerPage(officerId: officerId ?? '');
         },
@@ -166,21 +167,25 @@ class MyApp extends StatelessWidget {
             const AddSecretaryVillagerOfficerPage(),
         '/view_secretary_villager_officer': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? officerId;
+          final String? officerId;
           if (args is Map && args['officerId'] != null) {
             officerId = args['officerId'] as String;
           } else if (args is String) {
             officerId = args;
+          } else {
+            officerId = null;
           }
           return ViewSecretaryVillagerOfficerPage(officerId: officerId ?? '');
         },
         '/view_secretary_villager': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return ViewSecretaryVillagerPage(villagerId: villagerId ?? '');
         },
@@ -189,27 +194,31 @@ class MyApp extends StatelessWidget {
             const SecretaryAllowanceApplicationsPage(),
         '/secretary_allowance_applications_villager_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryAllowanceApplicationsVillagerViewPage(
             villagerId: villagerId ?? '',
           );
         },
         '/secretary_allowance_owners': (context) =>
-            SecretaryAllowanceOwnersPage(),
+            const SecretaryAllowanceOwnersPage(),
         '/secretary_election_applications': (context) =>
             const SecretaryElectionApplicationsPage(),
         '/secretary_election_applications_villager_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryElectionApplicationsVillagerView(
             villagerId: villagerId ?? '',
@@ -219,11 +228,13 @@ class MyApp extends StatelessWidget {
             const SecretaryNICApplicationsPage(),
         '/secretary_nic_applications_villager_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryNICApplicationsVillagerViewPage(
             villagerId: villagerId ?? '',
@@ -233,11 +244,13 @@ class MyApp extends StatelessWidget {
             const SecretaryPermitApplicationsPage(),
         '/secretary_permit_applications_villager_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryPermitApplicationsVillagerViewPage(
             villagerId: villagerId ?? '',
@@ -247,41 +260,31 @@ class MyApp extends StatelessWidget {
             const SecretaryPermitsOwnerPage(),
         '/secretary_permits_owner_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryPermitsOwnerViewPage(villagerId: villagerId ?? '');
         },
         '/secretary_allowance_owners_view': (context) {
           final args = ModalRoute.of(context)!.settings.arguments;
-          String? villagerId;
+          final String? villagerId;
           if (args is Map && args['villagerId'] != null) {
             villagerId = args['villagerId'] as String;
           } else if (args is String) {
             villagerId = args;
+          } else {
+            villagerId = null;
           }
           return SecretaryAllowanceOwnersViewPage(villagerId: villagerId ?? '');
         },
       },
     );
   }
-}
-
-class SecretaryAllowanceOwnersViewPage extends StatelessWidget {
-  final String villagerId;
-
-  const SecretaryAllowanceOwnersViewPage({Key? key, required this.villagerId})
-    : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    // Replace with your actual UI
-    return Scaffold(
-      appBar: AppBar(title: Text('Secretary Allowance Owners View')),
-      body: Center(child: Text('Villager ID: $villagerId')),
-    );
-  }
+  
+  SecretaryAllowanceOwnersViewPage({required String villagerId}) {}
 }
