@@ -29,8 +29,8 @@ export const submitCertificateApplication = async (formData) => {
     const response = await api.post("/", formData);
     return response.data;
   } catch (error) {
-    console.error("Error submitting certificate application:", error);
-    throw error.response?.data?.error || error.message;
+    console.error("Error submitting certificate application:", error.response?.data || error.message);
+    throw error.response?.data?.error || "An unexpected error occurred during submission.";
   }
 };
 

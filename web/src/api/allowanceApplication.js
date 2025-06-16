@@ -86,3 +86,4 @@ export const saveNotification = async (villagerId, message) => {
     throw error.response ? error.response.data : error.message;
   }
 };
+

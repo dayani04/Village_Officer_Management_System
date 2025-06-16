@@ -231,6 +231,10 @@ CREATE TABLE Secretary (
     FOREIGN KEY (Email) REFERENCES EmailRegistry(Email)
 );
 
+ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+
+
+
 DELIMITER //
 
 CREATE TRIGGER before_secretary_insert
@@ -296,3 +300,4 @@ BEGIN
 END //
 
 DELIMITER ;
+
