@@ -46,7 +46,7 @@ const UserCertificatesBC = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserCertificates");
+    navigate("/user_certificates");
   };
 
   const handleSubmit = async () => {
@@ -103,7 +103,9 @@ const UserCertificatesBC = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard");
+
+        navigate("/user_dashboard"); // Redirect to dashboard after success
+
       });
     } catch (error) {
       console.error("Error during submission:", error);

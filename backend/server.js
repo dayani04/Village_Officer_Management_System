@@ -22,8 +22,13 @@ const app = express();
 
 // Configure CORS
 app.use(cors({
-  origin: "http://localhost:3000",
-  credentials: true,
+  origin: (origin, callback) => {
+    if (!origin || origin.startsWith('http://localhost:')) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  }
 }));
 
 // Parse JSON bodies

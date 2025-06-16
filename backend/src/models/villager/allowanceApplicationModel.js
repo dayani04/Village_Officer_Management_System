@@ -7,7 +7,7 @@ const AllowanceApplication = {
        VALUES (?, ?, ?, 'Pending', ?)`,
       [villager_id, allowances_id, apply_date, document_path]
     );
-    return { Villager_ID: villager_id, Allowances_ID: allowances_id };
+    return { insertId: result.insertId };
   },
 
   getVillagerByEmail: async (email) => {
@@ -49,7 +49,7 @@ const AllowanceApplication = {
       FROM villager_has_allowances_recode vha
       JOIN Villager v ON v.Villager_ID = vha.Villager_ID
       JOIN Allowances_recode a ON a.Allowances_ID = vha.Allowances_ID
-      WHERE vha.status = 'Approved'
+      WHERE vha.status = 'Confirm'
     `;
     const [rows] = await pool.query(query);
     return rows;
@@ -78,8 +78,8 @@ const AllowanceApplication = {
         vha.status AS Application_Status,
         vha.document_path
       FROM villager_has_allowances_recode vha
-      JOIN villager v ON v.Villager_ID = vha.Villager_ID
-      JOIN allowances_recode ar ON vha.Allowances_ID = ar.Allowances_ID
+      JOIN Villager v ON v.Villager_ID = vha.Villager_ID
+      JOIN Allowances_recode ar ON vha.Allowances_ID = ar.Allowances_ID
       WHERE vha.Villager_ID = ?
     `;
     const [rows] = await pool.query(query, [villagerId]);
@@ -123,7 +123,7 @@ const AllowanceApplication = {
         Longitude,
         IsParticipant,
         Alive_Status
-      FROM villager
+      FROM Villager
       WHERE Villager_ID = ?
     `;
     const [rows] = await pool.query(query, [villagerId]);

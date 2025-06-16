@@ -141,10 +141,15 @@ const SecretaryNICApplications = () => {
     }
   };
 
+   const handleViewDetails = (villagerId) => {
+    console.log('Navigating to villager:', villagerId);
+    navigate(`/secretary_nic_applications_villager_view/${villagerId}`);
+  };
+
   // Handle back to dashboard navigation
   const handleBack = () => {
     navigate('/SecretaryDashBoard');
-  };
+  }; 
 
   if (loading) {
     return (
@@ -200,6 +205,7 @@ const SecretaryNICApplications = () => {
                   <th>Document</th>
                   <th>Status</th>
                   <th>Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -244,6 +250,14 @@ const SecretaryNICApplications = () => {
                           </button>
                         </div>
                       </td>
+                       <td>
+                        <button
+                          className="owners-view-btn"
+                          onClick={() => handleViewDetails(app.Villager_ID)}
+                        >
+                          View
+                        </button>
+                      </td>
                     </tr>
                   ))
                 ) : (
@@ -251,6 +265,7 @@ const SecretaryNICApplications = () => {
                     <td colSpan="7" className="nic-applications-no-data">
                       No applications with status "Send"
                     </td>
+                    
                   </tr>
                 )}
               </tbody>

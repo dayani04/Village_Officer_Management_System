@@ -54,7 +54,7 @@ const UserPermitsPR = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserPermits");
+    navigate("/user_permits");
   };
 
   const handleNext = () => {
@@ -73,7 +73,7 @@ const UserPermitsPR = () => {
       type: formData.type,
       policeReport: { name: file.name, type: file.type, size: file.size },
     });
-    navigate("/UserPermitsID", { state: { formData, policeReport: file } });
+    navigate("/user_permits_id", { state: { formData, policeReport: file } });
   };
 
   return (

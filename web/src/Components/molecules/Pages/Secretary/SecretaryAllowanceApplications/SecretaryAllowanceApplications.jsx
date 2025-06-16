@@ -7,7 +7,7 @@ import {
   updateAllowanceApplicationStatus,
   downloadDocument,
   saveNotification,
-} from '../../../../../api/allowanceApi';
+} from '../../../../../api/allowanceApplication';
 import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
 import './SecretaryAllowanceApplications.css';
 
@@ -120,6 +120,10 @@ const SecretaryAllowanceApplications = () => {
       });
     }
   };
+    const handleViewDetails = (villagerId) => {
+    console.log('Navigating to villager:', villagerId);
+    navigate(`/secretary_allowance_applications_villager-view/${villagerId}`);
+  };
 
   const handleBack = () => {
     navigate('/SecretaryDashBoard');
@@ -179,6 +183,7 @@ const SecretaryAllowanceApplications = () => {
                   <th>Document</th>
                   <th>Status</th>
                   <th>Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +227,14 @@ const SecretaryAllowanceApplications = () => {
                             <TbMail />
                           </button>
                         </div>
+                      </td>
+                       <td>
+                        <button
+                          className="owners-view-btn"
+                          onClick={() => handleViewDetails(app.Villager_ID)}
+                        >
+                          View
+                        </button>
                       </td>
                     </tr>
                   ))

@@ -32,7 +32,7 @@ const LoginForm = () => {
       if (position === 'developer') {
         // Villager login
         response = await villagerApi.loginVillager(email, password);
-        navigate('/UserDashboard', { state: { user: response } });
+        navigate('/user_dashboard', { state: { user: response } });
       } else if (position === 'manager') {
         // Village Officer login
         response = await villageOfficerApi.loginVillageOfficer(email, password);
@@ -96,7 +96,7 @@ const LoginForm = () => {
           <button type="submit" className="login-button" disabled={loading}>
             {loading ? 'Logging in...' : 'Login'}
           </button>
-          <a href="/ForgotPassword" className="forgot-password-link">
+          <a href="/forgot_password" className="forgot-password-link">
             Forgot Password?
           </a>
         </form>

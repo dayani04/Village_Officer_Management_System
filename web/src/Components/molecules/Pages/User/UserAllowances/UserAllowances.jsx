@@ -4,6 +4,7 @@ import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchAllowances } from "../../../../../api/allowance";
+import { getProfile } from "../../../../../api/villager";
 import "./UserAllowances.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -20,28 +21,40 @@ const UserAllowances = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Fetch allowance types when component mounts
+  // Fetch logged-in user's profile and allowance types on component mount
   useEffect(() => {
-    const loadAllowances = async () => {
+    console.log("useEffect running to fetch profile and allowance types");
+    const loadData = async () => {
       try {
+        // Fetch logged-in user's profile
+        const profile = await getProfile();
+        setFormData((prevData) => ({
+          ...prevData,
+          email: profile.Email || "",
+        }));
+
+        // Fetch allowance types
         const allowances = await fetchAllowances();
+        console.log("Loaded allowance types:", allowances);
         setAllowanceTypes(allowances);
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch allowance types:", err);
-        setError(t("errorFetchingAllowances"));
+        console.error("Failed to fetch data:", err.response?.data || err.message);
+        setError(t("errorFetchingData") + ": " + (err.response?.data?.error || err.message));
         setLoading(false);
       }
     };
-    loadAllowances();
+    loadData();
   }, [t]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    if (name !== "email") {
+      setFormData((prevData) => ({
+        ...prevData,
+        [name]: value,
+      }));
+    }
   };
 
   const validateEmail = (email) => {
@@ -49,10 +62,7 @@ const UserAllowances = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = (e) => {
-    e.preventDefault();
-
-    // Validation
+  const handleUploadClick = () => {
     if (!formData.email || !formData.type) {
       Swal.fire({
         icon: "error",
@@ -73,103 +83,101 @@ const UserAllowances = () => {
       return;
     }
 
-    navigate("/UserAllowancesBC", { state: { formData } }); // Navigate after success
+    console.log("Navigating to UserAllowancesBC with formData:", formData);
+    navigate("/user_allowances_bc", { state: { formData } });
   };
 
   const handleLanguageChange = (lang) => {
+    console.log("Changing language to:", lang);
     changeLanguage(lang);
   };
 
   // Map API type to translation key
   const getTranslationKey = (apiType) => {
-    switch (apiType) {
-      case "Adult Allowances":
-        return "adultAllowances";
-      case "Disabled Allowances":
-        return "disabledAllowances";
-      case "Widow Allowances":
-        return "WidowAllowances";
-      case "Nutritional And Food Allowance":
-        return "NutritionalAndFoodAllowance";
-      case "Agriculture And Farming Subsidies Allowances":
-        return "AgricultureandFarmingSubsidiesAllowances";
-      default:
-        return apiType;
-    }
+    const translationMap = {
+      "Adult Allowances": "adultAllowances",
+      "Disabled Allowances": "disabledAllowances",
+      "Widow Allowances": "WidowAllowances",
+      "Nutritional And Food Allowance": "NutritionalAndFoodAllowance",
+      "Agriculture And Farming Subsidies Allowances": "AgricultureandFarmingSubsidiesAllowances",
+    };
+    const key = translationMap[apiType] || apiType;
+    console.log(`Translated ${apiType} to ${key}`);
+    return key;
   };
 
   return (
     <section>
-      <NavBar/>
-    <div>
-      <br />
-      <br />
-      <h1 className="form-allowances-title">{t("allowancesFormTitle")}</h1>
-      <br />
-      <div className="user-allowances-container">
-        <div className="language-allowances-switch">
-          <button onClick={() => handleLanguageChange("en")}>English</button>
-          <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
+      <NavBar />
+      <div>
+        <br />
+        <br />
+        <h1 className="form-allowances-title">{t("allowancesFormTitle")}</h1>
+        <br />
+        <div className="user-allowances-container">
+          <div className="language-allowances-switch">
+            <button onClick={() => handleLanguageChange("en")}>English</button>
+            <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
+          </div>
+
+          <form className="allowances-form">
+            <div className="form-allowances-group">
+              <label htmlFor="email">{t("emailLabel")}</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder={t("emailPlaceholder")}
+                required
+                disabled
+              />
+            </div>
+
+            <div className="form-allowances-group">
+              <label htmlFor="type">{t("allowancesLabel")}</label>
+              <select
+                id="type"
+                name="type"
+                value={formData.type}
+                onChange={handleInputChange}
+                required
+                disabled={loading || !!error}
+              >
+                <option value="" disabled>
+                  {t("selectAllowancesType")}
+                </option>
+                {loading ? (
+                  <option disabled>{t("loading") || "Loading..."}</option>
+                ) : error ? (
+                  <option disabled>{error}</option>
+                ) : allowanceTypes.length === 0 ? (
+                  <option disabled>{t("noAllowancesAvailable") || "No allowance types available"}</option>
+                ) : (
+                  allowanceTypes.map((allowance) => (
+                    <option key={allowance.Allowances_ID} value={allowance.Allowances_Type}>
+                      {t(getTranslationKey(allowance.Allowances_Type))}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+
+            <div className="form-allowances-group">
+              <button
+                type="button"
+                className="upload-allowance-button"
+                onClick={handleUploadClick}
+                disabled={loading || !!error || !formData.email}
+              >
+                {t("next")}
+              </button>
+            </div>
+          </form>
         </div>
-
-        <form className="allowances-form">
-          {/* Email Input */}
-          <div className="form-group">
-            <label htmlFor="email">{t("emailLabel")}</label>
-            <input
-              type="email"
-              id="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder={t("emailPlaceholder")}
-              required
-            />
-          </div>
-
-          {/* Allowance Type Selection */}
-          <div className="form-allowances-group">
-            <label htmlFor="type">{t("allowancesLabel")}</label>
-            <select
-              id="type"
-              name="type"
-              value={formData.type}
-              onChange={handleInputChange}
-              required
-              disabled={loading || !!error}
-            >
-              <option value="" disabled>
-                {t("selectAllowancesType")}
-              </option>
-              {loading ? (
-                <option disabled>{t("loading")}</option>
-              ) : error ? (
-                <option disabled>{error}</option>
-              ) : (
-                allowanceTypes.map((allowance) => (
-                  <option key={allowance.Allowances_ID} value={allowance.Allowances_Type}>
-                    {t(getTranslationKey(allowance.Allowances_Type))}
-                  </option>
-                ))
-              )}
-            </select>
-          </div>
-
-          {/* Next Button */}
-          <div className="form-allowances-group">
-            <button
-              type="button"
-              className="upload-allowances-button"
-              onClick={handleUploadClick}
-              disabled={loading || !!error}
-            >
-              {t("next")}
-            </button>
-          </div>
-        </form>
       </div>
-    </div>
-    <Footer/>
+      <Footer />
     </section>
   );
 };

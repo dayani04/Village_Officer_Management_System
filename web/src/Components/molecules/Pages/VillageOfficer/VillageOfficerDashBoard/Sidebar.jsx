@@ -21,7 +21,7 @@ const Sidebar = () => {
   const [isDiscountSubMenuOpen, setIsDiscountSubMenuOpen] = useState(false);
 
   useEffect(() => {
-    if (location.pathname.includes("AddVillagers") || location.pathname.includes("Villagers") || location.pathname.includes("Houses")) {
+    if (location.pathname.includes("add_villagers") || location.pathname.includes("villagers") || location.pathname.includes("villagers_houses")) {
       setIsProductSubMenuOpen(true);
     }
     if (location.pathname.includes("users")) {
@@ -81,7 +81,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/AddVillagers"
+                  to="/add_villagers"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -101,7 +101,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/Houses"
+                  to="/villagers_houses"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -133,7 +133,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/RequestsForAllowances"
+                  to="/requests-for-allowances"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -171,6 +171,16 @@ const Sidebar = () => {
                   Permits
                 </NavLink>
               </li>
+                 <li>
+                <NavLink
+                  to="/requests-for-elections"
+                  className="nav-link p-2 rounded hover-bg"
+                  style={{ color: "white" }}
+                  activeStyle={{ fontWeight: "bold" }}
+                >
+                  Elecction
+                </NavLink>
+              </li>
               <li>
                 <NavLink
                   to="/eligible-voters"
@@ -205,7 +215,7 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/AllowanceOwners"
+                  to="/allowances_owners"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -215,7 +225,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/PermitOwner"
+                  to="/permit_owner"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -252,7 +262,7 @@ const Sidebar = () => {
         {/* My Profile */}
         <li className="nav-item">
           <NavLink
-            to="/VillageOfficerProfile"
+            to="/Village_officer_profile"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >

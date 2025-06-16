@@ -36,9 +36,7 @@ const EditableCertificate = () => {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        console.log('Fetching certificate details for ID:', applicationId);
         const data = await certificateApi.fetchCertificateDetails(applicationId);
-        console.log('Raw API response:', data);
 
         if (!data) {
           throw new Error(`Application ID ${applicationId} not found in database`);
@@ -48,9 +46,7 @@ const EditableCertificate = () => {
         let age = '-';
         if (data.DOB) {
           const dob = new Date(data.DOB);
-          if (isNaN(dob.getTime())) {
-            console.warn('Invalid DOB:', data.DOB);
-          } else {
+          if (!isNaN(dob.getTime())) {
             const today = new Date('2025-05-26T12:04:00+05:30');
             age = today.getFullYear() - dob.getFullYear();
             const m = today.getMonth() - dob.getMonth();
@@ -66,6 +62,7 @@ const EditableCertificate = () => {
           fullName: data.Full_Name || '-',
           address: data.Address || '-',
           areaId: data.ZipCode || '-',
+
           gender: '',
           age,
           nic: data.NIC || '-',
@@ -79,10 +76,10 @@ const EditableCertificate = () => {
 
         console.log('Voter ID from API:', data.electionrecodeID);
         console.log('Mapped fields:', newFields);
+
         setFields(newFields);
         setLoading(false);
       } catch (err) {
-        console.error('Fetch error:', err);
         const errorMessage = err.response?.status === 404
           ? `Application ID ${applicationId} not found. Please verify the ID exists in villager_has_certificate_recode.`
           : err.message || 'Failed to fetch certificate details';
@@ -105,7 +102,6 @@ const EditableCertificate = () => {
 
   const downloadPDF = async () => {
     try {
-      console.log('Generating PDF with fields:', fields);
       const canvas = await html2canvas(certRef.current, { scale: 2 });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('portrait', 'mm', 'a4');
@@ -115,17 +111,14 @@ const EditableCertificate = () => {
       const filename = `certificate_${applicationId}_${timestamp}.pdf`;
 
       pdf.save(filename);
-      console.log('PDF downloaded:', filename);
     } catch (err) {
-      console.error('PDF generation error:', err);
-      const errorMessage = err.message || err.toString() || 'Unknown error during PDF generation';
+      const errorMessage = err.message || err.toString();
       setError(`Failed to generate PDF: ${errorMessage}`);
     }
   };
 
   const sendPDF = async () => {
     try {
-      console.log('Generating and sending PDF with fields:', fields);
       const canvas = await html2canvas(certRef.current, { scale: 2 });
       const imgData = canvas.toDataURL('image/png');
       const pdf = new jsPDF('portrait', 'mm', 'a4');
@@ -140,8 +133,8 @@ const EditableCertificate = () => {
       formData.append('certificate', pdfBlob, filename);
       formData.append('certificatePath', certificatePath);
 
-      console.log('Sending PDF to API:', { applicationId, certificatePath });
       const response = await certificateApi.saveCertificatePath(applicationId, formData);
+
       console.log('API response:', response);
 
       // Show only success toast without navigation
@@ -166,12 +159,11 @@ const EditableCertificate = () => {
           padding: '16px'
         }
       });
+
     }
   };
 
-  if (loading) {
-    return <div className="container py-4">Loading...</div>;
-  }
+  if (loading) return <div className="container py-4">Loading...</div>;
 
   if (error) {
     return (
@@ -184,10 +176,6 @@ const EditableCertificate = () => {
           <li>Run: <code>SELECT * FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId});</code></li>
           <li>Run: <code>SELECT ZipCode FROM area WHERE Area_ID = (SELECT Area_ID FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}));</code></li>
           <li>Run: <code>SELECT electionrecodeID FROM villager_hase_election_recode WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}) AND status='Approved' ORDER BY apply_date DESC LIMIT 1;</code></li>
-          <li>Test Fetch API: <code>curl -H "Authorization: Bearer your_jwt_token" http://localhost:5000/api/certificate-applications/certificate/{applicationId}</code></li>
-          <li>Test Save API: <code>curl -X POST -H "Authorization: Bearer your_jwt_token" -F "certificate=@certificate.pdf" -F "certificatePath=Uploads/certificates/test.pdf" http://localhost:5000/api/certificate-applications/save-certificate/{applicationId}</code></li>
-          <li>Check console logs for detailed API error messages.</li>
-          <li>Check server logs for backend errors (e.g., Multer, database, file system).</li>
         </ul>
       </div>
     );
@@ -197,9 +185,7 @@ const EditableCertificate = () => {
     <div className="container py-4">
       <Toaster position="top-right" />
       {success && (
-        <div className="alert alert-success" role="alert">
-          {success}
-        </div>
+        <div className="alert alert-success">{success}</div>
       )}
       <div className="mb-3">
         <label htmlFor="signatureInput" className="form-label">
@@ -225,7 +211,6 @@ const EditableCertificate = () => {
           backgroundPosition: 'top left',
         }}
       >
-        {/* Header */}
         <div className="text-center mb-4">
           <p className="fw-bold mb-1" style={{ fontSize: '16px' }}>
             ග්‍රාම නිලධාරී විසින් නිකුත් කරන පදිංචිය හා චරිතය පිළිබඳ සහතිකය
@@ -237,8 +222,6 @@ const EditableCertificate = () => {
             Certificate on residence and character issued by the Grama Niladhari
           </p>
         </div>
-
-        {/* Fields */}
         <div className="px-3">
           {fieldsData.map((field) => (
             <div
@@ -246,7 +229,6 @@ const EditableCertificate = () => {
               className="d-flex align-items-center border-bottom mb-3 pb-2"
               style={{ fontSize: '13px' }}
             >
-              {/* Labels */}
               <div style={{ flex: 2 }}>
                 <label className="d-block text-muted">
                   <div>{field.labels[0]}</div>
@@ -254,8 +236,6 @@ const EditableCertificate = () => {
                   <div>{field.labels[2]}</div>
                 </label>
               </div>
-
-              {/* Vertical Line */}
               <div
                 style={{
                   width: '1px',
@@ -264,15 +244,8 @@ const EditableCertificate = () => {
                   margin: '0 10px',
                 }}
               />
-
-              {/* Display Field */}
               <div style={{ flex: 3 }}>
-                <span
-                  style={{
-                    fontWeight: 'bold',
-                    fontSize: '13px',
-                  }}
-                >
+                <span style={{ fontWeight: 'bold' }}>
                   {fields[field.key]}
                 </span>
               </div>
@@ -280,8 +253,6 @@ const EditableCertificate = () => {
           ))}
         </div>
       </div>
-
-      {/* Buttons */}
       <div className="text-center mt-4">
         <button className="btn btn-primary px-4 py-2 me-2" onClick={downloadPDF}>
           Download as PDF

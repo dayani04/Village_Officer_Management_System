@@ -141,6 +141,11 @@ const SecretaryPermitApplications = () => {
     }
   };
 
+    const handleViewDetails = (villagerId) => {
+    console.log('Navigating to villager:', villagerId);
+    navigate(`/secretary_permit_applications_villager_view/${villagerId}`);
+  };
+
   // Handle back to dashboard navigation
   const handleBack = () => {
     navigate('/SecretaryDashBoard');
@@ -201,6 +206,7 @@ const SecretaryPermitApplications = () => {
                   <th>Police Report</th>
                   <th>Status</th>
                   <th>Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -253,6 +259,14 @@ const SecretaryPermitApplications = () => {
                             <TbMail />
                           </button>
                         </div>
+                      </td>
+                       <td>
+                        <button
+                          className="owners-view-btn"
+                          onClick={() => handleViewDetails(app.Villager_ID)}
+                        >
+                          View
+                        </button>
                       </td>
                     </tr>
                   ))

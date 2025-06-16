@@ -9,7 +9,7 @@ const PrivacyPolicy = () => {
   const navigate = useNavigate();
 
   const handleBack = () => {
-    navigate('/UserDashboard');
+    navigate('/user_dashboard');
   };
 
   return (

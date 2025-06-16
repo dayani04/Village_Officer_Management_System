@@ -12,12 +12,7 @@ const upload = multer({
 });
 
 // Protected routes
-router.post(
-  "/",
-  authenticate,
-  upload.single("document"),
-  allowanceApplicationController.createAllowanceApplication
-);
+router.post("/", authenticate, upload.single("document"), allowanceApplicationController.createAllowanceApplication);
 router.get("/", authenticate, allowanceApplicationController.getAllowanceApplications);
 router.get("/confirmed", authenticate, allowanceApplicationController.getConfirmedAllowanceApplications);
 router.get("/villager/:villagerId", authenticate, allowanceApplicationController.getAllowanceApplicationsByVillagerId);

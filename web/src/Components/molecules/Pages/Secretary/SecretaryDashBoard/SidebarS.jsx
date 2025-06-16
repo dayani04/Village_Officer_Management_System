@@ -57,7 +57,7 @@ const SidebarS = () => {
             style={{ textDecoration: "none", color: "white" }}
             activeStyle={{ fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.2)" }}
           >
-            <TbDashboard className="me-2" /> Villager Dashboard
+            <TbDashboard className="me-2" /> Secretary Dashboard
           </NavLink>
         </li>
 
@@ -115,7 +115,7 @@ const SidebarS = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/SecretaryAllowanceApplications"
+                  to="/secretary_allowance_applications"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -125,7 +125,7 @@ const SidebarS = () => {
               </li>
               <li>
                 <NavLink
-                  to="/SecretaryNICApplications"
+                  to="/secretary_nic_applications"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -135,7 +135,7 @@ const SidebarS = () => {
               </li>
                <li>
                 <NavLink
-                  to="/SecretaryPermitApplications"
+                  to="/secretary_permit_applications"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -143,7 +143,16 @@ const SidebarS = () => {
                   Permits
                 </NavLink>
               </li>
-             
+             <li>
+                <NavLink
+                  to="/secretary_election_applications"
+                  className="nav-link p-2 rounded hover-bg"
+                  style={{ color: "white" }}
+                  activeStyle={{ fontWeight: "bold" }}
+                >
+                  Election
+                </NavLink>
+              </li>
             </ul>
           )}
         </li>
@@ -168,7 +177,7 @@ const SidebarS = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/SecretaryAllowanceOwners"
+                  to="/secretary_allowance_owners"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -178,7 +187,7 @@ const SidebarS = () => {
               </li>
               <li>
                 <NavLink
-                  to="/SecretaryPermitsOwner"
+                  to="/secretary_permits_owner"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -189,7 +198,15 @@ const SidebarS = () => {
             </ul>
           )}
         </li>
-
+          <li className="nav-item">
+          <NavLink
+            to="/secretary_election_owners"
+            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
+            style={{ color: "white" }}
+          >
+            <TbUserCircle className="me-2" /> Election Holders
+          </NavLink>
+        </li>
         {/* Add Village Officer */}
         <li className="nav-item">
           <NavLink
@@ -215,7 +232,7 @@ const SidebarS = () => {
         {/* My Profile */}
         <li className="nav-item">
           <NavLink
-            to="/SecretaryProfile"
+            to="/secretary-profile"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
@@ -238,4 +255,4 @@ const SidebarS = () => {
   );
 };
 
-export default SidebarS;
+export default SidebarS; 

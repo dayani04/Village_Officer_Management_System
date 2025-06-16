@@ -51,11 +51,7 @@ const createSecretary = async (req, res) => {
       return res.status(400).json({ error: "Invalid email format" });
     }
 
-    const existingSecretary = await Secretary.getSecretaryByEmail(email);
-    if (existingSecretary) {
-      return res.status(400).json({ error: "Email already in use" });
-    }
-
+    // Remove the email uniqueness check here since triggers handle it
     const hashedPassword = await bcrypt.hash(password, 10);
     await Secretary.addSecretary(
       secretary_id,
@@ -82,7 +78,6 @@ const createSecretary = async (req, res) => {
     res.status(500).json({ error: "Database error", details: error.message });
   }
 };
-
 const updateSecretary = async (req, res) => {
   try {
     const { full_name, email, phone_no, status } = req.body;

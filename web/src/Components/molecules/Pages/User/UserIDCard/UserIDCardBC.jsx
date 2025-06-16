@@ -45,7 +45,7 @@ const UserIDCardBC = () => {
   };
 
   const handleBack = () => {
-    navigate("/UserIDCard");
+    navigate("/user_id_card");
   };
 
   const handleSubmit = async () => {
@@ -74,7 +74,7 @@ const UserIDCardBC = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard"); // Redirect to dashboard after success
+        navigate("/user_dashboard"); // Redirect to dashboard after success
       });
     } catch (error) {
       Swal.fire({

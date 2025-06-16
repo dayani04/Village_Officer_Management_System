@@ -121,6 +121,10 @@ const SecretaryElectionApplications = () => {
     }
   };
 
+    const handleViewDetails = (villagerId) => {
+    console.log('Navigating to villager:', villagerId);
+    navigate(`/secretary_election_applications_villager_view/${villagerId}`);
+  };
   const handleBack = () => {
     navigate('/SecretaryDashBoard');
   };
@@ -179,6 +183,7 @@ const SecretaryElectionApplications = () => {
                   <th>Document</th>
                   <th>Status</th>
                   <th>Action</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -222,6 +227,14 @@ const SecretaryElectionApplications = () => {
                             <TbMail />
                           </button>
                         </div>
+                      </td>
+                       <td>
+                        <button
+                          className="owners-view-btn"
+                          onClick={() => handleViewDetails(app.Villager_ID)}
+                        >
+                          View
+                        </button>
                       </td>
                     </tr>
                   ))

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import * as allowanceApi from '../../../../../api/allowanceApi';
+import * as allowanceApi from '../../../../../api/allowanceApplication';
 import './RequestsForAllowances.css';
 
 const RequestsForAllowances = () => {
@@ -15,8 +15,10 @@ const RequestsForAllowances = () => {
     const fetchApplications = async () => {
       try {
         const data = await allowanceApi.fetchAllowanceApplications();
-        console.log('Fetched applications:', data);
-        setApplications(data);
+        console.log('Fetched allowance applications:', data);
+        // Filter applications to include only those with status 'Pending'
+        const pendingApplications = data.filter(app => app.status === 'Pending');
+        setApplications(pendingApplications);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
@@ -29,10 +31,10 @@ const RequestsForAllowances = () => {
   }, []);
 
   const handleStatusSelect = (villagerId, allowancesId, newStatus) => {
-    if (!['Pending', 'Approved', 'Rejected'].includes(newStatus)) {
+    if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
       toast.error('Invalid status selected.', {
         style: {
-          backgroundColor: '#f443f3',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -40,17 +42,17 @@ const RequestsForAllowances = () => {
       return;
     }
 
-    setPendingStatuses(prev => ({
-      ...prev,
+    setPendingStatuses({
+      ...pendingStatuses,
       [`${villagerId}-${allowancesId}`]: newStatus,
-    }));
+    });
   };
 
   const handleStatusConfirm = async (villagerId, allowancesId) => {
     if (!allowancesId) {
       toast.error('Allowance ID is missing.', {
         style: {
-          backgroundColor: '#f443f3',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -62,7 +64,7 @@ const RequestsForAllowances = () => {
     if (!newStatus) {
       toast.error('No status change selected.', {
         style: {
-          backgroundColor: '#f443f3',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -72,13 +74,10 @@ const RequestsForAllowances = () => {
 
     try {
       await allowanceApi.updateAllowanceApplicationStatus(villagerId, allowancesId, newStatus);
-      setApplications(prevApps =>
-        prevApps.map(app =>
-          app.Villager_ID === villagerId && app.Allowances_ID === allowancesId
-            ? { ...app, status: newStatus }
-            : app
-        )
-      );
+      // Remove the application from the list if its status is no longer 'Pending'
+      setApplications(applications.filter(app =>
+        !(app.Villager_ID === villagerId && app.Allowances_ID === allowancesId)
+      ));
       setPendingStatuses(prev => {
         const updated = { ...prev };
         delete updated[`${villagerId}-${allowancesId}`];
@@ -95,7 +94,7 @@ const RequestsForAllowances = () => {
       console.error('Status update error:', err);
       toast.error(err.error || 'Failed to update status', {
         style: {
-          backgroundColor: '#f443f3',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -106,7 +105,7 @@ const RequestsForAllowances = () => {
   const handleDownload = async (filename) => {
     try {
       const blob = await allowanceApi.downloadDocument(filename);
-      const url = window.URL.createObjectURL(blob);
+      const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);
@@ -115,10 +114,9 @@ const RequestsForAllowances = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error downloading document:', err);
       toast.error(err.error || 'Failed to download document', {
         style: {
-          backgroundColor: '#f443f3',
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -128,7 +126,7 @@ const RequestsForAllowances = () => {
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
-    navigate(`/allowance-villager-details/${villagerId}`);
+    navigate(`/requests_for_allowances_villager_details/${villagerId}`);
   };
 
   const handleBack = () => {
@@ -180,23 +178,13 @@ const RequestsForAllowances = () => {
               </td>
               <td>
                 <select
-                  value={
-                    pendingStatuses[`${app.Villager_ID}-${app.Allowances_ID}`] ||
-                    app.status ||
-                    'Pending'
-                  }
-                  onChange={(e) =>
-                    handleStatusSelect(
-                      app.Villager_ID,
-                      app.Allowances_ID,
-                      e.target.value
-                    )
-                  }
+                  value={pendingStatuses[`${app.Villager_ID}-${app.Allowances_ID}`] || app.status || 'Pending'}
+                  onChange={(e) => handleStatusSelect(app.Villager_ID, app.Allowances_ID, e.target.value)}
                   className="status-select"
                 >
                   <option value="Pending">Pending</option>
-                  <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
+                  <option value="Send">Send</option>
+                  
                 </select>
               </td>
               <td>

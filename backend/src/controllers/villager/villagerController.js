@@ -30,21 +30,9 @@ const getVillager = async (req, res) => {
 const createVillager = async (req, res) => {
   try {
     const {
-      villager_id,
-      full_name,
-      email,
-      password,
-      phone_no,
-      nic,
-      dob,
-      address,
-      regional_division,
-      status,
-      area_id,
-      latitude,
-      longitude,
-      is_participant,
-      alive_status,
+      villager_id, full_name, email, password, phone_no, nic, dob, address,
+      regional_division, status, area_id, latitude, longitude, is_participant,
+      alive_status, job, gender, marital_status
     } = req.body;
 
     if (!villager_id || !full_name || !email || !password || !phone_no) {
@@ -58,21 +46,9 @@ const createVillager = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     await User.addVillager(
-      villager_id,
-      full_name,
-      email,
-      hashedPassword,
-      phone_no,
-      nic,
-      dob,
-      address,
-      regional_division,
-      status || "Active",
-      area_id,
-      latitude,
-      longitude,
-      is_participant,
-      alive_status || "Alive"
+      villager_id, full_name, email, hashedPassword, phone_no, nic, dob, address,
+      regional_division, status || "Active", area_id, latitude, longitude,
+      is_participant, alive_status || "Alive", job, gender, marital_status
     );
 
     await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
@@ -85,7 +61,10 @@ const createVillager = async (req, res) => {
 
 const updateVillager = async (req, res) => {
   try {
-    const { full_name, email, phone_no, address, regional_division, status, is_election_participant, alive_status } = req.body;
+    const { 
+      full_name, email, phone_no, address, regional_division, status, 
+      is_election_participant, alive_status, job, gender, marital_status 
+    } = req.body;
     const villagerId = req.params.id;
 
     if (!full_name || !email || !phone_no) {
@@ -100,7 +79,9 @@ const updateVillager = async (req, res) => {
     const currentUser = await User.getVillagerById(villagerId);
     if (!currentUser) return res.status(404).json({ error: "User not found" });
 
-    const parsedIsElectionParticipant = typeof is_election_participant === 'boolean' ? is_election_participant : Boolean(is_election_participant);
+    const parsedIsElectionParticipant = typeof is_election_participant === 'boolean' 
+      ? is_election_participant 
+      : Boolean(is_election_participant);
 
     const updateData = {
       full_name,
@@ -111,6 +92,9 @@ const updateVillager = async (req, res) => {
       status: status || currentUser.Status,
       is_election_participant: parsedIsElectionParticipant,
       alive_status: alive_status !== undefined ? alive_status : currentUser.Alive_Status,
+      job: job !== undefined ? job : currentUser.Job,
+      gender: gender !== undefined ? gender : currentUser.Gender,
+      marital_status: marital_status !== undefined ? marital_status : currentUser.Marital_Status
     };
 
     const updated = await User.updateVillager(
@@ -122,7 +106,10 @@ const updateVillager = async (req, res) => {
       updateData.regional_division,
       updateData.status,
       updateData.is_election_participant,
-      updateData.alive_status
+      updateData.alive_status,
+      updateData.job,
+      updateData.gender,
+      updateData.marital_status
     );
 
     if (!updated) return res.status(404).json({ error: "User not found" });

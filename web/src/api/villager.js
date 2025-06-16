@@ -17,9 +17,7 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export const fetchVillagers = async () => {
@@ -47,6 +45,8 @@ export const addVillager = async (newVillager) => {
     const payload = {
       ...newVillager,
       is_participant: Boolean(newVillager.is_participant),
+      gender: newVillager.gender || "Other",
+      marital_status: newVillager.marital_status || "Unmarried"
     };
     const response = await api.post("/villagers/", payload);
     return response.data;
@@ -66,6 +66,10 @@ export const updateVillager = async (villagerId, updatedVillager) => {
       regional_division: updatedVillager.regional_division !== undefined ? updatedVillager.regional_division : null,
       status: updatedVillager.status || "Active",
       is_election_participant: Boolean(updatedVillager.is_election_participant),
+      alive_status: updatedVillager.alive_status || "Alive",
+      job: updatedVillager.job !== undefined ? updatedVillager.job : null,
+      gender: updatedVillager.gender || "Other",
+      marital_status: updatedVillager.marital_status || "Unmarried"
     };
 
     if (!payload.full_name || !payload.email || !payload.phone_no) {
@@ -186,6 +190,7 @@ export const getNotifications = async () => {
     throw error.response ? error.response.data : error.message;
   }
 };
+
 
 export const markNotificationAsRead = async (notificationId) => {
   try {
