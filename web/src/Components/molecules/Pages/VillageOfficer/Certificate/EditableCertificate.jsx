@@ -1,9 +1,10 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import * as certificateApi from '../../../../../api/certificateApplicationAPI.js';
+import toast, { Toaster } from 'react-hot-toast';
 
 const fieldsData = [
   { key: 'fullName', labels: ['නම:', 'முழு பெயர்:', 'Full Name:'] },
@@ -30,6 +31,7 @@ const EditableCertificate = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -59,21 +61,23 @@ const EditableCertificate = () => {
           }
         }
 
-        // Set fields
+        // Set fields with explicit voterId handling
         const newFields = {
           fullName: data.Full_Name || '-',
           address: data.Address || '-',
           areaId: data.ZipCode || '-',
-          gender: '-',
+          gender: '',
           age,
           nic: data.NIC || '-',
-          civilStatus: '-',
-          occupation: '-',
+          civilStatus: '',
+          occupation: '',
           character: 'Good',
-          voterId: data.electionrecodeID ? data.electionrecodeID.toString() : '-',
+          voterId: data.electionrecodeID ? data.electionrecodeID.toString() : 'No Voter ID',
           date: new Date().toISOString().split('T')[0], // Current date
           signature: signatureInput || '-', // Use user input or default
         };
+
+        console.log('Voter ID from API:', data.electionrecodeID);
         console.log('Mapped fields:', newFields);
         setFields(newFields);
         setLoading(false);
@@ -139,13 +143,29 @@ const EditableCertificate = () => {
       console.log('Sending PDF to API:', { applicationId, certificatePath });
       const response = await certificateApi.saveCertificatePath(applicationId, formData);
       console.log('API response:', response);
-      setSuccess(`Certificate saved successfully: ${certificatePath}`);
-      setError('');
+
+      // Show only success toast without navigation
+      toast.success('Certificate saved and sent successfully!', {
+        duration: 3000,
+        style: {
+          background: '#7a1632',
+          color: '#fff',
+          borderRadius: '8px',
+          padding: '16px'
+        }
+      });
+
     } catch (err) {
       console.error('PDF generation or save error:', err);
-      const errorMessage = err.message || err.toString() || 'Unknown error during PDF generation or save';
-      setError(`Failed to generate or save PDF: ${errorMessage}`);
-      setSuccess('');
+      toast.error(err.message || 'Failed to save certificate', {
+        duration: 4000,
+        style: {
+          background: '#f43f3f',
+          color: '#fff',
+          borderRadius: '8px',
+          padding: '16px'
+        }
+      });
     }
   };
 
@@ -175,6 +195,7 @@ const EditableCertificate = () => {
 
   return (
     <div className="container py-4">
+      <Toaster position="top-right" />
       {success && (
         <div className="alert alert-success" role="alert">
           {success}
@@ -199,7 +220,7 @@ const EditableCertificate = () => {
         style={{
           width: '794px',
           minHeight: '1123px',
-          backgroundImage: 'url("/certificate.jpeg")',
+          backgroundImage: 'url("/images/certificate.jpeg")', // Update image path
           backgroundSize: 'cover',
           backgroundPosition: 'top left',
         }}

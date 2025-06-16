@@ -160,3 +160,4 @@ INSERT INTO nic_recode (NIC_ID , NIC_Type)
     FOREIGN KEY ( NIC_ID) REFERENCES nic_recode( NIC_ID) ON DELETE CASCADE
 );
 ALTER TABLE villager_has_nic_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
+

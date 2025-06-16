@@ -12,6 +12,7 @@ const UserCertificatesBC = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
   const [file, setFile] = useState(null);
+  const [reason, setReason] = useState(""); // Add state for reason
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -59,11 +60,40 @@ const UserCertificatesBC = () => {
       return;
     }
 
+    if (!reason.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: t("reasonRequiredTitle"),
+        text: t("reasonRequiredMessage"),
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
+    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+    if (!allowedTypes.includes(file.type)) {
+      Swal.fire({
+        icon: "error",
+        title: t("uploadRequiredTitleBC"),
+        text: t("invalidFileType"),
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("email", formData.email);
+      formDataToSend.append("email", formData.email || "");
+      formDataToSend.append("reason", reason); // Include reason in the payload
       formDataToSend.append("document", file);
+
+      // Log formDataToSend for debugging
+      console.log("Submitting formData:", {
+        email: formData.email,
+        reason,
+        document: file.name,
+      });
 
       await submitCertificateApplication(formDataToSend);
 
@@ -73,13 +103,14 @@ const UserCertificatesBC = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-        navigate("/UserDashboard"); // Redirect to dashboard after success
+        navigate("/UserDashboard");
       });
     } catch (error) {
+      console.error("Error during submission:", error);
       Swal.fire({
         icon: "error",
         title: t("error"),
-        text: error.error || t("submissionFailed"),
+        text: error || t("submissionFailed"),
         confirmButtonText: t("ok"),
       });
     } finally {
@@ -89,93 +120,110 @@ const UserCertificatesBC = () => {
 
   return (
     <section>
-    <NavBar/>
-    <div className="user-certificates-bc-page">
-      <h1 className="certificates-bc-form-title">{t("FormTitleBC")}</h1>
+      <NavBar />
+      <div className="user-certificates-bc-page">
+        <h1 className="certificates-bc-form-title">{t("FormTitleBC")}</h1>
 
-      <div className="language-certificates-bc-selector">
-        <button
-          onClick={() => changeLanguage("en")}
-          className="language-certificates-bc-btn"
-        >
-          English
-        </button>
-        <button
-          onClick={() => changeLanguage("si")}
-          className="language-certificates-bc-btn"
-        >
-          සිංහල
-        </button>
-      </div>
-
-      <form className="certificates-bc-form-content">
-        <div className="file-certificates-bc-upload-section">
-          <input
-            type="file"
-            id="file-upload"
-            accept=".pdf,.jpg,.png"
-            onChange={handleFileChange}
-            className="file-certificates-bc-input-field"
-            style={{ display: "none" }}
-          />
-          {file && (
-            <div className="file-certificates-bc-info">
-              <span className="file-certificates-bc-name">{file.name}</span>
-              <a
-                href={URL.createObjectURL(file)}
-                download={file.name}
-                className="file-certificates-bc-download-link"
-              >
-                <br />
-                {t("downloadLink")}
-              </a>
-            </div>
-          )}
-        </div>
-
-        <div className="form-certificates-bc-buttons-section">
+        <div className="language-certificates-bc-selector">
           <button
-            type="button"
-            className="upload-certificates-bc-btn"
-            onClick={handleFileClick}
-            disabled={loading}
+            onClick={() => changeLanguage("en")}
+            className="language-certificates-bc-btn"
           >
-            📎 {t("uploadBCButton")}
+            English
           </button>
-
-          {file && (
-            <button
-              type="button"
-              className="delete-certificates-bc-btn"
-              onClick={handleDelete}
-              disabled={loading}
-            >
-              {t("delete")}
-            </button>
-          )}
-
-          <div className="navigation-certificates-bc-buttons">
-            <button
-              type="button"
-              className="back-certificates-bc-btn"
-              onClick={handleBack}
-              disabled={loading}
-            >
-              {t("back")}
-            </button>
-            <button
-              type="button"
-              className="submit-certificates-bc-btn"
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? t("submitting") : t("submit")}
-            </button>
-          </div>
+          <button
+            onClick={() => changeLanguage("si")}
+            className="language-certificates-bc-btn"
+          >
+            සිංහල
+          </button>
         </div>
-      </form>
-    </div>
-    <Footer/>
+
+        <form className="certificates-bc-form-content">
+          <div className="file-certificates-bc-upload-section">
+            <input
+              type="file"
+              id="file-upload"
+              accept=".pdf,.jpg,.png"
+              onChange={handleFileChange}
+              className="file-certificates-bc-input-field"
+              style={{ display: "none" }}
+            />
+            {file && (
+              <div className="file-certificates-bc-info">
+                <span className="file-certificates-bc-name">{file.name}</span>
+                <a
+                  href={URL.createObjectURL(file)}
+                  download={file.name}
+                  className="file-certificates-bc-download-link"
+                >
+                  <br />
+                  {t("downloadLink")}
+                </a>
+              </div>
+            )}
+          </div>
+
+          <div className="reason-certificates-bc-section">
+            <label
+              htmlFor="reason"
+              className="reason-certificates-bc-label"
+            >
+              {t("reasonLabel")}
+            </label>
+            <textarea
+              id="reason"
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="reason-certificates-bc-textarea"
+              placeholder={t("reasonPlaceholder")}
+              disabled={loading}
+            />
+          </div>
+
+          <div className="form-certificates-bc-buttons-section">
+            <button
+              type="button"
+              className="upload-certificates-bc-btn"
+              onClick={handleFileClick}
+              disabled={loading}
+            >
+              📎 {t("uploadBCButton")}
+            </button>
+
+            {file && (
+              <button
+                type="button"
+                className="delete-certificates-bc-btn"
+                onClick={handleDelete}
+                disabled={loading}
+              >
+                {t("delete")}
+              </button>
+            )}
+
+            <div className="navigation-certificates-bc-buttons">
+              <button
+                type="button"
+                className="back-certificates-bc-btn"
+                onClick={handleBack}
+                disabled={loading}
+              >
+                {t("back")}
+              </button>
+              <button
+                type="button"
+                className="submit-certificates-bc-btn"
+                onClick={handleSubmit}
+                disabled={loading}
+              >
+                {loading ? t("submitting") : t("submit")}
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <Footer />
     </section>
   );
 };

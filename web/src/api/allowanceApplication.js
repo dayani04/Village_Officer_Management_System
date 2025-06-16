@@ -30,3 +30,13 @@ export const submitAllowanceApplication = async (formData) => {
     throw error.response ? error.response.data : error.message;
   }
 };
+
+export const fetchVillagerDetails = async (villagerId) => {
+  try {
+    const response = await api.get(`/villager/${villagerId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Error fetching villager details for ID ${villagerId}:`, error);
+    throw error.response?.data?.error || error.message;
+  }
+};
