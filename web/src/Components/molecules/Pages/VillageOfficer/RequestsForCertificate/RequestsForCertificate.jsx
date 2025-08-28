@@ -171,6 +171,15 @@ const RequestsForCertificate = () => {
     navigate('/dashboard');
   };
 
+  const sortedApplications = applications.sort((a, b) => {
+    // Sort by status (Pending first)
+    if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+    if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+    
+    // If same status, sort by date (newest first)
+    return new Date(b.apply_date) - new Date(a.apply_date);
+  });
+
   if (loading) {
     return (
       <div className="page-layout">
@@ -221,12 +230,14 @@ const RequestsForCertificate = () => {
               <th>Status Action</th>
               <th>Action</th>
               <th>Send Certificate</th>
-              <th>Download Certificate</th>
             </tr>
           </thead>
           <tbody>
-            {applications.map((app) => (
-              <tr key={`${app.Villager_ID}-${app.application_id}`}>
+            {sortedApplications.map((app) => (
+              <tr 
+                key={`${app.Villager_ID}-${app.application_id}`}
+                className={app.status === 'Pending' ? 'pending-row' : ''}
+              >
                 <td>{app.Full_Name}</td>
                 <td>{app.Villager_ID}</td>
                 <td>{app.application_id}</td>
@@ -246,9 +257,10 @@ const RequestsForCertificate = () => {
                 </td>
                 <td>
                   <select
-                    value={pendingStatuses[`${app.Villager_ID}-${app.application_id}`] || app.status || 'Pending'}
+                    value={pendingStatuses[`${app.Villager_ID}-${app.application_id}`] || app.status}
                     onChange={(e) => handleStatusSelect(app.Villager_ID, app.application_id, e.target.value)}
-                    className="status-select"
+                    className={`status-select ${app.status.toLowerCase()}`}
+                    disabled={loading}
                   >
                     <option value="Pending">Pending</option>
                     <option value="Approved">Approved</option>
@@ -279,22 +291,6 @@ const RequestsForCertificate = () => {
                   >
                     Send
                   </button>
-                </td>
-                <td>
-                  {app.certificate_path ? (
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleDownloadCertificate(app.certificate_path);
-                      }}
-                      className="download-link"
-                    >
-                      Download
-                    </a>
-                  ) : (
-                    'Not Sent'
-                  )}
                 </td>
               </tr>
             ))}

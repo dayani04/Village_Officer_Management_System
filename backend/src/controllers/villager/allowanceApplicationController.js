@@ -312,6 +312,21 @@ const getVillagerById = async (req, res) => {
   }
 };
 
+const getVillagerDetails = async (req, res) => {
+  try {
+    const { villagerId } = req.params;
+    const villager = await Villager.getVillagerById(villagerId);
+    if (!villager) {
+      return res.status(404).json({ error: "Villager not found" });
+    }
+    const applications = await CertificateApplication.getVillagerCertificateApplications(villagerId);
+    res.json({ ...villager, certificateApplications: applications });
+  } catch (error) {
+    console.error("Error in getVillagerDetails:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
 module.exports = {
   createAllowanceApplication,
   getAllowanceApplications,
@@ -320,4 +335,5 @@ module.exports = {
   updateAllowanceApplicationStatus,
   downloadDocument,
   getVillagerById,
+  getVillagerDetails,
 };

@@ -8,22 +8,35 @@ const createCertificateApplication = async (req, res) => {
     const { email, reason } = req.body;
     const file = req.file;
 
+    // Log incoming request data
+    console.log("Incoming request data:", { email, reason, file });
+
     if (!email || !file || !reason) {
       return res.status(400).json({ error: "Email, document, and reason are required" });
     }
 
-    if (reason.length > 255) {
-      return res.status(400).json({ error: "Reason must be 255 characters or less" });
-    }
-
+    // Validate file type
     const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
     if (!allowedTypes.includes(file.mimetype)) {
-      return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+      return res.status(400).json({ error: "Invalid file type. Only PDF, PNG, or JPG files are allowed." });
     }
 
     const villager = await CertificateApplication.getVillagerByEmail(email);
     if (!villager) {
       return res.status(404).json({ error: "Villager not found" });
+    }
+
+    // Check if the villager has an approved application within the last year
+    const lastApprovedApplication = await CertificateApplication.getLastApprovedApplication(villager.Villager_ID);
+    if (lastApprovedApplication) {
+      const oneYearAgo = new Date();
+      oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+
+      if (new Date(lastApprovedApplication.apply_date) > oneYearAgo) {
+        return res.status(400).json({
+          error: "You cannot apply for a certificate before completing one year since your last approved application.",
+        });
+      }
     }
 
     const fileName = `${villager.Villager_ID}_certificate_${Date.now()}${path.extname(file.originalname)}`;

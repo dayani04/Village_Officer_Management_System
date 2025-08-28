@@ -32,22 +32,44 @@ const getAllCertificateApplications = async () => {
 };
 
 const updateCertificateApplicationStatus = async (application_id, status) => {
-  const [existing] = await pool.query(
-    `SELECT 1
-     FROM villager_has_certificate_recode
-     WHERE Villager_ID = (
-       SELECT Villager_ID 
+  if (status === 'Approved') {
+    // Get the current application details
+    const [currentApp] = await pool.query(
+      `SELECT vhc.Villager_ID, vhc.apply_date 
+       FROM villager_has_certificate_recode vhc 
+       WHERE vhc.application_id = ?`,
+      [application_id]
+    );
+
+    if (!currentApp[0]) {
+      throw new Error('Application not found');
+    }
+
+    // Check for last approved application
+    const [lastApproved] = await pool.query(
+      `SELECT apply_date 
        FROM villager_has_certificate_recode 
-       WHERE application_id = ?
-     )
-     AND status = 'Approved'
-     AND application_id != ?`,
-    [application_id, application_id]
-  );
-  if (existing.length > 0 && status === 'Approved') {
-    throw new Error('Villager already has an approved certificate application');
+       WHERE Villager_ID = ? 
+       AND status = 'Approved' 
+       AND application_id != ?
+       ORDER BY apply_date DESC 
+       LIMIT 1`,
+      [currentApp[0].Villager_ID, application_id]
+    );
+
+    if (lastApproved[0]) {
+      const lastApprovedDate = new Date(lastApproved[0].apply_date);
+      const currentApplyDate = new Date(currentApp[0].apply_date);
+      const oneYearAfterLastApproved = new Date(lastApprovedDate);
+      oneYearAfterLastApproved.setFullYear(lastApprovedDate.getFullYear() + 1);
+
+      if (currentApplyDate < oneYearAfterLastApproved) {
+        throw new Error('Cannot approve: Previous certificate was approved less than a year ago. Must wait until one year has passed since the last approval.');
+      }
+    }
   }
 
+  // Update the status if validation passes
   const [result] = await pool.query(
     `UPDATE villager_has_certificate_recode 
      SET status = ? 
@@ -101,18 +123,24 @@ const getApplicationDetails = async (application_id) => {
       v.NIC,
       v.DOB,
       a.ZipCode,
-      (SELECT electionrecodeID 
-       FROM villager_hase_election_recode vhe 
-       WHERE vhe.Villager_ID = vhc.Villager_ID 
-       AND vhe.status = 'Approved' 
-       ORDER BY vhe.apply_date DESC 
-       LIMIT 1) AS electionrecodeID
+      COALESCE(
+        (SELECT electionrecodeID 
+         FROM villager_hase_election_recode vhe 
+         WHERE vhe.Villager_ID = vhc.Villager_ID 
+         AND vhe.status = 'Approved' 
+         ORDER BY vhe.apply_date DESC 
+         LIMIT 1),
+        'No Voter ID'
+      ) AS electionrecodeID
     FROM villager_has_certificate_recode vhc
     JOIN Villager v ON vhc.Villager_ID = v.Villager_ID
     LEFT JOIN area a ON v.Area_ID = a.Area_ID
     WHERE vhc.application_id = ?`,
     [application_id]
   );
+
+  // Debug log
+  console.log('Application details from DB:', rows[0]);
   return rows[0];
 };
 
@@ -126,6 +154,29 @@ const updateCertificatePath = async (application_id, certificate_path) => {
   return result.affectedRows > 0;
 };
 
+const getLastApplicationDate = async (villager_id) => {
+    const [rows] = await pool.query(
+        `SELECT apply_date 
+         FROM villager_has_certificate_recode 
+         WHERE Villager_ID = ? 
+         ORDER BY apply_date DESC 
+         LIMIT 1`,
+        [villager_id]
+    );
+    return rows[0];
+};
+
+const getLastApprovedApplication = async (villager_id) => {
+    const [rows] = await pool.query(
+        `SELECT apply_date 
+         FROM villager_has_certificate_recode 
+         WHERE Villager_ID = ? AND status = 'Approved' 
+         ORDER BY apply_date DESC 
+         LIMIT 1`,
+        [villager_id]
+    );
+    return rows[0];
+};
 
 module.exports = {
   addCertificateApplication,
@@ -137,4 +188,6 @@ module.exports = {
   getNotificationsByVillager,
   getApplicationDetails,
   updateCertificatePath,
+  getLastApplicationDate,
+  getLastApprovedApplication,
 };
