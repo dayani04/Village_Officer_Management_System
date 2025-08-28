@@ -17,6 +17,7 @@ router.post(
 );
 
 router.get("/", authenticate, nicApplicationController.getAllNICApplications);
+router.get("/confirmed", authenticate, nicApplicationController.getConfirmedNICApplications);
 router.put(
   "/:villagerId/:nicId/status",
   authenticate,

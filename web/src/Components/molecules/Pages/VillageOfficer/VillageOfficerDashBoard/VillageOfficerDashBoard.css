@@ -1,0 +1,114 @@
+.card-icon {
+  font-size: 2.5rem;
+  color: #4CAF50;
+  transition: transform 0.3s ease;
+}
+
+.card-icon.animate-bounce-slow {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.card-style-1 {
+  transition: all 0.3s ease;
+  transform: scale(1);
+  background: linear-gradient(135deg, #E8F5E9, #C8E6C9);
+}
+.card-style-1:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-2 {
+  transition: all 0.3s ease;
+  transform: scale(1);
+  background: linear-gradient(135deg, #C8E6C9, #A5D6A7);
+}
+.card-style-2:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-3 {
+  transition: all 0.3s ease;
+  transform: scale(1);
+  background: linear-gradient(135deg, #A5D6A7, #81C784);
+}
+.card-style-3:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-4 {
+  transition: all 0.3s ease;
+  transform: scale(1);
+  background: linear-gradient(135deg, #81C784, #4CAF50);
+}
+.card-style-4:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-5 {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #E8F5E9, #A5D6A7);
+}
+.card-style-5:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-6 {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #C8E6C9, #81C784);
+}
+.card-style-6:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-7 {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #A5D6A7, #4CAF50);
+}
+.card-style-7:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-style-8 {
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, #81C784, #388E3C);
+}
+.card-style-8:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.animate-fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(20px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-pulse-slow {
+  animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}

@@ -1,7 +1,9 @@
+
 const express = require("express");
 const dotenv = require("dotenv");
 const cors = require("cors");
 const path = require("path");
+const cron = require("node-cron");
 const villagerRoutes = require("./src/routes/villager/villagerRoutes");
 const villagerOfficerRoutes = require("./src/routes/villagerOfficer/villagerOfficerRoute");
 const electionRoutes = require("./src/routes/villager/electionRoutes");
@@ -15,6 +17,10 @@ const nicRoutes = require("./src/routes/villager/nicRoutes");
 const nicApplicationRoutes = require("./src/routes/villager/nicApplicationRoutes");
 const secretaryRoutes = require("./src/routes/Secretary/SecretaryRoutes");
 const certificateRoutes = require("./src/routes/villager/certificateRoutes");
+const notificationRoutes = require("./src/routes/villager/notificationRoutes");
+const Notification = require("./src/models/villager/notificationModel");
+const electionNotificationRoutes = require("./src/routes/villager/electionNotification");
+
 
 dotenv.config();
 
@@ -39,6 +45,7 @@ app.use("/api/villagers", villagerRoutes);
 app.use("/api/villager-officers", villagerOfficerRoutes);
 app.use("/api/elections", electionRoutes);
 app.use("/api/election-applications", electionApplicationRoutes);
+app.use('/api/election-notifications', electionNotificationRoutes);
 app.use("/api/allowances", allowanceRoutes);
 app.use("/api/allowance-applications", allowanceApplicationRoutes);
 app.use("/api/permits", permitRoutes);
@@ -47,10 +54,8 @@ app.use("/api/certificate-applications", certificateApplicationRoutes);
 app.use("/api/nics", nicRoutes);
 app.use("/api/nic-applications", nicApplicationRoutes);
 app.use("/api/secretaries", secretaryRoutes);
-app.use("/api/certificate-applications", certificateRoutes);
-app.use("/api/allowance-applications", allowanceRoutes);
-
-
+app.use("/api/certificates", certificateRoutes);
+app.use("/api/notifications", notificationRoutes);
 
 
 // Serve static files from Uploads directory
@@ -69,7 +74,7 @@ app.get("/api/debug/routes", (req, res) => {
       middleware.handle.stack.forEach((handler) => {
         if (handler.route) {
           routes.push({
-            path: `/api${handler.route.path}`, // Adjust for base path
+            path: `/api${handler.route.path}`,
             methods: Object.keys(handler.route.methods),
           });
         }
@@ -77,6 +82,16 @@ app.get("/api/debug/routes", (req, res) => {
     }
   });
   res.json(routes);
+});
+
+// Schedule daily deletion of old notifications
+cron.schedule('0 0 * * *', async () => {
+  try {
+    const affectedRows = await Notification.deleteOldNotifications();
+    console.log(`Deleted ${affectedRows} old notifications`);
+  } catch (error) {
+    console.error('Error deleting old notifications:', error);
+  }
 });
 
 const PORT = process.env.PORT || 5000;

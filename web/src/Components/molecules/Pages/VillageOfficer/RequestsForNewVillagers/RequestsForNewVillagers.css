@@ -1,0 +1,62 @@
+.new-villagers-container {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.new-villagers-container h1 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.new-villagers-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.new-villagers-table th,
+.new-villagers-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.new-villagers-table th {
+  background-color: #9C284F;
+  color: white;
+}
+
+.new-villagers-table tr:hover {
+  background-color: #f5f5f5;
+}
+
+.download-link {
+  color: #9C284F;
+  text-decoration: none;
+}
+
+.download-link:hover {
+  text-decoration: underline;
+}
+
+.new-villagers-actions {
+  text-align: center;
+}
+
+.back-button {
+  padding: 10px 20px;
+  background-color: #9C284F;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.back-button:hover {
+  background-color: #7a1f3d;
+}

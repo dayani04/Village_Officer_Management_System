@@ -1,4 +1,3 @@
-// controllers/villager/electionController.js
 const Election = require("../../models/villager/electionModel");
 
 const getElections = async (req, res) => {
@@ -29,7 +28,22 @@ const getElection = async (req, res) => {
   }
 };
 
+const checkVillagerElectionApplication = async (req, res) => {
+  try {
+    const { villagerId, electionType } = req.body;
+    if (!villagerId || !electionType) {
+      return res.status(400).json({ error: "Villager ID and election type are required" });
+    }
+    const applications = await Election.checkVillagerElectionApplication(villagerId, electionType);
+    res.json(applications);
+  } catch (error) {
+    console.error("Error in checkVillagerElectionApplication:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
 module.exports = {
   getElections,
   getElection,
+  checkVillagerElectionApplication,
 };

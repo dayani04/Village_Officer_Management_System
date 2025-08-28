@@ -17,6 +17,7 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
   List<dynamic> nicTypes = [];
   String? selectedType;
   String? userEmail;
+  int? userAge;
 
   @override
   void initState() {
@@ -44,6 +45,7 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
         throw Exception('Failed to fetch profile');
       final profile = jsonDecode(profileRes.body);
       userEmail = profile['Email'];
+      userAge = _calculateAge(profile['DOB']);
       // Fetch NIC types
       final nicsRes = await http.get(
         Uri.parse('http://localhost:5000/api/nics'),
@@ -55,8 +57,23 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
       if (nicsRes.statusCode != 200)
         throw Exception('Failed to fetch NIC types');
       final nics = jsonDecode(nicsRes.body);
+      // Filter NIC types based on age
+      List<dynamic> filteredNics = nics;
+      if (userAge != null) {
+        if (userAge! <= 15) {
+          filteredNics = nics
+              .where((nic) => nic['NIC_Type'] == 'postal ID Card')
+              .toList();
+        } else if (userAge! >= 16) {
+          filteredNics = nics
+              .where((nic) => nic['NIC_Type'] == 'National ID Card')
+              .toList();
+        }
+      } else {
+        filteredNics = [];
+      }
       setState(() {
-        nicTypes = nics;
+        nicTypes = filteredNics;
         loading = false;
       });
     } catch (e) {
@@ -67,12 +84,46 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
     }
   }
 
+  int? _calculateAge(String? dob) {
+    if (dob == null || dob.isEmpty) return null;
+    try {
+      final dobDate = DateTime.parse(dob);
+      final currentDate = DateTime(2025, 6, 12); // match React code
+      int age = currentDate.year - dobDate.year;
+      int monthDiff = currentDate.month - dobDate.month;
+      if (monthDiff < 0 || (monthDiff == 0 && currentDate.day < dobDate.day)) {
+        age--;
+      }
+      return age;
+    } catch (_) {
+      return null;
+    }
+  }
+
   void handleNext() {
-    if (selectedType == null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Please select an ID card type.')));
+    if (userEmail == null || userEmail!.isEmpty || selectedType == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please select an ID card type.')),
+      );
       return;
+    }
+    if (userAge != null) {
+      if (userAge! <= 15 && selectedType != 'postal ID Card') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You are not eligible for National ID Card.'),
+          ),
+        );
+        return;
+      }
+      if (userAge! >= 16 && selectedType != 'National ID Card') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('You are not eligible for Postal ID Card.'),
+          ),
+        );
+        return;
+      }
     }
     Navigator.push(
       context,
@@ -89,11 +140,11 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Apply for ID Card'),
-        backgroundColor: Color(0xFF921940),
+        title: const Text('Apply for ID Card'),
+        backgroundColor: const Color(0xFF921940),
       ),
       body: loading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : error != null
           ? Center(child: Text('Error: $error'))
           : Padding(
@@ -101,17 +152,20 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Apply for ID Card',
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 16),
-                  Text('Email:', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Email:',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   Text(
                     userEmail ?? '',
-                    style: TextStyle(color: Colors.black87),
+                    style: const TextStyle(color: Colors.black87),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: selectedType,
                     items: nicTypes.map<DropdownMenuItem<String>>((nic) {
@@ -121,16 +175,32 @@ class _UserIDCardPageState extends State<UserIDCardPage> {
                       );
                     }).toList(),
                     onChanged: (v) => setState(() => selectedType = v),
-                    decoration: InputDecoration(labelText: 'ID Card Type'),
+                    decoration: const InputDecoration(
+                      labelText: 'ID Card Type',
+                    ),
                   ),
-                  SizedBox(height: 24),
+                  if (userAge != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        userAge! <= 15
+                            ? 'You are only eligible for Postal ID Card. Your age: $userAge'
+                            : 'You are only eligible for National ID Card. Your age: $userAge',
+                        style: TextStyle(
+                          color: userAge! <= 15 ? Colors.red : Colors.orange,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(height: 24),
                   Center(
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF921940),
+                        backgroundColor: const Color(0xFF921940),
                       ),
-                      onPressed: handleNext,
-                      child: Text('Next'),
+                      onPressed: loading || userEmail == null || userAge == null
+                          ? null
+                          : handleNext,
+                      child: const Text('Next'),
                     ),
                   ),
                 ],

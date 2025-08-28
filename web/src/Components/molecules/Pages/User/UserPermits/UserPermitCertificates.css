@@ -1,17 +1,14 @@
 .certificates-container {
-  max-width: 1200px;
-  margin: 20px auto;
   padding: 20px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
 }
 
 .certificates-container h1 {
   font-size: 24px;
-  margin-bottom: 20px;
   color: #333;
-  text-align: center;
+  margin-bottom: 20px;
 }
 
 .certificates-table-wrapper {
@@ -21,28 +18,33 @@
 .certificates-table {
   width: 100%;
   border-collapse: collapse;
-  background-color: #fff;
+  margin-bottom: 20px;
 }
 
 .certificates-table th,
 .certificates-table td {
   padding: 12px;
+  border: 1px solid #ddd;
   text-align: left;
-  border-bottom: 1px solid #ddd;
 }
 
 .certificates-table th {
-  background-color: #921940;
-  color: white;
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.certificates-table tr:nth-child(even) {
+  background-color: #f9f9f9;
 }
 
 .certificates-table tr:hover {
-  background-color: #f5f5f5;
+  background-color: #f1f1f1;
 }
 
 .certificates-download-link {
-  color: #0066cc;
+  color: #007bff;
   text-decoration: none;
+  font-weight: 500;
 }
 
 .certificates-download-link:hover {
@@ -52,17 +54,21 @@
 .certificates-no-data {
   text-align: center;
   color: #666;
-  padding: 20px;
+  font-style: italic;
+}
+
+.error-message {
+  color: #f43f3f;
+  margin-bottom: 20px;
 }
 
 .certificates-actions {
   margin-top: 20px;
-  text-align: center;
 }
 
 .certificates-back-btn {
   padding: 10px 20px;
-  background-color: #921940;
+  background-color: #6c757d;
   color: white;
   border: none;
   border-radius: 4px;
@@ -71,11 +77,5 @@
 }
 
 .certificates-back-btn:hover {
-  background-color: #921940;
-}
-
-.error-message {
-  color: #f43f3f;
-  text-align: center;
-  margin-bottom: 20px;
+  background-color: #5a6268;
 }

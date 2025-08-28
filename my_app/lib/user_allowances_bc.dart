@@ -37,9 +37,9 @@ class _UserAllowancesBCPageState extends State<UserAllowancesBCPage> {
     );
     if (result != null && result.files.isNotEmpty) {
       final file = result.files.first;
+      final allowedTypes = ['application/pdf', 'image/png', 'image/jpeg'];
       final mime = mimeFromExtension(file.extension ?? '');
-      if (mime == null ||
-          !(mime == 'application/pdf' || mime.startsWith('image/'))) {
+      if (mime == null || !allowedTypes.contains(mime)) {
         setState(() {
           _error = 'Only PDF, JPG, or PNG files are allowed.';
         });
@@ -60,9 +60,9 @@ class _UserAllowancesBCPageState extends State<UserAllowancesBCPage> {
   }
 
   Future<void> _submit() async {
-    if (_file == null) {
+    if (widget.email.isEmpty || widget.type.isEmpty || _file == null) {
       setState(() {
-        _error = 'Please upload a valid document.';
+        _error = 'All fields are required.';
       });
       return;
     }
@@ -73,7 +73,6 @@ class _UserAllowancesBCPageState extends State<UserAllowancesBCPage> {
     });
     try {
       final prefs = await SharedPreferences.getInstance();
-      // Try both possible token keys
       String? token = prefs.getString('jwt_token') ?? prefs.getString('token');
       if (token == null || token.isEmpty) {
         setState(() {
@@ -106,11 +105,22 @@ class _UserAllowancesBCPageState extends State<UserAllowancesBCPage> {
           _success = 'Application submitted successfully!';
           _file = null;
         });
-        await Future.delayed(const Duration(seconds: 1));
-        if (mounted)
-          Navigator.of(
-            context,
-          ).popUntil((route) => route.isFirst); // Go to dashboard
+        await showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Success'),
+            content: const Text('Your application was submitted successfully.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+        );
+        if (mounted) {
+          Navigator.of(context).popUntil((route) => route.isFirst);
+        }
       } else {
         setState(() {
           _error = 'Submission failed. Please try again.';

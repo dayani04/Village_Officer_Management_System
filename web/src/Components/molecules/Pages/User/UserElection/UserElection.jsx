@@ -1,45 +1,89 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchElections } from "../../../../../api/election";
-import { getProfile } from "../../../../../api/villager"; // Import getProfile
-import "./UserElection.css";
+import { fetchElections, fetchElectionNotifications, checkVillagerElectionApplication } from "../../../../../api/election";
+import { getProfile } from "../../../../../api/villager";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
+import "./UserElection.css";
 
 const UserElection = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "", // Will be set to logged-in user's email
+    email: "",
     type: "",
   });
   const [electionTypes, setElectionTypes] = useState([]);
+  const [allowedElectionTypes, setAllowedElectionTypes] = useState([]);
+  const [appliedElections, setAppliedElections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userAge, setUserAge] = useState(null);
+  const [villagerId, setVillagerId] = useState(null);
 
-  // Fetch logged-in user's profile and election types on component mount
+  const calculateAge = (dob) => {
+    if (!dob) {
+      console.log("No DOB provided, returning null");
+      return null;
+    }
+    const dobDate = new Date(dob);
+    const currentDate = new Date();
+    const age = currentDate.getFullYear() - dobDate.getFullYear();
+    const monthDiff = currentDate.getMonth() - dobDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < dobDate.getDate())) {
+      return age - 1;
+    }
+    return age;
+  };
+
   useEffect(() => {
-    console.log("useEffect running to fetch profile and elections");
+    console.log("useEffect running to fetch profile, elections, notifications, and applications");
     const loadData = async () => {
       try {
-        // Fetch logged-in user's profile
         const profile = await getProfile();
         setFormData((prevData) => ({
           ...prevData,
-          email: profile.Email || "", // Set email from profile
+          email: profile.Email || "",
         }));
+        setVillagerId(profile.Villager_ID);
 
-        // Fetch election types
-        const elections = await fetchElections();
+        const age = calculateAge(profile.DOB);
+        console.log("Calculated age:", age);
+        setUserAge(age);
+
+        const [elections, notifications] = await Promise.all([
+          fetchElections(),
+          fetchElectionNotifications(),
+        ]);
         console.log("Loaded elections:", elections);
+        console.log("Loaded election notifications:", notifications);
         setElectionTypes(elections);
+
+        const allowedTypes = notifications.map((notif) => notif.Type);
+        console.log("Allowed election types from notifications:", allowedTypes);
+        setAllowedElectionTypes(allowedTypes);
+
+        if (profile.Villager_ID) {
+          // Fetch applications for all election types
+          const applicationPromises = elections.map((election) =>
+            checkVillagerElectionApplication(profile.Villager_ID, election.Type)
+          );
+          const applicationsArray = await Promise.all(applicationPromises);
+          const appliedTypes = applicationsArray
+            .flat()
+            .map((app) => app.Type)
+            .filter(Boolean);
+          console.log("Applied election types:", appliedTypes);
+          setAppliedElections(appliedTypes);
+        }
+
         setLoading(false);
       } catch (err) {
-        console.error("Failed to fetch data:", err.response?.data || err.message);
+        console.error("Error fetching data:", err.response?.data || err.message);
         setError(t("errorFetchingData") + ": " + (err.response?.data?.error || err.message));
         setLoading(false);
       }
@@ -49,7 +93,6 @@ const UserElection = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Only allow changes to fields other than email
     if (name !== "email") {
       setFormData((prevData) => ({
         ...prevData,
@@ -63,7 +106,7 @@ const UserElection = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = (e) => {
+  const handleUploadClick = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.type) {
       Swal.fire({
@@ -79,6 +122,36 @@ const UserElection = () => {
       Swal.fire({
         title: t("formValidationTitle"),
         text: t("invalidEmail"),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
+    if (userAge === null || userAge < 17) {
+      Swal.fire({
+        title: t("formValidationTitle"),
+        text: t("ageRestrictionMessage", { age: userAge || "unknown" }),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
+    if (!allowedElectionTypes.includes(formData.type)) {
+      Swal.fire({
+        title: t("formValidationTitle"),
+        text: t("electionNotAllowed"),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
+    if (appliedElections.includes(formData.type)) {
+      Swal.fire({
+        title: t("formValidationTitle"),
+        text: t("alreadyApplied", { type: t(getTranslationKey(formData.type)) }),
         icon: "error",
         confirmButtonText: t("ok"),
       });
@@ -132,7 +205,7 @@ const UserElection = () => {
                 onChange={handleInputChange}
                 placeholder={t("emailPlaceholder")}
                 required
-                disabled // Disable the email input
+                disabled
               />
             </div>
 
@@ -144,7 +217,7 @@ const UserElection = () => {
                 value={formData.type}
                 onChange={handleInputChange}
                 required
-                disabled={loading || !!error}
+                disabled={loading || !!error || userAge === null || userAge < 17}
               >
                 <option value="" disabled>
                   {t("selectType")}
@@ -153,16 +226,37 @@ const UserElection = () => {
                   <option disabled>{t("loading") || "Loading..."}</option>
                 ) : error ? (
                   <option disabled>{error}</option>
+                ) : userAge === null || userAge < 17 ? (
+                  <option disabled>{t("ageRestrictionMessage", { age: userAge || "unknown" })}</option>
                 ) : electionTypes.length === 0 ? (
                   <option disabled>{t("noElectionsAvailable") || "No elections available"}</option>
                 ) : (
-                  electionTypes.map((election) => (
-                    <option key={election.ID} value={election.Type}>
-                      {t(getTranslationKey(election.Type))}
-                    </option>
-                  ))
+                  electionTypes
+                    .filter((election) => allowedElectionTypes.includes(election.Type))
+                    .map((election) => (
+                      <option
+                        key={election.ID}
+                        value={election.Type}
+                        disabled={appliedElections.includes(election.Type)}
+                      >
+                        {t(getTranslationKey(election.Type))}
+                        {appliedElections.includes(election.Type) ? ` (${t("alreadyApplied")})` : ""}
+                      </option>
+                    ))
                 )}
               </select>
+              {userAge !== null && userAge < 17 && (
+                <p className="age-restriction-note">
+                  {t("ageRestrictionMessage", { age: userAge })}
+                </p>
+              )}
+              {appliedElections.length > 0 && (
+                <p className="applied-elections-note">
+                  {t("alreadyAppliedNoteE", {
+                    types: appliedElections.map((type) => t(getTranslationKey(type))).join(", "),
+                  })}
+                </p>
+              )}
             </div>
 
             <div className="form-group">
@@ -170,7 +264,7 @@ const UserElection = () => {
                 type="button"
                 className="upload-button"
                 onClick={handleUploadClick}
-                disabled={loading || !!error || !formData.email}
+                disabled={loading || !!error || !formData.email || userAge === null || userAge < 17}
               >
                 {t("next")}
               </button>

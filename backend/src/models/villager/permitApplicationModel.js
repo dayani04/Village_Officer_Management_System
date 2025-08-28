@@ -25,13 +25,22 @@ const PermitApplication = {
     return rows.length > 0 ? rows[0] : null;
   },
 
-  addPermitApplication: async (villagerId, permitsId, applyDate, documentPath, policeReportPath) => {
+  checkActiveApplication: async (villagerId, permitsId) => {
+    const query = `
+      SELECT * FROM villager_has_permits_recode 
+      WHERE Villager_ID = ? AND Permits_ID = ? AND required_date >= CURDATE()
+    `;
+    const [rows] = await db.query(query, [villagerId, permitsId]);
+    return rows.length > 0 ? rows[0] : null;
+  },
+
+  addPermitApplication: async (villagerId, permitsId, applyDate, documentPath, policeReportPath, requiredDate) => {
     const query = `
       INSERT INTO villager_has_Permits_recode 
-      (Villager_ID, Permits_ID, apply_date, status, document_path, police_report_path) 
-      VALUES (?, ?, ?, 'Pending', ?, ?)
+      (Villager_ID, Permits_ID, apply_date, status, document_path, police_report_path, required_date) 
+      VALUES (?, ?, ?, 'Pending', ?, ?, ?)
     `;
-    await db.query(query, [villagerId, permitsId, applyDate, documentPath, policeReportPath]);
+    await db.query(query, [villagerId, permitsId, applyDate, documentPath, policeReportPath, requiredDate]);
   },
 
   getAllPermitApplications: async () => {
@@ -45,7 +54,8 @@ const PermitApplication = {
         vp.status,
         vp.document_path,
         vp.police_report_path,
-        vp.certificate_path
+        vp.certificate_path,
+        vp.required_date
       FROM villager_has_Permits_recode vp
       JOIN Villager v ON v.Villager_ID = vp.Villager_ID
       JOIN Permits_recode p ON p.Permits_ID = vp.Permits_ID
@@ -54,7 +64,7 @@ const PermitApplication = {
     return rows;
   },
 
- getConfirmedPermitApplications: async () => {
+  getConfirmedPermitApplications: async () => {
     const query = `
       SELECT 
         v.Full_Name,
@@ -63,7 +73,8 @@ const PermitApplication = {
         v.Phone_No,
         v.Address,
         vp.certificate_path,
-        vp.Permits_ID
+        vp.Permits_ID,
+        vp.required_date
       FROM villager_has_Permits_recode vp
       JOIN Villager v ON v.Villager_ID = vp.Villager_ID
       JOIN Permits_recode p ON p.Permits_ID = vp.Permits_ID
@@ -72,6 +83,7 @@ const PermitApplication = {
     const [rows] = await db.query(query);
     return rows;
   },
+
   getPermitApplicationByIds: async (villagerId, permitsId) => {
     const query = `
       SELECT * 
@@ -114,6 +126,25 @@ const PermitApplication = {
            rows[0].police_report_path === filename ? rows[0].police_report_path :
            rows[0].certificate_path;
   },
+  addPermitApplication: async (villagerId, permitsId, applyDate, documentPath, policeReportPath, requiredDate) => {
+    const query = `
+      INSERT INTO villager_has_Permits_recode 
+      (Villager_ID, Permits_ID, apply_date, status, document_path, police_report_path, required_date) 
+      VALUES (?, ?, ?, 'Pending', ?, ?, ?)
+    `;
+    await db.query(query, [villagerId, permitsId, applyDate, documentPath, policeReportPath, requiredDate]);
+  },
+
+  getPermitApplicationByIds: async (villagerId, permitsId) => {
+    const query = `
+      SELECT * 
+      FROM villager_has_Permits_recode 
+      WHERE Villager_ID = ? AND Permits_ID = ?
+    `;
+    const [rows] = await db.query(query, [villagerId, permitsId]);
+    return rows.length > 0 ? rows[0] : null;
+  },
 };
+
 
 module.exports = PermitApplication;

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import * as villagerApi from '../../../../../api/villager';
+import { getVillagerNotifications, markNotificationAsRead } from '../../../../../api/villager';
 import { TbCheck } from 'react-icons/tb';
-import './Notification.css';
 import NavBar from '../../../NavBar/NavBar';
 import Footer from '../../../Footer/Footer';
+import './Notification.css';
 
 const Notification = () => {
   const navigate = useNavigate();
@@ -16,9 +16,7 @@ const Notification = () => {
   useEffect(() => {
     const fetchNotifications = async () => {
       try {
-        const data = await villagerApi.getNotifications();
-
-        // Filter notifications to include only those with Is_Read === false
+        const data = await getVillagerNotifications();
         const unreadNotifications = data.filter(notif => !notif.Is_Read);
         console.log('Fetched unread notifications:', unreadNotifications);
         setNotifications(unreadNotifications);
@@ -42,8 +40,7 @@ const Notification = () => {
 
   const handleMarkAsRead = async (notificationId) => {
     try {
-      await villagerApi.markNotificationAsRead(notificationId);
-      // Remove the notification from the list since it is no longer unread
+      await markNotificationAsRead(notificationId);
       setNotifications(notifications.filter(notif => notif.Notification_ID !== notificationId));
       toast.success('Notification marked as read', {
         style: {

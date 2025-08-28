@@ -1,0 +1,81 @@
+.allowance-receipts-container {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.allowance-receipts-container h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.allowance-receipts-table-wrapper {
+  overflow-x: auto;
+}
+
+.allowance-receipts-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+.allowance-receipts-table th,
+.allowance-receipts-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+.allowance-receipts-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.allowance-receipts-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.allowance-receipts-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.allowance-receipts-download-link {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.allowance-receipts-download-link:hover {
+  text-decoration: underline;
+}
+
+.allowance-receipts-no-data {
+  text-align: center;
+  color: #666;
+  font-style: italic;
+}
+
+.error-message {
+  color: #f43f3f;
+  margin-bottom: 20px;
+}
+
+.allowance-receipts-actions {
+  margin-top: 20px;
+}
+
+.allowance-receipts-back-btn {
+  padding: 10px 20px;
+  background-color: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.allowance-receipts-back-btn:hover {
+  background-color: #5a6268;
+}

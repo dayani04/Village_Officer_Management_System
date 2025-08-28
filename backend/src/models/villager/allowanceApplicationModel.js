@@ -11,13 +11,52 @@ const AllowanceApplication = {
   },
 
   getVillagerByEmail: async (email) => {
-    const [rows] = await pool.query("SELECT Villager_ID FROM Villager WHERE Email = ?", [email]);
+    const [rows] = await pool.query("SELECT Villager_ID, Full_Name, Address FROM Villager WHERE Email = ?", [email]);
+    return rows[0];
+  },
+
+  getVillagerById: async (villagerId) => {
+    const query = `
+      SELECT 
+        Villager_ID,
+        Full_Name,
+        Email,
+        Phone_No,
+        NIC,
+        DOB,
+        Address,
+        RegionalDivision,
+        Status AS Villager_Status,
+        Area_ID,
+        Latitude,
+        Longitude,
+        IsParticipant,
+        Alive_Status
+      FROM Villager
+      WHERE Villager_ID = ?
+    `;
+    const [rows] = await pool.query(query, [villagerId]);
     return rows[0];
   },
 
   getAllowanceByType: async (type) => {
-    const [rows] = await pool.query("SELECT Allowances_ID FROM Allowances_recode WHERE Allowances_Type = ?", [type]);
+    const [rows] = await pool.query("SELECT Allowances_ID, Allowances_Type FROM Allowances_recode WHERE Allowances_Type = ?", [type]);
     return rows[0];
+  },
+
+  getAllowanceById: async (allowancesId) => {
+    const [rows] = await pool.query("SELECT Allowances_ID, Allowances_Type FROM Allowances_recode WHERE Allowances_ID = ?", [allowancesId]);
+    return rows[0];
+  },
+
+  getAllowanceApplicationByIds: async (villagerId, allowancesId) => {
+    const query = `
+      SELECT * 
+      FROM villager_has_allowances_recode 
+      WHERE Villager_ID = ? AND Allowances_ID = ?
+    `;
+    const [rows] = await pool.query(query, [villagerId, allowancesId]);
+    return rows.length > 0 ? rows[0] : null;
   },
 
   getAllAllowanceApplications: async () => {
@@ -29,7 +68,8 @@ const AllowanceApplication = {
         a.Allowances_Type,
         vha.apply_date,
         vha.status,
-        vha.document_path
+        vha.document_path,
+        vha.receipt_path
       FROM villager_has_allowances_recode vha
       JOIN Villager v ON v.Villager_ID = vha.Villager_ID
       JOIN Allowances_recode a ON a.Allowances_ID = vha.Allowances_ID
@@ -45,7 +85,9 @@ const AllowanceApplication = {
         v.Villager_ID,
         a.Allowances_Type,
         v.Phone_No,
-        v.Address
+        v.Address,
+        vha.apply_date,
+        vha.receipt_path
       FROM villager_has_allowances_recode vha
       JOIN Villager v ON v.Villager_ID = vha.Villager_ID
       JOIN Allowances_recode a ON a.Allowances_ID = vha.Allowances_ID
@@ -76,7 +118,8 @@ const AllowanceApplication = {
         ar.Allowances_Type,
         vha.apply_date,
         vha.status AS Application_Status,
-        vha.document_path
+        vha.document_path,
+        vha.receipt_path
       FROM villager_has_allowances_recode vha
       JOIN Villager v ON v.Villager_ID = vha.Villager_ID
       JOIN Allowances_recode ar ON vha.Allowances_ID = ar.Allowances_ID
@@ -96,38 +139,25 @@ const AllowanceApplication = {
     return result.affectedRows > 0;
   },
 
-  getFilePath: async (filename) => {
+  updateReceiptPath: async (villagerId, allowancesId, receiptPath) => {
     const query = `
-      SELECT document_path 
-      FROM villager_has_allowances_recode 
-      WHERE document_path = ?
+      UPDATE villager_has_allowances_recode 
+      SET receipt_path = ?
+      WHERE Villager_ID = ? AND Allowances_ID = ?
     `;
-    const [rows] = await pool.query(query, [filename]);
-    return rows.length > 0 ? rows[0].document_path : null;
+    const [result] = await pool.query(query, [receiptPath, villagerId, allowancesId]);
+    return result.affectedRows > 0;
   },
 
-  getVillagerById: async (villagerId) => {
+  getFilePath: async (filename) => {
     const query = `
-      SELECT 
-        Villager_ID,
-        Full_Name,
-        Email,
-        Phone_No,
-        NIC,
-        DOB,
-        Address,
-        RegionalDivision,
-        Status AS Villager_Status,
-        Area_ID,
-        Latitude,
-        Longitude,
-        IsParticipant,
-        Alive_Status
-      FROM Villager
-      WHERE Villager_ID = ?
+      SELECT document_path, receipt_path 
+      FROM villager_has_allowances_recode 
+      WHERE document_path = ? OR receipt_path = ?
     `;
-    const [rows] = await pool.query(query, [villagerId]);
-    return rows[0];
+    const [rows] = await pool.query(query, [filename, filename]);
+    if (rows.length === 0) return null;
+    return rows[0].document_path === filename ? rows[0].document_path : rows[0].receipt_path;
   },
 };
 

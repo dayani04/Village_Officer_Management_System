@@ -150,3 +150,14 @@ export const verifyPasswordOtp = async (villageOfficerId, otp, newPassword) => {
 export const sendConfirmationEmail = async (email) => {
   return { message: "Email confirmation handled server-side" };
 };
+
+export const fetchMonthlyRegistrationsByOfficer = async () => {
+  try {
+    const response = await api.get("/villager-officers/monthly-registrations");
+    console.log("Fetched monthly registrations by officer:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching monthly registrations by officer:", error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};

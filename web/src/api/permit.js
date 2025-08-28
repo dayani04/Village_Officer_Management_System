@@ -2,6 +2,7 @@ import axios from "axios";
 import { getToken } from "../utils/auth";
 
 const API_URL = "http://localhost:5000/api";
+
 const api = axios.create({
   baseURL: API_URL,
   headers: {
@@ -14,30 +15,35 @@ api.interceptors.request.use(
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Added token to request:", token);
+    } else {
+      console.warn("No token found for request");
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Fetch all permits (GET /permits/)
 export const fetchPermits = async () => {
   try {
+    console.log("Fetching permits from:", `${API_URL}/permits/`);
     const response = await api.get("/permits/");
+    console.log("Fetched permits:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error fetching permits:", error);
+    console.error("Error fetching permits:", error.response || error.message);
     throw error.response ? error.response.data : error.message;
   }
 };
 
-// Fetch a single permit by ID (GET /permits/:id)
-export const fetchPermit = async (permitId) => {
+export const checkVillagerPermitApplication = async (villagerId, year, month) => {
   try {
-    const response = await api.get(`/permits/${permitId}`);
+    console.log(`Checking permit applications for villager ${villagerId} in ${year}-${month} from:`, `${API_URL}/permits/check-application`);
+    const response = await api.post("/permits/check-application", { villagerId, year, month });
+    console.log(`Fetched applications for villager ${villagerId}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error(`Error fetching permit ${permitId}:`, error);
+    console.error(`Error checking applications for villager ${villagerId}:`, error.response || error.message);
     throw error.response ? error.response.data : error.message;
   }
 };

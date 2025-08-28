@@ -51,13 +51,13 @@ class _SecretaryAllowanceApplicationsPageState
           'Authorization': 'Bearer $token',
         },
       );
-      debugPrint('DEBUG: Fetch applications response: ${response.statusCode} ${response.body}');
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        final sendApplications = List<Map<String, dynamic>>.from(
+          data,
+        ).where((app) => app['status'] == 'Send').toList();
         setState(() {
-          applications = List<Map<String, dynamic>>.from(data)
-              .where((app) => app['status'] == 'Send')
-              .toList();
+          applications = sendApplications;
           _loading = false;
         });
       } else {
@@ -72,7 +72,6 @@ class _SecretaryAllowanceApplicationsPageState
         }
       }
     } catch (e) {
-      debugPrint('DEBUG: Fetch applications error: $e');
       setState(() {
         _error = 'Error: $e';
         _loading = false;
@@ -111,7 +110,7 @@ class _SecretaryAllowanceApplicationsPageState
       if (token == null) {
         throw Exception('No token found. Please log in again.');
       }
-      final statusRes = await http.put(
+      await http.put(
         Uri.parse(
           'http://localhost:5000/api/allowance-applications/$villagerId/$allowancesId/status',
         ),
@@ -121,31 +120,27 @@ class _SecretaryAllowanceApplicationsPageState
         },
         body: json.encode({'status': newStatus}),
       );
-      debugPrint('DEBUG: Update status response: ${statusRes.statusCode} ${statusRes.body}');
-      if (statusRes.statusCode != 200) {
-        throw Exception('Failed to update status: ${statusRes.body}');
-      }
       final message =
           'Your allowance application for $allowanceType has been updated to $newStatus.';
-      final notifRes = await http.post(
-        Uri.parse('http://localhost:5000/api/allowance-applications/notifications/'),
+      await http.post(
+        Uri.parse(
+          'http://localhost:5000/api/allowance-applications/notifications/',
+        ),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
         body: json.encode({'villagerId': villagerId, 'message': message}),
       );
-      debugPrint('DEBUG: Send notification response: ${notifRes.statusCode} ${notifRes.body}');
-      if (notifRes.statusCode != 200) {
-        throw Exception('Failed to send notification: ${notifRes.body}');
-      }
       setState(() {
-        applications.removeWhere(
-          (app) =>
-              app['Villager_ID'] == villagerId &&
-              app['Allowances_ID'] == allowancesId &&
-              newStatus != 'Send',
-        );
+        applications = applications
+            .where(
+              (app) =>
+                  !(app['Villager_ID'] == villagerId &&
+                      app['Allowances_ID'] == allowancesId &&
+                      newStatus != 'Send'),
+            )
+            .toList();
         statusUpdates.remove('$villagerId-$allowancesId');
         sentNotifications.add('$villagerId-$allowancesId');
       });
@@ -156,7 +151,6 @@ class _SecretaryAllowanceApplicationsPageState
         ),
       );
     } catch (e) {
-      debugPrint('DEBUG: Handle send error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to update status or send notification: $e'),
@@ -177,16 +171,11 @@ class _SecretaryAllowanceApplicationsPageState
       return;
     }
     try {
-      final token = await getToken();
-      if (token == null) {
-        throw Exception('No token found. Please log in again.');
-      }
       // Normalize filename by removing 'Uploads/' prefix and handling separators
       final normalizedFilename = filename
           .replaceFirst(RegExp(r'^Uploads[\\/]?'), '')
           .split(RegExp(r'[\\/]'))
           .last;
-      debugPrint('DEBUG: Attempting to download file: $normalizedFilename');
       final url = 'http://localhost:5000/Uploads/$normalizedFilename';
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
@@ -195,7 +184,6 @@ class _SecretaryAllowanceApplicationsPageState
         throw Exception('Could not launch document URL.');
       }
     } catch (e) {
-      debugPrint('DEBUG: Download error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Failed to download document: $e'),
@@ -248,196 +236,214 @@ class _SecretaryAllowanceApplicationsPageState
                 child: _loading
                     ? const Center(child: CircularProgressIndicator())
                     : _error != null
-                        ? Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Text(
-                                'Allowance Applications (Status: Send)',
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF333333),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                _error!,
-                                style: const TextStyle(color: Color(0xFFF43F3F)),
-                              ),
-                              const SizedBox(height: 20),
-                              ElevatedButton(
-                                onPressed: handleBack,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFF7A1632),
-                                  foregroundColor: Colors.white,
-                                ),
-                                child: const Text('Back to Dashboard'),
-                              ),
-                            ],
-                          )
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text(
-                                'Allowance Applications (Status: Send)',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF333333),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Expanded(
-                                child: SingleChildScrollView(
-                                  scrollDirection: Axis.horizontal,
-                                  child: DataTable(
-                                    columns: const [
-                                      DataColumn(label: Text('Villager Name')),
-                                      DataColumn(label: Text('Villager ID')),
-                                      DataColumn(label: Text('Allowance Type')),
-                                      DataColumn(label: Text('Apply Date')),
-                                      DataColumn(label: Text('Document')),
-                                      DataColumn(label: Text('Status')),
-                                      DataColumn(label: Text('Action')),
-                                      DataColumn(label: Text('Action')),
-                                    ],
-                                    rows: applications.isNotEmpty
-                                        ? applications.map((app) {
-                                            final key =
-                                                '${app['Villager_ID']}-${app['Allowances_ID']}';
-                                            return DataRow(
-                                              cells: [
-                                                DataCell(
-                                                  Text(app['Full_Name'] ?? 'N/A'),
+                    ? Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Allowance Applications (Status: Send)',
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF333333),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Text(
+                            _error!,
+                            style: const TextStyle(color: Color(0xFFF43F3F)),
+                          ),
+                          const SizedBox(height: 20),
+                          ElevatedButton(
+                            onPressed: handleBack,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF7A1632),
+                              foregroundColor: Colors.white,
+                            ),
+                            child: const Text('Back to Dashboard'),
+                          ),
+                        ],
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Text(
+                            'Allowance Applications (Status: Send)',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF333333),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Expanded(
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                columns: const [
+                                  DataColumn(label: Text('Villager Name')),
+                                  DataColumn(label: Text('Villager ID')),
+                                  DataColumn(label: Text('Allowance Type')),
+                                  DataColumn(label: Text('Apply Date')),
+                                  DataColumn(label: Text('Document')),
+                                  DataColumn(label: Text('Status')),
+                                  DataColumn(label: Text('Action')),
+                                  DataColumn(label: Text('Action')),
+                                ],
+                                rows: applications.isNotEmpty
+                                    ? applications.map((app) {
+                                        final key =
+                                            '${app['Villager_ID']}-${app['Allowances_ID']}';
+                                        return DataRow(
+                                          cells: [
+                                            DataCell(
+                                              Text(app['Full_Name'] ?? 'N/A'),
+                                            ),
+                                            DataCell(
+                                              Text(app['Villager_ID'] ?? 'N/A'),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                app['Allowances_Type'] ?? 'N/A',
+                                              ),
+                                            ),
+                                            DataCell(
+                                              Text(
+                                                app['apply_date'] != null &&
+                                                        app['apply_date'] != ''
+                                                    ? _formatDate(
+                                                        app['apply_date'],
+                                                      )
+                                                    : 'N/A',
+                                              ),
+                                            ),
+                                            DataCell(
+                                              TextButton(
+                                                onPressed: () => handleDownload(
+                                                  app['document_path'] ?? '',
                                                 ),
-                                                DataCell(
-                                                  Text(app['Villager_ID'] ?? 'N/A'),
-                                                ),
-                                                DataCell(
-                                                  Text(app['Allowances_Type'] ?? 'N/A'),
-                                                ),
-                                                DataCell(
-                                                  Text(
-                                                    app['apply_date'] != null &&
-                                                            app['apply_date'] != ''
-                                                        ? _formatDate(app['apply_date'])
-                                                        : 'N/A',
+                                                child: const Text(
+                                                  'Download',
+                                                  style: TextStyle(
+                                                    color: Color(0xFF7A1632),
                                                   ),
                                                 ),
-                                                DataCell(
-                                                  TextButton(
-                                                    onPressed: () => handleDownload(
-                                                      app['document_path'] ?? '',
-                                                    ),
-                                                    child: const Text(
-                                                      'Download',
-                                                      style: TextStyle(
-                                                        color: Color(0xFF7A1632),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                                DataCell(
-                                                  DropdownButton<String>(
-                                                    value: statusUpdates[key] ??
-                                                        app['status'],
-                                                    items: [
+                                              ),
+                                            ),
+                                            DataCell(
+                                              DropdownButton<String>(
+                                                value:
+                                                    statusUpdates[key] ??
+                                                    app['status'],
+                                                items:
+                                                    [
                                                       'Pending',
                                                       'Send',
                                                       'Rejected',
                                                       'Confirm',
                                                     ].map((status) {
-                                                      return DropdownMenuItem<String>(
+                                                      return DropdownMenuItem<
+                                                        String
+                                                      >(
                                                         value: status,
                                                         child: Text(status),
                                                       );
                                                     }).toList(),
-                                                    onChanged: (val) => handleStatusChange(
+                                                onChanged: (val) =>
+                                                    handleStatusChange(
                                                       app['Villager_ID'],
-                                                      app['Allowances_ID'].toString(),
+                                                      app['Allowances_ID']
+                                                          .toString(),
                                                       val!,
                                                     ),
-                                                  ),
+                                              ),
+                                            ),
+                                            DataCell(
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.mail,
+                                                  color:
+                                                      sentNotifications
+                                                          .contains(key)
+                                                      ? Colors.grey
+                                                      : Colors.green,
                                                 ),
-                                                DataCell(
-                                                  IconButton(
-                                                    icon: Icon(
-                                                      Icons.mail,
-                                                      color: sentNotifications
-                                                              .contains(key)
-                                                          ? Colors.grey
-                                                          : Colors.green,
+                                                onPressed:
+                                                    sentNotifications.contains(
+                                                      key,
+                                                    )
+                                                    ? null
+                                                    : () => handleSend(
+                                                        app['Villager_ID'],
+                                                        app['Allowances_ID']
+                                                            .toString(),
+                                                        app['Allowances_Type'],
+                                                        app['Full_Name'],
+                                                      ),
+                                                tooltip: 'Send Notification',
+                                              ),
+                                            ),
+                                            DataCell(
+                                              ElevatedButton(
+                                                onPressed: () =>
+                                                    handleViewDetails(
+                                                      app['Villager_ID'],
                                                     ),
-                                                    onPressed: sentNotifications
-                                                            .contains(key)
-                                                        ? null
-                                                        : () => handleSend(
-                                                              app['Villager_ID'],
-                                                              app['Allowances_ID'].toString(),
-                                                              app['Allowances_Type'],
-                                                              app['Full_Name'],
-                                                            ),
-                                                    tooltip: 'Send Notification',
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: const Color(
+                                                    0xFF7A1632,
                                                   ),
-                                                ),
-                                                DataCell(
-                                                  ElevatedButton(
-                                                    onPressed: () =>
-                                                        handleViewDetails(
-                                                          app['Villager_ID'],
-                                                        ),
-                                                    style: ElevatedButton.styleFrom(
-                                                      backgroundColor:
-                                                          const Color(0xFF7A1632),
-                                                      foregroundColor: Colors.white,
-                                                      padding: const EdgeInsets.symmetric(
+                                                  foregroundColor: Colors.white,
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
                                                         horizontal: 16,
                                                         vertical: 8,
                                                       ),
-                                                    ),
-                                                    child: const Text('View'),
-                                                  ),
                                                 ),
-                                              ],
-                                            );
-                                          }).toList()
-                                        : [
-                                            const DataRow(
-                                              cells: [
-                                                DataCell(
-                                                  Text(
-                                                    'No applications with status "Send"',
-                                                    style: TextStyle(color: Colors.grey),
-                                                  ),
-                                                  placeholder: true,
-                                                ),
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                                DataCell.empty,
-                                              ],
+                                                child: const Text('View'),
+                                              ),
                                             ),
                                           ],
-                                  ),
-                                ),
+                                        );
+                                      }).toList()
+                                    : [
+                                        const DataRow(
+                                          cells: [
+                                            DataCell(
+                                              Text(
+                                                'No applications with status "Send"',
+                                                style: TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                              placeholder: true,
+                                            ),
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                            DataCell.empty,
+                                          ],
+                                        ),
+                                      ],
                               ),
-                              const SizedBox(height: 20),
-                              Center(
-                                child: ElevatedButton(
-                                  onPressed: handleBack,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF7A1632),
-                                    foregroundColor: Colors.white,
-                                  ),
-                                  child: const Text('Back to Dashboard'),
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
+                          const SizedBox(height: 20),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: handleBack,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF7A1632),
+                                foregroundColor: Colors.white,
+                              ),
+                              child: const Text('Back to Dashboard'),
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
           ),

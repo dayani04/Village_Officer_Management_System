@@ -154,9 +154,7 @@ const SecretaryNICApplications = () => {
   if (loading) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+        
         <div className="villager-list-container">
           <div className="nic-applications-container">Loading...</div>
         </div>
@@ -167,9 +165,7 @@ const SecretaryNICApplications = () => {
   if (error) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+      
         <div className="villager-list-container">
           <div className="nic-applications-container">
             <h1>NIC Applications (Status: Send)</h1>
@@ -188,9 +184,7 @@ const SecretaryNICApplications = () => {
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-      </div>
+    
       <div className="villager-list-container">
         <div className="nic-applications-container">
           <h1>NIC Applications (Status: Send)</h1>

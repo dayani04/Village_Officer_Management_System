@@ -1,4 +1,3 @@
-// src/api/election.js
 import axios from "axios";
 import { getToken } from "../utils/auth";
 
@@ -45,6 +44,53 @@ export const fetchElection = async (electionId) => {
     return response.data;
   } catch (error) {
     console.error(`Error fetching election ${electionId}:`, error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const checkVillagerElectionApplication = async (villagerId, electionType) => {
+  try {
+    console.log(`Checking applications for villager ${villagerId} for election type ${electionType} from:`, `${API_URL}/elections/check-application`);
+    const response = await api.post("/elections/check-application", { villagerId, electionType });
+    console.log(`Fetched applications for villager ${villagerId}:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error checking applications for villager ${villagerId}:`, error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const fetchElectionNotifications = async () => {
+  try {
+    console.log("Fetching election notifications from:", `${API_URL}/election-notifications/`);
+    const response = await api.get("/election-notifications/");
+    console.log("Fetched election notifications:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching election notifications:", error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const deleteElectionNotification = async (notificationId) => {
+  try {
+    console.log(`Deleting election notification ${notificationId} from:`, `${API_URL}/election-notifications/${notificationId}`);
+    const response = await api.delete(`/election-notifications/${notificationId}`);
+    console.log(`Deleted election notification ${notificationId}:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error deleting election notification ${notificationId}:`, error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const sendElectionNotification = async (electionType, message) => {
+  try {
+    const response = await api.post("/election-notifications", { electionType, message });
+    console.log("Election notification sent:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error sending election notification:", error.response || error.message);
     throw error.response ? error.response.data : error.message;
   }
 };

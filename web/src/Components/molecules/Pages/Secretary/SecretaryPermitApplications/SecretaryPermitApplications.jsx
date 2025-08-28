@@ -1,15 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import { TbMail } from 'react-icons/tb';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
+import { TbMail } from "react-icons/tb";
 import {
   fetchPermitApplications,
   updatePermitApplicationStatus,
   downloadDocument,
   saveNotification,
-} from '../../../../../api/permitApplication';
-import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
-import './SecretaryPermitApplications.css';
+} from "../../../../../api/permitApplication";
+import "./SecretaryPermitApplications.css";
 
 const SecretaryPermitApplications = () => {
   const navigate = useNavigate();
@@ -19,27 +18,23 @@ const SecretaryPermitApplications = () => {
   const [statusUpdates, setStatusUpdates] = useState({});
   const [sentNotifications, setSentNotifications] = useState(new Set());
 
-  // Fetch permit applications on mount
   useEffect(() => {
     const loadApplications = async () => {
       try {
         setLoading(true);
         const data = await fetchPermitApplications();
-        const sendApplications = data.filter((app) => app.status === 'Send');
+        const sendApplications = data.filter((app) => app.status === "Send");
         setApplications(sendApplications);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching applications:', {
-          message: err.message,
-          response: err.response ? err.response.data : null,
-        });
-        setError(err.error || 'Failed to fetch permit applications');
+        console.error("Error fetching permit applications:", err);
+        setError(err.error || "Failed to fetch permit applications");
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch permit applications', {
+        toast.error(err.error || "Failed to fetch permit applications", {
           style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
+            background: "#f43f3f",
+            color: "#fff",
+            borderRadius: "4px",
           },
         });
       }
@@ -47,7 +42,6 @@ const SecretaryPermitApplications = () => {
     loadApplications();
   }, []);
 
-  // Handle status change selection
   const handleStatusChange = (villagerId, permitsId, newStatus) => {
     setStatusUpdates((prev) => ({
       ...prev,
@@ -55,35 +49,30 @@ const SecretaryPermitApplications = () => {
     }));
   };
 
-  // Handle send button click (update status and save notification)
   const handleSend = async (villagerId, permitsId, permitType, fullName) => {
     const newStatus = statusUpdates[`${villagerId}-${permitsId}`];
     if (!newStatus) {
-      toast.error('Please select a status', {
+      toast.error("Please select a status", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
       return;
     }
     try {
-      // Update the permit application status
       await updatePermitApplicationStatus(villagerId, permitsId, newStatus);
-
-      // Save a notification
       const message = `Your permit application for ${permitType} has been updated to ${newStatus}.`;
       await saveNotification(villagerId, message);
 
-      // Update local state: remove application if status is no longer "Send"
       setApplications((prev) =>
-        prev.filter((app) =>
-          !(app.Villager_ID === villagerId && app.Permits_ID === permitsId && newStatus !== 'Send')
+        prev.filter(
+          (app) =>
+            !(app.Villager_ID === villagerId && app.Permits_ID === permitsId && newStatus !== "Send")
         )
       );
 
-      // Clear the status update and mark notification as sent
       setStatusUpdates((prev) => {
         const updated = { ...prev };
         delete updated[`${villagerId}-${permitsId}`];
@@ -93,70 +82,57 @@ const SecretaryPermitApplications = () => {
 
       toast.success(`Status updated and notification sent to ${fullName}`, {
         style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#4caf50",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     } catch (err) {
-      console.error('Error in handleSend:', {
-        message: err.message,
-        response: err.response ? err.response.data : null,
-        status: err.response ? err.response.status : null,
-      });
-      toast.error(err.response?.data?.error || err.message || 'Failed to update status or send notification', {
+      console.error("Error in handleSend:", err);
+      toast.error(err.error || "Failed to update status or send notification", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     }
   };
 
-  // Handle document download
   const handleDownload = async (filename) => {
     try {
       const blob = await downloadDocument(filename);
       const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', filename);
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error('Error downloading document:', {
-        message: err.message,
-        response: err.response ? err.response.data : null,
-      });
-      toast.error(err.response?.data?.error || err.message || 'Failed to download document', {
+      toast.error(err.error || "Failed to download document", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     }
   };
 
-    const handleViewDetails = (villagerId) => {
-    console.log('Navigating to villager:', villagerId);
-    navigate(`/secretary_permit_applications_villager_view/${villagerId}`);
+  const handleViewDetails = (villagerId) => {
+    console.log("Navigating to villager:", villagerId);
+    navigate(`/secretary_permit_applications_villager-view/${villagerId}`);
   };
 
-  // Handle back to dashboard navigation
   const handleBack = () => {
-    navigate('/SecretaryDashBoard');
+    navigate("/SecretaryDashBoard");
   };
 
   if (loading) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
         <div className="villager-list-container">
           <div className="permit-applications-container">Loading...</div>
         </div>
@@ -167,9 +143,6 @@ const SecretaryPermitApplications = () => {
   if (error) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
         <div className="villager-list-container">
           <div className="permit-applications-container">
             <h1>Permit Applications (Status: Send)</h1>
@@ -188,9 +161,6 @@ const SecretaryPermitApplications = () => {
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-      </div>
       <div className="villager-list-container">
         <div className="permit-applications-container">
           <h1>Permit Applications (Status: Send)</h1>
@@ -206,17 +176,17 @@ const SecretaryPermitApplications = () => {
                   <th>Police Report</th>
                   <th>Status</th>
                   <th>Action</th>
-                  <th>Action</th>
+                  <th>View</th>
                 </tr>
               </thead>
               <tbody>
                 {applications.length > 0 ? (
                   applications.map((app) => (
                     <tr key={`${app.Villager_ID}-${app.Permits_ID}`}>
-                      <td>{app.Full_Name || 'N/A'}</td>
-                      <td>{app.Villager_ID || 'N/A'}</td>
-                      <td>{app.Permits_Type || 'N/A'}</td>
-                      <td>{app.apply_date || 'N/A'}</td>
+                      <td>{app.Full_Name || "N/A"}</td>
+                      <td>{app.Villager_ID || "N/A"}</td>
+                      <td>{app.Permits_Type || "N/A"}</td>
+                      <td>{app.apply_date ? new Date(app.apply_date).toLocaleDateString() : "N/A"}</td>
                       <td>
                         <a
                           href="#"
@@ -241,7 +211,7 @@ const SecretaryPermitApplications = () => {
                           value={statusUpdates[`${app.Villager_ID}-${app.Permits_ID}`] || app.status}
                           onChange={(e) => handleStatusChange(app.Villager_ID, app.Permits_ID, e.target.value)}
                         >
-                          {['Pending', 'Send', 'Rejected', 'Confirm'].map((status) => (
+                          {["Pending", "Send", "Rejected", "Confirm"].map((status) => (
                             <option key={status} value={status}>
                               {status}
                             </option>
@@ -251,7 +221,9 @@ const SecretaryPermitApplications = () => {
                       <td>
                         <div className="permit-applications-action-buttons">
                           <button
-                            className={`permit-applications-send-btn ${sentNotifications.has(`${app.Villager_ID}-${app.Permits_ID}`) ? 'sent' : ''}`}
+                            className={`permit-applications-send-btn ${
+                              sentNotifications.has(`${app.Villager_ID}-${app.Permits_ID}`) ? "sent" : ""
+                            }`}
                             onClick={() => handleSend(app.Villager_ID, app.Permits_ID, app.Permits_Type, app.Full_Name)}
                             title="Send Notification"
                             disabled={sentNotifications.has(`${app.Villager_ID}-${app.Permits_ID}`)}
@@ -260,7 +232,7 @@ const SecretaryPermitApplications = () => {
                           </button>
                         </div>
                       </td>
-                       <td>
+                      <td>
                         <button
                           className="owners-view-btn"
                           onClick={() => handleViewDetails(app.Villager_ID)}
@@ -272,7 +244,7 @@ const SecretaryPermitApplications = () => {
                   ))
                 ) : (
                   <tr>
-                    <td colSpan="8" className="permit-applications-no-data">
+                    <td colSpan="9" className="permit-applications-no-data">
                       No applications with status "Send"
                     </td>
                   </tr>

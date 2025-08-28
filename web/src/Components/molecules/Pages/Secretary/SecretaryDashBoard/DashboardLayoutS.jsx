@@ -1,6 +1,7 @@
-// src/layouts/DashboardLayout.jsx
-import { Outlet, useLocation } from "react-router-dom";
-import SidebarS from "./SidebarS";
+import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
+import Sidebar from './SidebarS';
+import AdminNavbar from './AdminNavbar';
 
 const DashboardLayoutS = () => {
   const location = useLocation();
@@ -8,10 +9,20 @@ const DashboardLayoutS = () => {
   const showSidebar = !hideSidebarRoutes.includes(location.pathname);
 
   return (
-    <div className="flex h-screen">
-      {showSidebar }
-      <div className="flex-1 overflow-y-auto">
-        <Outlet />
+    <div className="d-flex flex-column" style={{ minHeight: '100vh' }}>
+      <AdminNavbar />
+      <div className="d-flex flex-grow-1">
+        {showSidebar && <Sidebar />}
+        <div
+          className="flex-grow-1 p-4"
+          style={{
+            marginLeft: showSidebar ? '250px' : '0',
+            marginTop: '60px', // Offset for navbar height
+            background: '#F4F6F8',
+          }}
+        >
+          <Outlet />
+        </div>
       </div>
     </div>
   );

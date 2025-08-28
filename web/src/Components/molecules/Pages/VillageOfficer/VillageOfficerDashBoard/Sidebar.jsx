@@ -12,7 +12,6 @@ import {
 import { IoMdArrowDropdownCircle, IoMdArrowDropupCircle } from "react-icons/io";
 import { MdOutlineDiscount } from "react-icons/md";
 
-
 const Sidebar = () => {
   const location = useLocation();
 
@@ -27,41 +26,38 @@ const Sidebar = () => {
     if (location.pathname.includes("users")) {
       setIsUsersSubMenuOpen(true);
     }
-    if (location.pathname.includes("discounts")) {
+    if (location.pathname.includes("discounts") || location.pathname.includes("requests-for-new-villagers") || location.pathname.includes("requests-for-new-born")) {
       setIsDiscountSubMenuOpen(true);
     }
   }, [location.pathname]);
 
   return (
-   
     <div
       className="d-flex flex-column p-4"
       style={{
         width: "250px",
-        height: "100vh", // Full viewport height
-        position: "fixed", // Fix the sidebar to the viewport
+        height: "100vh",
+        position: "fixed",
         top: 0,
         left: 0,
         background: "#9C284F",
         color: "white",
-        overflowY: "auto", // Allow scrolling if content overflows
+        overflowY: "auto",
         zIndex: 999,
       }}
     >
       <ul className="nav flex-column gap-2">
-        {/* Dashboard */}
         <li className="nav-item">
           <NavLink
             to="/VillageOfficerDashBoard"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ textDecoration: "none", color: "white" }}
-            activeStyle={{ fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.2)" }}
-          >
+            activeStyle={{ fontWeight: "bold", backgroundColor: "#9C284F" }}
+          > 
             <TbDashboard className="me-2" /> Villager Dashboard
           </NavLink>
         </li>
 
-        {/* Villagers / Manage Villagers */}
         <li className="nav-item">
           <button
             onClick={() => setIsProductSubMenuOpen(!isProductSubMenuOpen)}
@@ -113,7 +109,6 @@ const Sidebar = () => {
           )}
         </li>
 
-        {/* Requests / Discounts */}
         <li className="nav-item">
           <button
             onClick={() => setIsDiscountSubMenuOpen(!isDiscountSubMenuOpen)}
@@ -146,7 +141,7 @@ const Sidebar = () => {
                   to="/RequestsForCertificate"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }} 
+                  activeStyle={{ fontWeight: "bold" }}
                 >
                   Certificate
                 </NavLink>
@@ -161,7 +156,7 @@ const Sidebar = () => {
                   ID Cards
                 </NavLink>
               </li>
-               <li>
+              <li>
                 <NavLink
                   to="/requests-for-permits"
                   className="nav-link p-2 rounded hover-bg"
@@ -171,14 +166,14 @@ const Sidebar = () => {
                   Permits
                 </NavLink>
               </li>
-                 <li>
+              <li>
                 <NavLink
                   to="/requests-for-elections"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
                 >
-                  Elecction
+                  Election
                 </NavLink>
               </li>
               <li>
@@ -191,11 +186,30 @@ const Sidebar = () => {
                   Voter List
                 </NavLink>
               </li>
+              <li>
+                <NavLink
+                  to="/requests-for-new-villagers"
+                  className="nav-link p-2 rounded hover-bg"
+                  style={{ color: "white" }}
+                  activeStyle={{ fontWeight: "bold" }}
+                >
+                  New Villager
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to="/requests-for-new-born"
+                  className="nav-link p-2 rounded hover-bg"
+                  style={{ color: "white" }}
+                  activeStyle={{ fontWeight: "bold" }}
+                >
+                  New Born
+                </NavLink>
+              </li>
             </ul>
           )}
         </li>
 
-        {/* Holders / Manage Users */}
         <li className="nav-item">
           <button
             onClick={() => setIsUsersSubMenuOpen(!isUsersSubMenuOpen)}
@@ -237,7 +251,6 @@ const Sidebar = () => {
           )}
         </li>
 
-        {/* Add Village Officer */}
         <li className="nav-item">
           <NavLink
             to="/villager-officers"
@@ -248,10 +261,9 @@ const Sidebar = () => {
           </NavLink>
         </li>
 
-        {/* Notifications */}
         <li className="nav-item">
           <NavLink
-            to="/notifications"
+            to="/admin_notification"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
@@ -259,7 +271,6 @@ const Sidebar = () => {
           </NavLink>
         </li>
 
-        {/* My Profile */}
         <li className="nav-item">
           <NavLink
             to="/Village_officer_profile"
@@ -270,20 +281,17 @@ const Sidebar = () => {
           </NavLink>
         </li>
 
-        {/* Logout */}
-      <li className="nav-item">
+        <li className="nav-item">
           <NavLink
             to="/"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
             <TbLogout className="me-2" /> Logout
-               </NavLink>
+          </NavLink>
         </li>
-          
       </ul>
     </div>
- 
   );
 };
 

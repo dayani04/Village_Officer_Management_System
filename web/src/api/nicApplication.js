@@ -45,7 +45,16 @@ export const fetchNICApplications = async () => {
   }
 };
 
-// src/api/nicApplication.js (relevant part)
+export const fetchConfirmedNICApplications = async () => {
+  try {
+    const response = await api.get('/confirmed');
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching confirmed NIC applications:', error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
 export const updateNICApplicationStatus = async (villagerId, nicId, status) => {
   try {
     const response = await api.put(`/${villagerId}/${nicId}/status`, { status });

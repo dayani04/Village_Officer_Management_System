@@ -132,9 +132,7 @@ const SecretaryElectionApplications = () => {
   if (loading) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+       
         <div className="villager-list-container">
           <div className="election-applications-container">Loading...</div>
         </div>
@@ -145,9 +143,7 @@ const SecretaryElectionApplications = () => {
   if (error) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+      
         <div className="villager-list-container">
           <div className="election-applications-container">
             <h1>Election Applications (Status: Send)</h1>
@@ -166,9 +162,7 @@ const SecretaryElectionApplications = () => {
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-        </div>
+    
       <div className="villager-list-container">
         <div className="election-applications-container">
           <h1>Election Applications (Status: Send)</h1>

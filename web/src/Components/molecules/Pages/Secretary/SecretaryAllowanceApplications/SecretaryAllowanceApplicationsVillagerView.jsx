@@ -43,9 +43,7 @@ const SecretaryAllowanceApplicationsVillagerView = () => {
   if (loading) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+       
         <div className="villager-list-container">
           <div className="profile-container">Loading...</div>
         </div>
@@ -56,9 +54,7 @@ const SecretaryAllowanceApplicationsVillagerView = () => {
   if (error || !villager) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+       
         <div className="villager-list-container">
           <div className="profile-container">
             <h1>Villager Details</h1>
@@ -77,9 +73,7 @@ const SecretaryAllowanceApplicationsVillagerView = () => {
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-      </div>
+   
       <div className="villager-list-container">
         <div className="profile-container">
           <h1>Villager Details</h1>

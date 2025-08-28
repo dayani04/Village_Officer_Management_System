@@ -60,10 +60,7 @@ class UserDashboard extends StatelessWidget {
         MaterialPageRoute(builder: (context) => FamilyDetailsPage()),
       );
     } else if (route == '/user_permit_certificates') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => UserPermitCertificatesPage()),
-      );
+      Navigator.pushNamed(context, '/user_certificates_download');
     } else if (route == '/user_permits') {
       Navigator.push(
         context,
@@ -83,6 +80,11 @@ class UserDashboard extends StatelessWidget {
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => UserAllowancesPage()),
+      );
+    } else if (route == '/notification') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => NotificationPage()),
       );
     } else {
       Navigator.pushNamed(context, route);
