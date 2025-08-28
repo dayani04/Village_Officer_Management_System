@@ -46,7 +46,11 @@ class _UserPermitCertificatesPageState
         },
       );
       if (response.statusCode != 200) {
-        throw Exception('Failed to fetch certificates');
+        final errMsg = response.body.isNotEmpty
+            ? jsonDecode(response.body)['error'] ??
+                  'Failed to fetch your certificates'
+            : 'Failed to fetch your certificates';
+        throw Exception(errMsg);
       }
       final data = jsonDecode(response.body);
       setState(() {
@@ -55,7 +59,7 @@ class _UserPermitCertificatesPageState
       });
     } catch (e) {
       setState(() {
-        error = e.toString();
+        error = e.toString().replaceFirst('Exception: ', '');
         loading = false;
       });
     }
@@ -74,7 +78,6 @@ class _UserPermitCertificatesPageState
       if (response.statusCode == 200) {
         final bytes = response.bodyBytes;
         if (kIsWeb) {
-          // Web: trigger browser download
           final blob = html.Blob([bytes]);
           final url = html.Url.createObjectUrlFromBlob(blob);
           final anchor = html.AnchorElement(href: url)
@@ -82,10 +85,13 @@ class _UserPermitCertificatesPageState
             ..click();
           html.Url.revokeObjectUrl(url);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Download started in browser.')),
+            const SnackBar(
+              content: Text('Certificate downloaded successfully'),
+              backgroundColor: Color(0xFF4caf50),
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         } else {
-          // Mobile/Desktop: save to Downloads directory
           Directory? downloadsDir;
           if (Platform.isAndroid || Platform.isIOS) {
             downloadsDir = await getExternalStorageDirectory();
@@ -98,86 +104,178 @@ class _UserPermitCertificatesPageState
           final file = File('${downloadsDir.path}/$filename');
           await file.writeAsBytes(bytes);
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Downloaded to: ${file.path}')),
+            SnackBar(
+              content: Text('Certificate downloaded successfully'),
+              backgroundColor: const Color(0xFF4caf50),
+              behavior: SnackBarBehavior.floating,
+            ),
           );
         }
       } else {
-        throw Exception('Failed to download certificate');
+        final errMsg = response.body.isNotEmpty
+            ? jsonDecode(response.body)['error'] ??
+                  'Failed to download certificate'
+            : 'Failed to download certificate';
+        throw Exception(errMsg);
       }
     } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: const Color(0xFFf43f3f),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    if (loading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Permit Certificates'),
+          backgroundColor: const Color(0xFF921940),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: const [
+                Text(
+                  'My Permit Certificates',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 16),
+                Text('Loading your certificates...'),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+    if (error != null && error!.isNotEmpty) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Permit Certificates'),
+          backgroundColor: const Color(0xFF921940),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'My Permit Certificates',
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                Text(error!, style: const TextStyle(color: Color(0xFFF43F3F))),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF921940),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Back to Dashboard'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Permit Certificates'),
-        backgroundColor: Color(0xFF921940),
+        title: const Text('My Permit Certificates'),
+        backgroundColor: const Color(0xFF921940),
       ),
-      body: loading
-          ? Center(child: CircularProgressIndicator())
-          : error != null
-          ? Center(child: Text('Error: $error'))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'My Permit Certificates',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 16),
-                  Expanded(
-                    child: certificates.isEmpty
-                        ? Center(
-                            child: Text('No certificates available for you'),
-                          )
-                        : ListView.builder(
-                            itemCount: certificates.length,
-                            itemBuilder: (context, idx) {
-                              final cert = certificates[idx];
-                              return Card(
-                                margin: EdgeInsets.symmetric(vertical: 8),
-                                child: ListTile(
-                                  title: Text(cert['Permits_Type'] ?? 'N/A'),
-                                  subtitle: cert['certificate_path'] != null
-                                      ? GestureDetector(
-                                          onTap: () => downloadCertificate(
-                                            cert['certificate_path'],
-                                          ),
-                                          child: Text(
-                                            'Download Certificate',
-                                            style: TextStyle(
-                                              color: Colors.blue,
-                                              decoration:
-                                                  TextDecoration.underline,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'My Permit Certificates',
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: certificates.isEmpty
+                  ? const Center(
+                      child: Text('No certificates available for you'),
+                    )
+                  : SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: DataTable(
+                        columns: const [
+                          DataColumn(label: Text('Permit Type')),
+                          DataColumn(label: Text('Application Date')),
+                          DataColumn(label: Text('Certificate')),
+                        ],
+                        rows: certificates
+                            .map(
+                              (cert) => DataRow(
+                                cells: [
+                                  DataCell(Text(cert['Permits_Type'] ?? 'N/A')),
+                                  DataCell(
+                                    Text(
+                                      cert['required_date'] != null &&
+                                              cert['required_date']
+                                                  .toString()
+                                                  .isNotEmpty
+                                          ? _formatDate(cert['required_date'])
+                                          : 'N/A',
+                                    ),
+                                  ),
+                                  DataCell(
+                                    cert['certificate_path'] != null
+                                        ? GestureDetector(
+                                            onTap: () => downloadCertificate(
+                                              cert['certificate_path'],
                                             ),
-                                          ),
-                                        )
-                                      : Text('Not Available'),
-                                ),
-                              );
-                            },
-                          ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF921940),
+                                            child: const Text(
+                                              'Download Certificate',
+                                              style: TextStyle(
+                                                color: Colors.blue,
+                                                decoration:
+                                                    TextDecoration.underline,
+                                              ),
+                                            ),
+                                          )
+                                        : const Text('Not Available'),
+                                  ),
+                                ],
+                              ),
+                            )
+                            .toList(),
                       ),
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('Back to Dashboard'),
                     ),
-                  ),
-                ],
+            ),
+            const SizedBox(height: 20),
+            Center(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: const Color(0xFF921940),
+                ),
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back to Dashboard'),
               ),
             ),
+          ],
+        ),
+      ),
     );
+  }
+
+  String _formatDate(dynamic dateStr) {
+    try {
+      final date = DateTime.parse(dateStr.toString());
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (_) {
+      return dateStr.toString();
+    }
   }
 }

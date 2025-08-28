@@ -3,7 +3,8 @@ const pool = require("../../config/database");
 const getAllVillagers = async () => {
   const [rows] = await pool.query(`
     SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
-           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
+           Marital_Status, Religion, Race, Created_At 
     FROM Villager
   `);
   return rows;
@@ -12,7 +13,8 @@ const getAllVillagers = async () => {
 const getVillagerById = async (id) => {
   const [rows] = await pool.query(`
     SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
-           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
+           Marital_Status, Religion, Race, Created_At 
     FROM Villager WHERE Villager_ID = ?
   `, [id]);
   return rows[0];
@@ -21,7 +23,8 @@ const getVillagerById = async (id) => {
 const getVillagerByEmail = async (email) => {
   const [rows] = await pool.query(`
     SELECT Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, RegionalDivision, 
-           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, Marital_Status 
+           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
+           Marital_Status, Religion, Race, Created_At 
     FROM Villager WHERE Email = ?
   `, [email]);
   return rows[0];
@@ -30,19 +33,19 @@ const getVillagerByEmail = async (email) => {
 const addVillager = async (
   villager_id, full_name, email, password, phone_no, nic, dob, address, 
   regional_division, status, area_id, latitude, longitude, is_participant, 
-  alive_status, job, gender, marital_status
+  alive_status, job, gender, marital_status, religion, race
 ) => {
   const [result] = await pool.query(
     `INSERT INTO Villager (
       Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, 
       RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, 
-      Alive_Status, Job, Gender, Marital_Status
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      Alive_Status, Job, Gender, Marital_Status, Religion, Race, Created_At
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
     [
       villager_id, full_name, email, password, phone_no, nic, dob, address,
       regional_division, status || "Active", area_id, latitude, longitude,
       is_participant, alive_status || "Alive", job, gender || "Other", 
-      marital_status || "Unmarried"
+      marital_status || "Unmarried", religion || "Others", race || "Sinhalese"
     ]
   );
   return villager_id;
@@ -50,7 +53,7 @@ const addVillager = async (
 
 const updateVillager = async (
   id, full_name, email, phone_no, address, regional_division, status, 
-  is_participant, alive_status, job, gender, marital_status
+  is_participant, alive_status, job, gender, marital_status, dob, religion, race
 ) => {
   try {
     if (!full_name || !email || !phone_no) {
@@ -61,7 +64,8 @@ const updateVillager = async (
     const [result] = await pool.query(
       `UPDATE Villager SET 
         Full_Name = ?, Email = ?, Phone_No = ?, Address = ?, RegionalDivision = ?, 
-        Status = ?, IsParticipant = ?, Alive_Status = ?, Job = ?, Gender = ?, Marital_Status = ?
+        Status = ?, IsParticipant = ?, Alive_Status = ?, Job = ?, Gender = ?, 
+        Marital_Status = ?, DOB = ?, Religion = ?, Race = ?
       WHERE Villager_ID = ?`,
       [
         full_name, email, phone_no, 
@@ -72,6 +76,8 @@ const updateVillager = async (
         job !== undefined ? job : null,
         gender || "Other", 
         marital_status || "Unmarried",
+        dob !== undefined ? dob : null,
+        religion || "Others", race || "Sinhalese",
         id
       ]
     );
@@ -86,7 +92,7 @@ const updateVillagerParticipation = async (id, is_participant) => {
   try {
     const [result] = await pool.query(
       "UPDATE Villager SET IsParticipant = ? WHERE Villager_ID = ?",
-      [is_participant ? RADIO_BUTTON_ON : 0, id]
+      [is_participant ? 1 : 0, id]
     );
     return result.affectedRows > 0;
   } catch (error) {
@@ -160,6 +166,129 @@ const markNotificationAsRead = async (notificationId) => {
   return result.affectedRows > 0;
 };
 
+const addNewBornRequest = async (villagerId, relationship, filePaths) => {
+  const [result] = await pool.query(
+    `INSERT INTO NewBornRequest (
+      Villager_ID, Relationship, BirthCertificatePath, MotherNicPath, FatherNicPath, 
+      MarriageCertificatePath, ResidenceCertificatePath, Status
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    [
+      villagerId,
+      relationship,
+      filePaths.birthCertificate,
+      filePaths.motherNic,
+      filePaths.fatherNic,
+      filePaths.marriageCertificate,
+      filePaths.residenceCertificate,
+      'Pending'
+    ]
+  );
+  return result.insertId;
+};
+
+const addNewFamilyMemberRequest = async (villagerId, relationship, filePaths) => {
+  const [result] = await pool.query(
+    `INSERT INTO NewFamilyMemberRequest (
+      Villager_ID, Relationship, DocumentPath, ResidenceCertificatePath, Status
+    ) VALUES (?, ?, ?, ?, ?)`,
+    [
+      villagerId,
+      relationship,
+      filePaths.document,
+      filePaths.residenceCertificate,
+      'Pending'
+    ]
+  );
+  return result.insertId;
+};
+
+const getNewFamilyMemberRequests = async () => {
+  const [rows] = await pool.query(`
+    SELECT nfr.Request_ID, nfr.Villager_ID, nfr.Relationship, nfr.DocumentPath, nfr.ResidenceCertificatePath,
+           v.Email, v.Address
+    FROM NewFamilyMemberRequest nfr
+    JOIN Villager v ON nfr.Villager_ID = v.Villager_ID
+  `);
+  return rows;
+};
+
+const getNewBornRequests = async () => {
+  const [rows] = await pool.query(`
+    SELECT nbr.Request_ID, nbr.Villager_ID, nbr.Relationship, nbr.BirthCertificatePath,
+           nbr.MotherNicPath, nbr.FatherNicPath, nbr.MarriageCertificatePath, nbr.ResidenceCertificatePath,
+           v.Email, v.Address
+    FROM NewBornRequest nbr
+    JOIN Villager v ON nbr.Villager_ID = v.Villager_ID
+  `);
+  return rows;
+};
+
+const getVillageTotal = async () => {
+  const [rows] = await pool.query("SELECT COUNT(*) AS total FROM Villager");
+  return rows[0].total;
+};
+
+const getVillageParticipantTotal = async () => {
+  const [rows] = await pool.query("SELECT COUNT(*) AS participant_total FROM Villager WHERE IsParticipant = 1");
+  return rows[0].participant_total;
+};
+
+const getHouseCount = async () => {
+  const [rows] = await pool.query(`
+    SELECT COUNT(*) AS house_count
+    FROM (
+        SELECT Latitude, Longitude, Address
+        FROM Villager
+        WHERE Latitude IS NOT NULL AND Longitude IS NOT NULL AND Address IS NOT NULL
+          AND Status = 'Active' AND Alive_Status = 'Alive'
+        GROUP BY Latitude, Longitude, Address
+        HAVING COUNT(*) > 0
+    ) AS location_groups
+  `);
+  return rows[0].house_count;
+};
+
+const getMonthlyRegistrationCount = async () => {
+  const [rows] = await pool.query(`
+    SELECT 
+      YEAR(Created_At) AS year,
+      MONTH(Created_At) AS month,
+      COUNT(*) AS registration_count
+    FROM Villager
+    WHERE Created_At IS NOT NULL
+      AND Status = 'Active'
+      AND Alive_Status = 'Alive'
+    GROUP BY YEAR(Created_At), MONTH(Created_At)
+    ORDER BY year, month
+  `);
+  return rows;
+};
+const getReligionCount = async () => {
+  const [rows] = await pool.query(`
+    SELECT 
+      Religion,
+      COUNT(*) AS villager_count
+    FROM Villager
+    WHERE Status = 'Active' AND Alive_Status = 'Alive'
+    GROUP BY Religion
+    ORDER BY Religion
+  `);
+  return rows;
+};
+
+const getRaceCount = async () => {
+  const [rows] = await pool.query(`
+    SELECT 
+      Race,
+      COUNT(*) AS villager_count
+    FROM Villager
+    WHERE Status = 'Active' AND Alive_Status = 'Alive'
+    GROUP BY Race
+    ORDER BY Race
+  `);
+  return rows;
+};
+
 module.exports = {
   getAllVillagers,
   getVillagerById,
@@ -176,4 +305,14 @@ module.exports = {
   getNotificationsByVillagerId,
   getNotificationById,
   markNotificationAsRead,
+  addNewBornRequest,
+  addNewFamilyMemberRequest,
+  getNewFamilyMemberRequests,
+  getNewBornRequests,
+  getVillageTotal,
+  getVillageParticipantTotal,
+  getHouseCount,
+  getMonthlyRegistrationCount,
+  getReligionCount,
+   getRaceCount,
 };

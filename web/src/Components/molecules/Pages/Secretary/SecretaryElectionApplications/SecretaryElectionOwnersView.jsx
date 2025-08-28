@@ -43,7 +43,7 @@ const SecretaryElectionOwnersView = () => {
     return (
       <div className="page-layout">
         <div className="sidebar">
-          <SecretaryDashBoard />
+        
         </div>
         <div className="villager-list-container">
           <div className="profile-container">Loading...</div>
@@ -56,7 +56,7 @@ const SecretaryElectionOwnersView = () => {
     return (
       <div className="page-layout">
         <div className="sidebar">
-          <SecretaryDashBoard />
+          
         </div>
         <div className="villager-list-container">
           <div className="profile-container">
@@ -77,7 +77,7 @@ const SecretaryElectionOwnersView = () => {
   return (
     <div className="page-layout">
       <div className="sidebar">
-        <SecretaryDashBoard />
+       
       </div>
       <div className="villager-list-container">
         <div className="profile-container">

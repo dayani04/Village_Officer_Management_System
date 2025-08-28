@@ -1,12 +1,10 @@
 import axios from "axios";
 import { getToken } from "../utils/auth";
 
-const API_URL = "http://localhost:5000/api/permit-applications";
+const API_URL = "http://localhost:5000/api";
+
 const api = axios.create({
   baseURL: API_URL,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 api.interceptors.request.use(
@@ -14,6 +12,9 @@ api.interceptors.request.use(
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Added token to request:", token);
+    } else {
+      console.warn("No token found for request");
     }
     console.log("Request:", {
       url: config.url,
@@ -31,28 +32,23 @@ api.interceptors.request.use(
 
 export const submitPermitApplication = async (formData) => {
   try {
-    if (!(formData instanceof FormData)) {
-      throw new Error("FormData is required for submission");
-    }
-    const response = await api.post("/", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
+    console.log("Submitting permit application to:", `${API_URL}/permit-applications/`);
+    const response = await api.post("/permit-applications/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
-    console.log("Submit permit application response:", response.data);
+    console.log("Permit application response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error submitting permit application:", {
-      message: error.message,
-      response: error.response ? error.response.data : null,
-      status: error.response ? error.response.status : null,
-      url: API_URL + "/",
-    });
-    throw error.response?.data?.error || error.message;
+    console.error("Error submitting permit application:", error.response || error.message);
+    throw error.response ? error.response.data : error.message;
   }
 };
 
 export const fetchPermitApplications = async () => {
   try {
-    const response = await api.get("/");
+    const response = await api.get("/permit-applications/");
     return response.data;
   } catch (error) {
     console.error("Error fetching permit applications:", {
@@ -66,7 +62,7 @@ export const fetchPermitApplications = async () => {
 
 export const fetchConfirmedPermitApplications = async () => {
   try {
-    const response = await api.get("/confirmed");
+    const response = await api.get("/permit-applications/confirmed");
     return response.data;
   } catch (error) {
     console.error("Error fetching confirmed permit applications:", {
@@ -84,7 +80,7 @@ export const updatePermitApplicationStatus = async (villagerId, permitsId, statu
       throw new Error("Status is required");
     }
     console.log("Sending status update:", { villagerId, permitsId, status });
-    const response = await api.put(`/${villagerId}/${permitsId}/status`, { status });
+    const response = await api.put(`/permit-applications/${villagerId}/${permitsId}/status`, { status });
     return response.data;
   } catch (error) {
     console.error(`Error updating permit application status for ${villagerId}, ${permitsId}:`, {
@@ -98,7 +94,7 @@ export const updatePermitApplicationStatus = async (villagerId, permitsId, statu
 
 export const downloadDocument = async (filename) => {
   try {
-    const response = await api.get(`/download/${filename}`, {
+    const response = await api.get(`/permit-applications/download/${filename}`, {
       responseType: "blob",
     });
     return response.data;
@@ -114,7 +110,7 @@ export const downloadDocument = async (filename) => {
 
 export const saveNotification = async (villagerId, message) => {
   try {
-    const response = await api.post("/notifications/", { villagerId, message });
+    const response = await api.post("/permit-applications/notifications/", { villagerId, message });
     return response.data;
   } catch (error) {
     console.error("Error saving notification:", {

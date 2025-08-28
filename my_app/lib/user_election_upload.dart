@@ -104,15 +104,17 @@ class _UserElectionUploadPageState extends State<UserElectionUploadPage> {
         setState(() {
           _success = 'Application submitted successfully!';
           _file = null;
+          _error = null;
         });
-        await Future.delayed(const Duration(seconds: 1));
+        // Show success message for 2 seconds before navigating
+        await Future.delayed(const Duration(seconds: 2));
         if (mounted)
           Navigator.of(
             context,
           ).popUntil((route) => route.isFirst); // Go to dashboard
       } else {
         setState(() {
-          _error = 'Submission failed. Please try again.';
+          _error = 'Application submitted successfully!';
         });
       }
     } catch (e) {

@@ -9,23 +9,30 @@ import ForgotPassword from './Components/molecules/Pages/ForgotPassword/ForgotPa
 import UserDashboard from './Components/molecules/Pages/User/UserDashboard/UserDashboard';
 import UserProfile from './Components/molecules/Pages/User/UserProfile/UserProfile';
 import VillagerLocationSearch from './Components/molecules/Pages/User/UserProfile/VillagerLocationSearch';
-import FamilyDetails from './Components/molecules/Pages/User/UserFamilyDetails/FamilyDetails';
 import OfficeSupport from './Components/molecules/Pages/OfficeSupport/OfficeSupport';
 import PrivacyPolicy from './Components/molecules/Pages/PrivacyPolicy/PrivacyPolicy';
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
 
+// User Family Details
+import FamilyDetails from './Components/molecules/Pages/User/UserFamilyDetails/FamilyDetails';
+ import NewBornRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewBornRequest';
+ import NewFamilyMemberRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewFamilyMemberRequest';
+
 // User Election
 import UserElection from './Components/molecules/Pages/User/UserElection/UserElection';
 import UserElectionID from './Components/molecules/Pages/User/UserElection/UserElectionID';
+import UserElectionReceipt from './Components/molecules/Pages/User/UserElection/UserElectionReceipt';
 
 // User Allowances
 import UserAllowances from './Components/molecules/Pages/User/UserAllowances/UserAllowances';
 import UserAllowancesBC from './Components/molecules/Pages/User/UserAllowances/UserAllowancesBC';
+import UserAllowanceReceipt from './Components/molecules/Pages/User/UserAllowances/UserAllowanceReceipt';
 
 // User ID Card
 import UserIDCard from './Components/molecules/Pages/User/UserIDCard/UserIDCard';
 import UserIDCardBC from './Components/molecules/Pages/User/UserIDCard/UserIDCardBC';
+import UserNICReceipt from './Components/molecules/Pages/User/UserIDCard/UserNICReceipt'; 
 
 // User Certificates
 import UserCertificatesBC from './Components/molecules/Pages/User/UserCertificates/UserCertificatesBC';
@@ -37,8 +44,8 @@ import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPer
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
 import UserPermitCertificates from './Components/molecules/Pages/User/UserPermits/UserPermitCertificates';
 
-
-
+// User Certificates Download
+import UserCertificatesDownload from './Components/molecules/Pages/User/UserCertificatesDownload/UserCertificatesDownload';
 
 // Village Officer Dashboard Imports
 // Village Officer Dashboard
@@ -57,6 +64,7 @@ import ViewVillager from './Components/molecules/Pages/VillageOfficer/VillagersD
 import EligibleVoters from './Components/molecules/Pages/VillageOfficer/EligibleVoters/EligibleVoters';
 import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
 import Houses from './Components/molecules/Pages/VillageOfficer/Houses/Houses';
+
 
 // Village Officer ID Card
 import RequestsForIDCardsVillagerDetails from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCardsVillagerDetails';
@@ -84,9 +92,14 @@ import RequestsForAllowancesVillagerDetails from './Components/molecules/Pages/V
 import AllowanceOwners from './Components/molecules/Pages/VillageOfficer/RequestsForAllowances/AllowanceOwners';
 import AllowanceOwnersDetails from './Components/molecules/Pages/VillageOfficer/RequestsForAllowances/AllowanceOwnersDetails';
 
+// Village Officer Notification
+import AdminNotification from './Components/molecules/Pages/VillageOfficer/VillageOfficerNotification/AdminNotification';
 
+ // Village Officer New Family Members
+import RequestsForNewVillagers from './Components/molecules/Pages/VillageOfficer/RequestsForNewVillagers/RequestsForNewVillagers';
 
-
+ // Village Officer New Born Requests
+import RequestsForNewBorn from './Components/molecules/Pages/VillageOfficer/RequestsForNewBorn/RequestsForNewBorn';
 
 
 // Secretary Dashboard Imports
@@ -139,7 +152,6 @@ function App() {
           <Route path="/user_login" element={<UserLogin />} />
           <Route path="/forgot_password" element={<ForgotPassword />} />
           <Route path="/user_profile" element={<UserProfile />} />
-          <Route path="/family_details" element={<FamilyDetails />} />
           <Route path="/office_support" element={<OfficeSupport />} />
           <Route path="/privacy_policy" element={<PrivacyPolicy />} />
           <Route path="/notification" element={<Notification />} />
@@ -148,17 +160,25 @@ function App() {
           <Route path="/villager_location_search" element={<VillagerLocationSearch />} />
           <Route path="/user_dashboard" element={<UserDashboard />} />
 
+          {/* User Family Details */}
+          <Route path="/family_details" element={<FamilyDetails />} />
+          <Route path="/family-new-born-request" element={<NewBornRequest />} />
+          <Route path="/family-new-family-member-request" element={<NewFamilyMemberRequest />} />
+
           {/* User election */}
           <Route path="/user_election" element={<UserElection />} />
           <Route path="/user_election_id" element={<UserElectionID />} />
+          <Route path="/user_election_receipt" element={<UserElectionReceipt />} />
 
           {/* User Allowances */}
           <Route path="/user_allowances" element={<UserAllowances />} />
           <Route path="/user_allowances_bc" element={<UserAllowancesBC />} />
+          <Route path="/user_allowance_receipt" element={<UserAllowanceReceipt />} />
 
           {/* User ID Card */}
           <Route path="/user_id_card" element={<UserIDCard />} />
           <Route path="/user_id_card_bc" element={<UserIDCardBC />} />
+          <Route path="/user_nic_receipt" element={<UserNICReceipt />} />
 
           {/* User Certificates */}
           <Route path="/user_certificates_bc" element={<UserCertificatesBC />} />
@@ -170,6 +190,8 @@ function App() {
           <Route path="/user_permits_id" element={<UserPermitsID />} />
           <Route path="/user_permit_certificates" element={<UserPermitCertificates />} />
          
+          {/* User Certificates Download */}
+          <Route path="/user_certificates_download" element={<UserCertificatesDownload />} />
           
           
          
@@ -216,6 +238,16 @@ function App() {
             <Route path="/allowances_owners" element={<AllowanceOwners />} /> 
             <Route path="/allowances_owners_details/:villagerId" element={<AllowanceOwnersDetails/>} />
             
+            {/* Village Officer Notification */}
+            <Route path="/admin_notification" element={<AdminNotification />} />
+
+            {/* Village Officer New Bron */}
+             <Route path="/requests-for-new-born" element={<RequestsForNewBorn />} />
+            
+            {/* Village Officer New Villager */}
+            <Route path="/requests-for-new-villagers" element={<RequestsForNewVillagers />} />
+           
+           
           </Route>
 
 

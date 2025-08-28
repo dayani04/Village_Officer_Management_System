@@ -1,0 +1,201 @@
+import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'dart:convert';
+// import 'dart:typed_data';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+
+class UserAllowanceReceiptPage extends StatefulWidget {
+  const UserAllowanceReceiptPage({Key? key}) : super(key: key);
+
+  @override
+  State<UserAllowanceReceiptPage> createState() =>
+      _UserAllowanceReceiptPageState();
+}
+
+class _UserAllowanceReceiptPageState extends State<UserAllowanceReceiptPage> {
+  bool loading = true;
+  String? error;
+  List<dynamic> receipts = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchReceipts();
+  }
+
+  Future<void> fetchReceipts() async {
+    setState(() {
+      loading = true;
+      error = null;
+    });
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final response = await http.get(
+        Uri.parse('http://localhost:5000/api/allowance-applications/confirmed'),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        setState(() {
+          receipts = List<Map<String, dynamic>>.from(
+            List.from(jsonDecode(response.body)),
+          );
+          loading = false;
+        });
+      } else {
+        throw Exception('Failed to fetch your allowance receipts');
+      }
+    } catch (e) {
+      setState(() {
+        error = e.toString();
+        loading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error ?? 'Failed to fetch your allowance receipts'),
+        ),
+      );
+    }
+  }
+
+  Future<void> handleDownload(String filename) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final response = await http.get(
+        Uri.parse(
+          'http://localhost:5000/api/allowance-applications/download/$filename',
+        ),
+        headers: {
+          'Content-Type': 'application/json',
+          if (token != null) 'Authorization': 'Bearer $token',
+        },
+      );
+      if (response.statusCode == 200) {
+        final bytes = response.bodyBytes;
+        final tempDir = await getTemporaryDirectory();
+        final filePath = '${tempDir.path}/$filename';
+        final file = File(filePath);
+        await file.writeAsBytes(bytes);
+        // Use platform-specific method to open the file, or show a snackbar with the file path
+        // If you want to open the file, use a package like 'open_filex' (see pub.dev/packages/open_filex)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Allowance receipt downloaded to $filePath')),
+        );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Allowance receipt downloaded successfully')),
+        );
+      } else {
+        throw Exception('Failed to download receipt');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.toString())));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (loading) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Allowance Receipts'),
+          backgroundColor: const Color(0xFF921940),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('My Allowance Receipts'),
+          backgroundColor: const Color(0xFF921940),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(error!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: fetchReceipts,
+                child: const Text('Retry'),
+              ),
+              const SizedBox(height: 8),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Back to Dashboard'),
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.grey),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('My Allowance Receipts'),
+        backgroundColor: const Color(0xFF921940),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: receipts.isEmpty
+            ? const Center(
+                child: Text(
+                  'No allowance receipts available for you',
+                  style: TextStyle(fontStyle: FontStyle.italic),
+                ),
+              )
+            : SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: DataTable(
+                  columns: const [
+                    DataColumn(label: Text('Allowance Type')),
+                    DataColumn(label: Text('Application Date')),
+                    DataColumn(label: Text('Receipt')),
+                  ],
+                  rows: receipts.map((receipt) {
+                    return DataRow(
+                      cells: [
+                        DataCell(Text(receipt['Allowances_Type'] ?? 'N/A')),
+                        DataCell(
+                          Text(
+                            receipt['apply_date'] != null
+                                ? DateTime.parse(
+                                    receipt['apply_date'],
+                                  ).toLocal().toString().split(' ')[0]
+                                : 'N/A',
+                          ),
+                        ),
+                        DataCell(
+                          receipt['receipt_path'] != null
+                              ? TextButton(
+                                  onPressed: () =>
+                                      handleDownload(receipt['receipt_path']),
+                                  child: const Text('Download Receipt'),
+                                )
+                              : const Text('Not Available'),
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => Navigator.pop(context),
+        label: const Text('Back to Dashboard'),
+        icon: const Icon(Icons.arrow_back),
+        backgroundColor: Colors.grey,
+      ),
+    );
+  }
+}

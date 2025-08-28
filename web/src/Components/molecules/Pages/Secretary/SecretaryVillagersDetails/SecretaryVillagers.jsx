@@ -66,23 +66,17 @@ const SecretaryVillagers = () => {
 
   if (loading) {
     return (
-      <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+     
         <div className="villager-list-container">
           <div className="villagers-container">Loading...</div>
         </div>
-      </div>
+     
     );
   }
 
   if (error) {
     return (
-      <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+     
         <div className="villager-list-container">
           <div className="villagers-container">
             <h1>All Villagers</h1>
@@ -95,15 +89,13 @@ const SecretaryVillagers = () => {
             <Toaster />
           </div>
         </div>
-      </div>
+    
     );
   }
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-      </div>
+    
       <div className="villager-list-container">
         <div className="villagers-container">
           <h1>All Villagers</h1>

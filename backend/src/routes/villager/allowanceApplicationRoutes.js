@@ -5,13 +5,11 @@ const notificationController = require("../../controllers/villager/notificationC
 const authenticate = require("../../middleware/authMiddleware");
 const router = express.Router();
 
-// Configure multer for file uploads
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  limits: { fileSize: 5 * 1024 * 1024 },
 });
 
-// Protected routes
 router.post("/", authenticate, upload.single("document"), allowanceApplicationController.createAllowanceApplication);
 router.get("/", authenticate, allowanceApplicationController.getAllowanceApplications);
 router.get("/confirmed", authenticate, allowanceApplicationController.getConfirmedAllowanceApplications);

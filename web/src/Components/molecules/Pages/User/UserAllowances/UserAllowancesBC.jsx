@@ -92,7 +92,7 @@ const UserAllowancesBC = () => {
     <section>
       <NavBar />
       <div className="user-allowances-bc-page">
-        <h1 className="allowances-bc-form-title">{t("FormTitleBC")}</h1>
+        <h1 className="allowances-bc-form-title">{t("FormTitleBC1")}</h1>
 
         <div className="language-allowances-bc-selector">
           <button
@@ -141,7 +141,7 @@ const UserAllowancesBC = () => {
               onClick={handleFileClick}
               disabled={loading}
             >
-              📎 {t("uploadBCButton")}
+              📎 {t("uploadBCButton1")}
             </button>
 
             {file && (

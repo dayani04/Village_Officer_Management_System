@@ -3,6 +3,8 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendConfirmationEmail = require("../../utills/mailer");
 const crypto = require("crypto");
+const path = require('path');
+const fs = require('fs');
 
 const otps = new Map();
 
@@ -32,7 +34,7 @@ const createVillager = async (req, res) => {
     const {
       villager_id, full_name, email, password, phone_no, nic, dob, address,
       regional_division, status, area_id, latitude, longitude, is_participant,
-      alive_status, job, gender, marital_status
+      alive_status, job, gender, marital_status, religion, race
     } = req.body;
 
     if (!villager_id || !full_name || !email || !password || !phone_no) {
@@ -48,7 +50,8 @@ const createVillager = async (req, res) => {
     await User.addVillager(
       villager_id, full_name, email, hashedPassword, phone_no, nic, dob, address,
       regional_division, status || "Active", area_id, latitude, longitude,
-      is_participant, alive_status || "Alive", job, gender, marital_status
+      is_participant, alive_status || "Alive", job, gender, marital_status,
+      religion, race
     );
 
     await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
@@ -63,7 +66,7 @@ const updateVillager = async (req, res) => {
   try {
     const { 
       full_name, email, phone_no, address, regional_division, status, 
-      is_election_participant, alive_status, job, gender, marital_status 
+      is_election_participant, alive_status, job, gender, marital_status, dob, religion, race 
     } = req.body;
     const villagerId = req.params.id;
 
@@ -94,7 +97,10 @@ const updateVillager = async (req, res) => {
       alive_status: alive_status !== undefined ? alive_status : currentUser.Alive_Status,
       job: job !== undefined ? job : currentUser.Job,
       gender: gender !== undefined ? gender : currentUser.Gender,
-      marital_status: marital_status !== undefined ? marital_status : currentUser.Marital_Status
+      marital_status: marital_status !== undefined ? marital_status : currentUser.Marital_Status,
+      dob: dob !== undefined ? dob : currentUser.DOB,
+      religion: religion !== undefined ? religion : currentUser.Religion,
+      race: race !== undefined ? race : currentUser.Race
     };
 
     const updated = await User.updateVillager(
@@ -109,7 +115,10 @@ const updateVillager = async (req, res) => {
       updateData.alive_status,
       updateData.job,
       updateData.gender,
-      updateData.marital_status
+      updateData.marital_status,
+      updateData.dob,
+      updateData.religion,
+      updateData.race
     );
 
     if (!updated) return res.status(404).json({ error: "User not found" });
@@ -168,6 +177,7 @@ const loginVillager = async (req, res) => {
       token,
       isParticipant: user.IsParticipant,
       aliveStatus: user.Alive_Status,
+      createdAt: user.Created_At,
     });
   } catch (error) {
     console.error("Error in loginVillager:", error);
@@ -207,8 +217,8 @@ const updateVillagerLocation = async (req, res) => {
     const { latitude, longitude } = req.body;
     const villagerId = req.params.id;
 
-    if (latitude === undefined || !longitude) {
-      return res.status(400).json({ error: "Latitude is required" });
+    if (latitude === undefined || longitude === undefined) {
+      return res.status(400).json({ error: "Latitude and Longitude are required" });
     }
 
     const lat = parseFloat(latitude);
@@ -321,6 +331,95 @@ const verifyPasswordOtp = async (req, res) => {
   }
 };
 
+const requestNewBorn = async (req, res) => {
+  try {
+    const { relationship } = req.body;
+    const files = req.files;
+    const villagerId = req.user.userId;
+
+    if (!relationship || !files.birthCertificate || !files.motherNic || !files.fatherNic || 
+        !files.marriageCertificate || !files.residenceCertificate) {
+      return res.status(400).json({ error: "All fields and files are required" });
+    }
+
+    const user = await User.getVillagerById(villagerId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const timestamp = Date.now();
+    const filePaths = {
+      birthCertificate: `${villagerId}_birth_${timestamp}${path.extname(files.birthCertificate[0].originalname)}`,
+      motherNic: `${villagerId}_motherNic_${timestamp}${path.extname(files.motherNic[0].originalname)}`,
+      fatherNic: `${villagerId}_fatherNic_${timestamp}${path.extname(files.fatherNic[0].originalname)}`,
+      marriageCertificate: `${villagerId}_marriage_${timestamp}${path.extname(files.marriageCertificate[0].originalname)}`,
+      residenceCertificate: `${villagerId}_residence_${timestamp}${path.extname(files.residenceCertificate[0].originalname)}`,
+    };
+
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    // Save files to Uploads directory
+    fs.writeFileSync(path.join(uploadDir, filePaths.birthCertificate), files.birthCertificate[0].buffer);
+    fs.writeFileSync(path.join(uploadDir, filePaths.motherNic), files.motherNic[0].buffer);
+    fs.writeFileSync(path.join(uploadDir, filePaths.fatherNic), files.fatherNic[0].buffer);
+    fs.writeFileSync(path.join(uploadDir, filePaths.marriageCertificate), files.marriageCertificate[0].buffer);
+    fs.writeFileSync(path.join(uploadDir, filePaths.residenceCertificate), files.residenceCertificate[0].buffer);
+
+    await User.addNewBornRequest(villagerId, relationship, filePaths);
+
+    await sendConfirmationEmail(
+      user.Email,
+      "New Born Request Submitted",
+      "Your request for a new born has been submitted successfully and is pending review."
+    );
+
+    res.json({ message: "New born request submitted successfully" });
+  } catch (error) {
+    console.error("Error in requestNewBorn:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const requestNewFamilyMember = async (req, res) => {
+  try {
+    const { relationship } = req.body;
+    const files = req.files;
+    const villagerId = req.user.userId;
+
+    if (!relationship || !files.document || !files.residenceCertificate) {
+      return res.status(400).json({ error: "Relationship, document, and residence certificate are required" });
+    }
+
+    const user = await User.getVillagerById(villagerId);
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const timestamp = Date.now();
+    const filePaths = {
+      document: `${villagerId}_document_${timestamp}${path.extname(files.document[0].originalname)}`,
+      residenceCertificate: `${villagerId}_residence_${timestamp}${path.extname(files.residenceCertificate[0].originalname)}`,
+    };
+
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    // Save files to Uploads directory
+    fs.writeFileSync(path.join(uploadDir, filePaths.document), files.document[0].buffer);
+    fs.writeFileSync(path.join(uploadDir, filePaths.residenceCertificate), files.residenceCertificate[0].buffer);
+
+    await User.addNewFamilyMemberRequest(villagerId, relationship, filePaths);
+
+    await sendConfirmationEmail(
+      user.Email,
+      "New Family Member Request Submitted",
+      "Your request for a new family member has been submitted successfully and is pending review."
+    );
+
+    res.json({ message: "New family member request submitted successfully" });
+  } catch (error) {
+    console.error("Error in requestNewFamilyMember:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
 const sendNotification = async (req, res) => {
   try {
     const { message } = req.body;
@@ -384,6 +483,126 @@ const validateEmail = (email) => {
   return re.test(email);
 };
 
+const getNewFamilyMemberRequests = async (req, res) => {
+  try {
+    const requests = await User.getNewFamilyMemberRequests();
+    res.json(requests);
+  } catch (error) {
+    console.error("Error in getNewFamilyMemberRequests:", error);
+    res.status(500).json({ error: 'Failed to fetch new villager requests', details: error.message });
+  }
+};
+
+const getNewBornRequests = async (req, res) => {
+  try {
+    const requests = await User.getNewBornRequests();
+    res.json(requests);
+  } catch (error) {
+    console.error("Error in getNewBornRequests:", error);
+    res.status(500).json({ error: 'Failed to fetch new born requests', details: error.message });
+  }
+};
+
+const downloadDocument = async (req, res) => {
+  try {
+    let { filename } = req.params;
+    // Normalize the filename to remove any directory prefix
+    filename = path.basename(filename);
+    const filePath = path.join(__dirname, '..', '..', 'Uploads', filename);
+    
+    console.log(`Attempting to download file: ${filePath}`);
+
+    if (!fs.existsSync(filePath)) {
+      console.error(`File not found at path: ${filePath}`);
+      return res.status(404).json({ error: 'File not found' });
+    }
+
+    res.download(filePath, filename, (err) => {
+      if (err) {
+        console.error(`Error downloading file ${filename}:`, err);
+        res.status(500).json({ error: 'Failed to download document', details: err.message });
+      }
+    });
+  } catch (error) {
+    console.error("Error in downloadDocument:", error);
+    res.status(500).json({ error: 'Failed to download document', details: error.message });
+  }
+};
+
+const getVillageTotal = async (req, res) => {
+  try {
+    const total = await User.getVillageTotal();
+    res.json({ total_villagers: total });
+  } catch (error) {
+    console.error("Error in getVillageTotal:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getVillageParticipantTotal = async (req, res) => {
+  try {
+    const participantTotal = await User.getVillageParticipantTotal();
+    res.json({ participant_total: participantTotal });
+  } catch (error) {
+    console.error("Error in getVillageParticipantTotal:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+const getHouseCount = async (req, res) => {
+  try {
+    const houseCount = await User.getHouseCount();
+    res.json({ house_count: houseCount });
+  } catch (error) {
+    console.error("Error in getHouseCount:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+const getMonthlyRegistrationCount = async (req, res) => {
+  try {
+    const monthlyCounts = await User.getMonthlyRegistrationCount();
+    res.json(monthlyCounts);
+  } catch (error) {
+    console.error("Error in getMonthlyRegistrationCount:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+const getMonthlyVillagerGrowth = async (req, res) => {
+  try {
+    const monthlyCounts = await User.getMonthlyRegistrationCount(); // Reusing existing model function
+    const monthlyGrowth = monthlyCounts.map((current, index, array) => {
+      if (index === 0) {
+        return { ...current, growth: null }; // No growth for the first month
+      }
+      const previous = array[index - 1];
+      const growth = current.registration_count - previous.registration_count;
+      return { ...current, growth };
+    });
+    res.json(monthlyGrowth);
+  } catch (error) {
+    console.error("Error in getMonthlyVillagerGrowth:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+const getReligionCount = async (req, res) => {
+  try {
+    const religionCounts = await User.getReligionCount();
+    res.json(religionCounts);
+  } catch (error) {
+    console.error("Error in getReligionCount:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
+const getRaceCount = async (req, res) => {
+  try {
+    const raceCounts = await User.getRaceCount();
+    res.json(raceCounts);
+  } catch (error) {
+    console.error("Error in getRaceCount:", error);
+    res.status(500).json({ error: "Database error", details: error.message });
+  }
+};
+
 module.exports = {
   getVillagers,
   getVillager,
@@ -402,4 +621,16 @@ module.exports = {
   sendNotification,
   getNotifications,
   markNotificationAsRead,
+  requestNewBorn,
+  requestNewFamilyMember,
+  getNewFamilyMemberRequests,
+  getNewBornRequests,
+  downloadDocument,
+  getVillageTotal,
+  getVillageParticipantTotal,
+  getHouseCount,
+  getMonthlyRegistrationCount,
+  getMonthlyVillagerGrowth,
+  getReligionCount,
+  getRaceCount,
 };

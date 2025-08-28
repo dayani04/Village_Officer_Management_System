@@ -6,5 +6,6 @@ const router = express.Router();
 // Protected routes
 router.get("/", authenticate, allowanceController.getAllowances);
 router.get("/:id", authenticate, allowanceController.getAllowance);
+router.post("/check-application", authenticate, allowanceController.checkVillagerAllowanceApplication);
 
 module.exports = router;

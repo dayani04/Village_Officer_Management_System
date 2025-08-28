@@ -47,9 +47,7 @@ const SecretaryElectionOwners = () => {
   if (loading) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+      
         <div className="villager-list-container">
           <div className="owners-container">Loading...</div>
         </div>
@@ -60,9 +58,7 @@ const SecretaryElectionOwners = () => {
   if (error) {
     return (
       <div className="page-layout">
-        <div className="sidebar">
-          <SecretaryDashBoard />
-        </div>
+       
         <div className="villager-list-container">
           <div className="owners-container">
             <h1>Confirmed Election Participants</h1>
@@ -81,9 +77,7 @@ const SecretaryElectionOwners = () => {
 
   return (
     <div className="page-layout">
-      <div className="sidebar">
-        <SecretaryDashBoard />
-      </div>
+    
       <div className="villager-list-container">
         <div className="owners-container">
           <h1>Confirmed Election Participants</h1>

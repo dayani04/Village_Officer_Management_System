@@ -40,7 +40,7 @@ const SecretaryPermitsOwner = () => {
     return (
       <div className="page-layout">
         <div className="sidebar">
-          <SecretaryDashBoard />
+         
         </div>
         <div className="villager-list-container">
           <div className="owners-container">Loading...</div>
@@ -53,7 +53,7 @@ const SecretaryPermitsOwner = () => {
     return (
       <div className="page-layout">
         <div className="sidebar">
-          <SecretaryDashBoard />
+         
         </div>
         <div className="villager-list-container">
           <div className="owners-container">
@@ -73,7 +73,7 @@ const SecretaryPermitsOwner = () => {
   return (
     <div className="page-layout">
       <div className="sidebar">
-        <SecretaryDashBoard />
+       
       </div>
       <div className="villager-list-container">
         <div className="owners-container">

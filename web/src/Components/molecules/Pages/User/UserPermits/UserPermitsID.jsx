@@ -1,6 +1,4 @@
-import React, { useState, useContext } from "react";
-import { useTranslation } from "react-i18next";
-import { LanguageContext } from "../../context/LanguageContext";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
 import { submitPermitApplication } from "../../../../../api/permitApplication";
@@ -9,20 +7,17 @@ import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
 
 const UserPermitsID = () => {
-  const { t } = useTranslation();
-  const { changeLanguage } = useContext(LanguageContext);
   const [file, setFile] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
 
-  // Get form data and police report from UserPermitsPR
-  const { formData = { email: "", type: "" }, policeReport } = location.state || {};
+  const { formData = { email: "", type: "", requiredDate: "" }, policeReport } = location.state || {};
 
-  // Detailed logging of received state
   console.log("Received state:", {
     email: formData.email,
     type: formData.type,
+    requiredDate: formData.requiredDate,
     policeReport: policeReport
       ? { name: policeReport.name, type: policeReport.type, size: policeReport.size }
       : "undefined",
@@ -35,9 +30,9 @@ const UserPermitsID = () => {
       if (!allowedTypes.includes(uploadedFile.type)) {
         Swal.fire({
           icon: "error",
-          title: t("uploadRequiredTitleID"),
-          text: t("invalidFileType"),
-          confirmButtonText: t("ok"),
+          title: "Upload Error",
+          text: "Only PDF, PNG, or JPG files are allowed",
+          confirmButtonText: "OK",
         });
         return;
       }
@@ -63,12 +58,12 @@ const UserPermitsID = () => {
   };
 
   const handleSubmit = async () => {
-    if (!formData.email || !formData.type || !file || !policeReport) {
+    if (!formData.email || !formData.type || !file || !policeReport || !formData.requiredDate) {
       Swal.fire({
         icon: "error",
-        title: t("uploadRequiredTitleID"),
-        text: t("allFieldsRequired"),
-        confirmButtonText: t("ok"),
+        title: "Upload Error",
+        text: "All fields are required",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -76,9 +71,9 @@ const UserPermitsID = () => {
     if (!(file instanceof File) || !(policeReport instanceof File)) {
       Swal.fire({
         icon: "error",
-        title: t("uploadRequiredTitleID"),
-        text: t("invalidFileObject"),
-        confirmButtonText: t("ok"),
+        title: "Upload Error",
+        text: "Invalid file object",
+        confirmButtonText: "OK",
       });
       return;
     }
@@ -88,6 +83,7 @@ const UserPermitsID = () => {
       const formDataToSend = new FormData();
       formDataToSend.append("email", formData.email);
       formDataToSend.append("permitType", formData.type);
+      formDataToSend.append("requiredDate", formData.requiredDate);
       formDataToSend.append("document", file);
       formDataToSend.append("policeReport", policeReport);
 
@@ -102,9 +98,9 @@ const UserPermitsID = () => {
 
       Swal.fire({
         icon: "success",
-        title: t("submissionSuccessTitle"),
-        text: t("submissionSuccessMessage"),
-        confirmButtonText: t("ok"),
+        title: "Success",
+        text: "Permit application submitted successfully",
+        confirmButtonText: "OK",
       }).then(() => {
         navigate("/user_dashboard");
       });
@@ -112,9 +108,9 @@ const UserPermitsID = () => {
       console.error("Submission error:", error);
       Swal.fire({
         icon: "error",
-        title: t("error"),
-        text: typeof error === "string" ? error : t("submissionFailed"),
-        confirmButtonText: t("ok"),
+        title: "Error",
+        text: error.response?.data?.error || "Failed to submit application",
+        confirmButtonText: "OK",
       });
     } finally {
       setLoading(false);
@@ -125,16 +121,7 @@ const UserPermitsID = () => {
     <section>
       <NavBar />
       <div className="user-permit-id-page">
-        <h1 className="permit-id-form-title">{t("permitFormTitleID")}</h1>
-
-        <div className="language-permit-id-selector">
-          <button onClick={() => changeLanguage("en")} className="language-permit-id-btn">
-            English
-          </button>
-          <button onClick={() => changeLanguage("si")} className="language-permit-id-btn">
-            සිංහල
-          </button>
-        </div>
+        <h1 className="permit-id-form-title">Upload ID Document</h1>
 
         <form className="permit-id-form-content">
           <div className="file-permit-id-upload-section">
@@ -154,8 +141,7 @@ const UserPermitsID = () => {
                   download={file.name}
                   className="file-permit-id-download-link"
                 >
-                  <br />
-                  {t("downloadLink")}
+                  Download
                 </a>
               </div>
             )}
@@ -168,7 +154,7 @@ const UserPermitsID = () => {
               onClick={handleFileClick}
               disabled={loading}
             >
-              📎 {t("uploadIDButton")}
+              📎 Upload ID Document
             </button>
 
             {file && (
@@ -178,7 +164,7 @@ const UserPermitsID = () => {
                 onClick={handleDelete}
                 disabled={loading}
               >
-                {t("delete")}
+                Delete
               </button>
             )}
 
@@ -189,7 +175,7 @@ const UserPermitsID = () => {
                 onClick={handleBack}
                 disabled={loading}
               >
-                {t("back")}
+                Back
               </button>
               <button
                 type="button"
@@ -197,7 +183,7 @@ const UserPermitsID = () => {
                 onClick={handleSubmit}
                 disabled={loading}
               >
-                {loading ? t("submitting") : t("submit")}
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>

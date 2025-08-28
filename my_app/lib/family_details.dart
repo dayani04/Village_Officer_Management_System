@@ -148,12 +148,41 @@ class _FamilyDetailsPageState extends State<FamilyDetailsPage> {
                         ),
                   SizedBox(height: 20),
                   Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF7a1632),
-                      ),
-                      onPressed: () => Navigator.pop(context),
-                      child: Text('Back to Dashboard'),
+                    child: Wrap(
+                      spacing: 10,
+                      children: [
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7a1632),
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/family-new-born-request',
+                            );
+                          },
+                          child: const Text('Request For New Born'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7a1632),
+                          ),
+                          onPressed: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/family-new-family-member-request',
+                            );
+                          },
+                          child: const Text('Request For New Family Member'),
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF7a1632),
+                          ),
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Back to Dashboard'),
+                        ),
+                      ],
                     ),
                   ),
                 ],

@@ -68,6 +68,8 @@ const UserPermitCertificates = () => {
           background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
+          border: '1px solid #fff',
+          fontSize: '12px',
         },
       });
     }
@@ -117,6 +119,7 @@ const UserPermitCertificates = () => {
             <thead>
               <tr>
                 <th>Permit Type</th>
+                <th>Application Date</th>
                 <th>Certificate</th>
               </tr>
             </thead>
@@ -125,6 +128,7 @@ const UserPermitCertificates = () => {
                 certificates.map((cert) => (
                   <tr key={`${cert.Villager_ID}-${cert.Permits_ID}`}>
                     <td>{cert.Permits_Type || 'N/A'}</td>
+                    <td>{cert.required_date ? new Date(cert.required_date).toLocaleDateString() : 'N/A'}</td>
                     <td>
                       {cert.certificate_path ? (
                         <a
@@ -142,7 +146,7 @@ const UserPermitCertificates = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="2" className="certificates-no-data">
+                  <td colSpan="3" className="certificates-no-data">
                     No certificates available for you
                   </td>
                 </tr>

@@ -1,47 +1,108 @@
 .family-details-container {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  
-  .family-details-container h2 {
-    text-align: center;
-    margin-bottom: 20px;
-    color: #333;
-  }
-  
-  .family-members-list {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #f9f9f9;
-  }
-  
-  .family-member {
-    margin-bottom: 10px;
-  }
-  
-  .family-member h4 {
-    margin: 0 0 5px;
-    color: #333;
-  }
-  
-  .family-member p {
-    margin: 5px 0;
-    font-size: 14px;
-    color: #555;
-  }
-  
-  .family-details-actions {
-    margin-top: 20px;
-    text-align: center;
-  }
-  
-  .back-button {
-    background-color:#7a1632;
-    color: white;
-  }
-  
-  .back-button:hover {
-    background-color: #C75B7A;
-  }
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.family-details-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.family-members-list {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+}
+
+.family-member {
+  margin-bottom: 10px;
+}
+
+.family-member h4 {
+  margin: 0 0 5px;
+  color: #333;
+}
+
+.family-member p {
+  margin: 5px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.family-details-actions {
+  margin-top: 20px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.back-button {
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+.back-button:hover {
+  background-color: #C75B7A;
+}
+
+.new-born-form, .new-family-member-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.new-born-form div, .new-family-member-form div {
+  display: flex;
+  flex-direction: column;
+}
+
+.new-born-form label, .new-family-member-form label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.new-born-form input, .new-family-member-form input {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.form-actions button {
+  background-color: #7a1632;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.form-actions button:hover {
+  background-color: #C75B7A;
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
+
+.success {
+  color: green;
+  text-align: center;
+}

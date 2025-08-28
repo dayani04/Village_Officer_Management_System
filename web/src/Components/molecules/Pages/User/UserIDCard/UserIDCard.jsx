@@ -4,7 +4,7 @@ import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { fetchNICs } from "../../../../../api/nic";
-import { getProfile } from "../../../../../api/villager"; // Import getProfile
+import { getProfile } from "../../../../../api/villager";
 import "./UserIDCard.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -14,12 +14,29 @@ const UserIDCard = () => {
   const { changeLanguage } = useContext(LanguageContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: "", // Will be set to logged-in user's email
+    email: "",
     type: "",
   });
   const [nicTypes, setNicTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [userAge, setUserAge] = useState(null);
+
+  // Function to calculate age from DOB
+  const calculateAge = (dob) => {
+    if (!dob) {
+      console.log("No DOB provided, returning null");
+      return null;
+    }
+    const dobDate = new Date(dob);
+    const currentDate = new Date("2025-06-12");
+    const age = currentDate.getFullYear() - dobDate.getFullYear();
+    const monthDiff = currentDate.getMonth() - dobDate.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < dobDate.getDate())) {
+      return age - 1;
+    }
+    return age;
+  };
 
   // Fetch logged-in user's profile and NIC types on component mount
   useEffect(() => {
@@ -28,15 +45,41 @@ const UserIDCard = () => {
       try {
         // Fetch logged-in user's profile
         const profile = await getProfile();
+        console.log("Profile fetched:", profile);
         setFormData((prevData) => ({
           ...prevData,
-          email: profile.Email || "", // Set email from profile
+          email: profile.Email || "",
         }));
+
+        // Calculate user age from DOB
+        const age = calculateAge(profile.DOB);
+        console.log("Calculated age:", age);
+        setUserAge(age);
 
         // Fetch NIC types
         const nics = await fetchNICs();
-        console.log("Loaded NIC types:", nics);
-        setNicTypes(nics);
+        console.log("Raw NIC types fetched:", nics);
+
+        // Filter NIC types based on age
+        let filteredNics = nics;
+        if (age !== null) {
+          if (age <= 15) {
+            filteredNics = nics.filter((nic) => nic.NIC_Type === "postal ID Card");
+            console.log("Filtered NICs (age <= 15):", filteredNics);
+          } else if (age >= 16) {
+            filteredNics = nics.filter((nic) => nic.NIC_Type === "National ID Card");
+            console.log("Filtered NICs (age >= 16):", filteredNics);
+          }
+        } else {
+          console.warn("No DOB available, showing no NIC types");
+          filteredNics = [];
+        }
+
+        if (filteredNics.length === 0 && age !== null) {
+          console.warn("No NIC types available after filtering");
+        }
+
+        setNicTypes(filteredNics);
         setLoading(false);
       } catch (err) {
         console.error("Failed to fetch data:", err.response?.data || err.message);
@@ -49,7 +92,7 @@ const UserIDCard = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Only allow changes to fields other than email
+    console.log(`Input changed: ${name} = ${value}`);
     if (name !== "email") {
       setFormData((prevData) => ({
         ...prevData,
@@ -85,6 +128,28 @@ const UserIDCard = () => {
         confirmButtonText: t("ok"),
       });
       return;
+    }
+
+    // Validate NIC type against age
+    if (userAge !== null) {
+      if (userAge <= 15 && formData.type !== "postal ID Card") {
+        Swal.fire({
+          icon: "error",
+          title: t("formValidationTitle"),
+          text: t("ineligibleForNationalID"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
+      if (userAge >= 16 && formData.type !== "National ID Card") {
+        Swal.fire({
+          icon: "error",
+          title: t("formValidationTitle"),
+          text: t("ineligibleForPostalID"),
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
     }
 
     console.log("Navigating to UserIDCardBC with formData:", formData);
@@ -132,7 +197,7 @@ const UserIDCard = () => {
                 onChange={handleInputChange}
                 placeholder={t("emailPlaceholder")}
                 required
-                disabled // Disable the email input
+                disabled
               />
             </div>
 
@@ -144,7 +209,7 @@ const UserIDCard = () => {
                 value={formData.type}
                 onChange={handleInputChange}
                 required
-                disabled={loading || !!error}
+                disabled={loading || !!error || userAge === null}
               >
                 <option value="" disabled>
                   {t("selectIDCardType")}
@@ -153,6 +218,8 @@ const UserIDCard = () => {
                   <option disabled>{t("loading") || "Loading..."}</option>
                 ) : error ? (
                   <option disabled>{error}</option>
+                ) : userAge === null ? (
+                  <option disabled>{t("noDOBAvailable") || "Date of birth not available"}</option>
                 ) : nicTypes.length === 0 ? (
                   <option disabled>{t("noNICsAvailable") || "No NIC types available"}</option>
                 ) : (
@@ -163,6 +230,18 @@ const UserIDCard = () => {
                   ))
                 )}
               </select>
+              {formData.type && (
+                <p className="selected-idcard">
+                  {t("selectedIDCard")}: {t(getTranslationKey(formData.type))}
+                </p>
+              )}
+              {userAge !== null && (
+                <p className="age-restriction-note">
+                  {userAge <= 15
+                    ? t("postalIDRestriction", { age: userAge })
+                    : t("nationalIDRestriction", { age: userAge })}
+                </p>
+              )}
             </div>
 
             <div className="form-idcard-group">
@@ -170,7 +249,7 @@ const UserIDCard = () => {
                 type="button"
                 className="upload-idcard-button"
                 onClick={handleUploadClick}
-                disabled={loading || !!error || !formData.email}
+                disabled={loading || !!error || !formData.email || userAge === null}
               >
                 {t("next")}
               </button>

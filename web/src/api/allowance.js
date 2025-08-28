@@ -14,6 +14,9 @@ api.interceptors.request.use(
     const token = getToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+      console.log("Added token to request:", token);
+    } else {
+      console.warn("No token found for request");
     }
     return config;
   },
@@ -23,7 +26,9 @@ api.interceptors.request.use(
 // Fetch all allowances (GET /allowances/)
 export const fetchAllowances = async () => {
   try {
+    console.log("Fetching allowances from:", `${API_URL}/allowances/`);
     const response = await api.get("/allowances/");
+    console.log("Fetched allowances:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error fetching allowances:", error);
@@ -34,10 +39,25 @@ export const fetchAllowances = async () => {
 // Fetch a single allowance by ID (GET /allowances/:id)
 export const fetchAllowance = async (allowanceId) => {
   try {
+    console.log(`Fetching allowance ${allowanceId} from:`, `${API_URL}/allowances/${allowanceId}`);
     const response = await api.get(`/allowances/${allowanceId}`);
+    console.log(`Fetched allowance ${allowanceId}:`, response.data);
     return response.data;
   } catch (error) {
     console.error(`Error fetching allowance ${allowanceId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+// Check villager's allowance applications (POST /allowances/check-application)
+export const checkVillagerAllowanceApplication = async (villagerId) => {
+  try {
+    console.log(`Checking allowance applications for villager ${villagerId} from:`, `${API_URL}/allowances/check-application`);
+    const response = await api.post("/allowances/check-application", { villagerId });
+    console.log(`Fetched allowance applications for villager ${villagerId}:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error checking allowance applications for villager ${villagerId}:`, error.response || error.message);
     throw error.response ? error.response.data : error.message;
   }
 };

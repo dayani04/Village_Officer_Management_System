@@ -32,7 +32,10 @@ const UserProfile = () => {
     alive_status: 'Alive',
     job: '',
     gender: 'Other',
-    marital_status: 'Unmarried'
+    marital_status: 'Unmarried',
+    dob: '',
+    religion: 'Others',
+    race: 'Sinhalese'
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -78,7 +81,10 @@ const UserProfile = () => {
           alive_status: profileData.Alive_Status || 'Alive',
           job: profileData.Job || '',
           gender: profileData.Gender || 'Other',
-          marital_status: profileData.Marital_Status || 'Unmarried'
+          marital_status: profileData.Marital_Status || 'Unmarried',
+          dob: profileData.DOB ? new Date(profileData.DOB).toISOString().split('T')[0] : '',
+          religion: profileData.Religion || 'Others',
+          race: profileData.Race || 'Sinhalese'
         });
 
         if (profileData.Latitude && profileData.Longitude) {
@@ -129,7 +135,10 @@ const UserProfile = () => {
         alive_status: formData.alive_status,
         job: formData.job,
         gender: formData.gender,
-        marital_status: formData.marital_status
+        marital_status: formData.marital_status,
+        dob: formData.dob,
+        religion: formData.religion,
+        race: formData.race
       };
 
       await api.updateVillager(profile.Villager_ID, updatePayload);
@@ -145,7 +154,10 @@ const UserProfile = () => {
         Alive_Status: formData.alive_status,
         Job: formData.job,
         Gender: formData.gender,
-        Marital_Status: formData.marital_status
+        Marital_Status: formData.marital_status,
+        DOB: formData.dob,
+        Religion: formData.religion,
+        Race: formData.race
       });
       setEditMode(false);
       setError('');
@@ -216,311 +228,355 @@ const UserProfile = () => {
 
   return (
     <section>
-    <NavBar/>
-    <div className="profile-container">
-      <h1>Villager Profile</h1>
-      {error && <div className="error-message">{error}</div>}
+      <NavBar/>
+      <div className="profile-container">
+        <h1>Villager Profile</h1>
+        {error && <div className="error-message">{error}</div>}
 
-      {editMode ? (
-        <form onSubmit={handleEditSubmit} className="profile-form">
-          <div className="profile-field">
-            <label>Full Name:</label>
-            <input
-              type="text"
-              name="full_name"
-              value={formData.full_name}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Email:</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Phone Number:</label>
-            <input
-              type="tel"
-              name="phone_no"
-              value={formData.phone_no}
-              onChange={handleInputChange}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>Address:</label>
-            <input
-              type="text"
-              name="address"
-              value={formData.address}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="profile-field">
-            <label>Regional Division:</label>
-            <input
-              type="text"
-              name="regional_division"
-              value={formData.regional_division}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="profile-field">
-            <label>Job:</label>
-            <input
-              type="text"
-              name="job"
-              value={formData.job}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="profile-field">
-            <label>Gender:</label>
-            <select
-              name="gender"
-              value={formData.gender}
-              onChange={handleInputChange}
-            >
-              <option value="Male">Male</option>
-              <option value="Female">Female</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-          <div className="profile-field">
-            <label>Marital Status:</label>
-            <select
-              name="marital_status"
-              value={formData.marital_status}
-              onChange={handleInputChange}
-            >
-              <option value="Married">Married</option>
-              <option value="Unmarried">Unmarried</option>
-              <option value="Divorced">Divorced</option>
-              <option value="Widowed">Widowed</option>
-              <option value="Separated">Separated</option>
-            </select>
-          </div>
-          <div className="profile-field">
-            <label>Alive Status:</label>
-            <select
-              name="alive_status"
-              value={formData.alive_status}
-              onChange={handleInputChange}
-            >
-              <option value="Alive">Alive</option>
-              <option value="Deceased">Deceased</option>
-            </select>
-          </div>
-          <div className="profile-field">
-            <label>Upcoming Election Participant:</label>
-            <input
-              type="checkbox"
-              name="is_election_participant"
-              checked={formData.is_election_participant}
-              onChange={handleInputChange}
-            />
-          </div>
-          <div className="form-buttons">
-            <button type="submit" className="save-button">
-              Save Changes
-            </button>
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => setEditMode(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : otpMode ? (
-        <form onSubmit={handlePasswordSubmit} className="otp-form">
-          <div className="profile-field">
-            <label>OTP (sent to {profile.Email}):</label>
-            <input
-              type="text"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              required
-            />
-          </div>
-          <div className="profile-field">
-            <label>New Password:</label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-buttons">
-            <button type="submit" className="save-button">
-              Verify & Update Password
-            </button>
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={() => setOtpMode(false)}
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      ) : locationMode ? (
-        <div className="location-section">
-          <h3>{villagerLocation ? 'Your Location' : 'Add Your Location'}</h3>
-          {isLoaded ? (
-            <GoogleMap
-              mapContainerStyle={containerStyle}
-              center={mapCenter}
-              zoom={villagerLocation ? 15 : 10}
-              onLoad={onLoad}
-              onUnmount={onUnmount}
-              onClick={(e) => {
-                const lat = e.latLng.lat();
-                const lng = e.latLng.lng();
-                setLatitude(lat.toFixed(8));
-                setLongitude(lng.toFixed(8));
-              }}
-            >
-              {villagerLocation && <Marker position={villagerLocation} />}
-            </GoogleMap>
-          ) : (
-            <div>Loading Map...</div>
-          )}
-
-          <form onSubmit={handleLocationSubmit} className="location-form">
-            <p>Click on the map to select a location or enter coordinates manually:</p>
+        {editMode ? (
+          <form onSubmit={handleEditSubmit} className="profile-form">
             <div className="profile-field">
-              <label>Latitude:</label>
+              <label>Full Name:</label>
               <input
                 type="text"
-                value={latitude}
-                onChange={(e) => setLatitude(e.target.value)}
-                placeholder="e.g., 6.9271"
+                name="full_name"
+                value={formData.full_name}
+                onChange={handleInputChange}
                 required
               />
             </div>
             <div className="profile-field">
-              <label>Longitude:</label>
+              <label>Email:</label>
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="profile-field">
+              <label>Phone Number:</label>
+              <input
+                type="tel"
+                name="phone_no"
+                value={formData.phone_no}
+                onChange={handleInputChange}
+                required
+              />
+            </div>
+            <div className="profile-field">
+              <label>Date of Birth:</label>
+              <input
+                type="date"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="profile-field">
+              <label>Address:</label>
               <input
                 type="text"
-                value={longitude}
-                onChange={(e) => setLongitude(e.target.value)}
-                placeholder="e.g., 79.8612"
+                name="address"
+                value={formData.address}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="profile-field">
+              <label>Regional Division:</label>
+              <input
+                type="text"
+                name="regional_division"
+                value={formData.regional_division}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="profile-field">
+              <label>Job:</label>
+              <input
+                type="text"
+                name="job"
+                value={formData.job}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="profile-field">
+              <label>Gender:</label>
+              <select
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
+              >
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label>Marital Status:</label>
+              <select
+                name="marital_status"
+                value={formData.marital_status}
+                onChange={handleInputChange}
+              >
+                <option value="Married">Married</option>
+                <option value="Unmarried">Unmarried</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+                <option value="Separated">Separated</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label>Religion:</label>
+              <select
+                name="religion"
+                value={formData.religion}
+                onChange={handleInputChange}
+              >
+                <option value="Buddhism">Buddhism</option>
+                <option value="Hinduism">Hinduism</option>
+                <option value="Islam">Islam</option>
+                <option value="Christianity">Christianity</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label>Race:</label>
+              <select
+                name="race"
+                value={formData.race}
+                onChange={handleInputChange}
+              >
+                <option value="Sinhalese">Sinhalese</option>
+                <option value="Sri Lankan Tamils">Sri Lankan Tamils</option>
+                <option value="Sri Lankan Moors">Sri Lankan Moors</option>
+                <option value="Indian Tamils">Indian Tamils</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label>Alive Status:</label>
+              <select
+                name="alive_status"
+                value={formData.alive_status}
+                onChange={handleInputChange}
+              >
+                <option value="Alive">Alive</option>
+                <option value="Deceased">Deceased</option>
+              </select>
+            </div>
+            <div className="profile-field">
+              <label>Upcoming Election Participant:</label>
+              <input
+                type="checkbox"
+                name="is_election_participant"
+                checked={formData.is_election_participant}
+                onChange={handleInputChange}
+              />
+            </div>
+            <div className="form-buttons">
+              <button type="submit" className="save-button">
+                Save Changes
+              </button>
+              <button
+                type="button"
+                className="cancel-button"
+                onClick={() => setEditMode(false)}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        ) : otpMode ? (
+          <form onSubmit={handlePasswordSubmit} className="otp-form">
+            <div className="profile-field">
+              <label>OTP (sent to {profile.Email}):</label>
+              <input
+                type="text"
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                required
+              />
+            </div>
+            <div className="profile-field">
+              <label>New Password:</label>
+              <input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 required
               />
             </div>
             <div className="form-buttons">
               <button type="submit" className="save-button">
-                {villagerLocation ? 'Update Location' : 'Save Location'}
+                Verify & Update Password
               </button>
               <button
                 type="button"
                 className="cancel-button"
-                onClick={() => setLocationMode(false)}
+                onClick={() => setOtpMode(false)}
               >
-                Back to Profile
+                Cancel
               </button>
             </div>
           </form>
-        </div>
-      ) : (
-        <>
-          <div className="profile-details">
-            <div className="profile-field">
-              <label>Villager ID:</label>
-              <span>{profile.Villager_ID}</span>
-            </div>
-            <div className="profile-field">
-              <label>Full Name:</label>
-              <span>{profile.Full_Name}</span>
-            </div>
-            <div className="profile-field">
-              <label>Email:</label>
-              <span>{profile.Email}</span>
-            </div>
-            <div className="profile-field">
-              <label>Phone Number:</label>
-              <span>{profile.Phone_No}</span>
-            </div>
-            <div className="profile-field">
-              <label>NIC:</label>
-              <span>{profile.NIC || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Date of Birth:</label>
-              <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Address:</label>
-              <span>{profile.Address || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Regional Division:</label>
-              <span>{profile.RegionalDivision || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Job:</label>
-              <span>{profile.Job || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Gender:</label>
-              <span>{profile.Gender || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Marital Status:</label>
-              <span>{profile.Marital_Status || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Status:</label>
-              <span>{profile.Status}</span>
-            </div>
-            <div className="profile-field">
-              <label>Area ID:</label>
-              <span>{profile.Area_ID || 'N/A'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Location:</label>
-              <span>
-                {villagerLocation
-                  ? `Lat: ${villagerLocation.lat.toFixed(8)}, Lng: ${villagerLocation.lng.toFixed(8)}`
-                  : 'Not set'}
-              </span>
-            </div>
-            <div className="profile-field">
-              <label>Upcoming Election Participant:</label>
-              <span>{profile.IsParticipant ? 'Yes' : 'No'}</span>
-            </div>
-            <div className="profile-field">
-              <label>Alive Status:</label>
-              <span>{profile.Alive_Status || 'N/A'}</span>
-            </div>
+        ) : locationMode ? (
+          <div className="location-section">
+            <h3>{villagerLocation ? 'Your Location' : 'Add Your Location'}</h3>
+            {isLoaded ? (
+              <GoogleMap
+                mapContainerStyle={containerStyle}
+                center={mapCenter}
+                zoom={villagerLocation ? 15 : 10}
+                onLoad={onLoad}
+                onUnmount={onUnmount}
+                onClick={(e) => {
+                  const lat = e.latLng.lat();
+                  const lng = e.latLng.lng();
+                  setLatitude(lat.toFixed(8));
+                  setLongitude(lng.toFixed(8));
+                }}
+              >
+                {villagerLocation && <Marker position={villagerLocation} />}
+              </GoogleMap>
+            ) : (
+              <div>Loading Map...</div>
+            )}
+
+            <form onSubmit={handleLocationSubmit} className="location-form">
+              <p>Click on the map to select a location or enter coordinates manually:</p>
+              <div className="profile-field">
+                <label>Latitude:</label>
+                <input
+                  type="text"
+                  value={latitude}
+                  onChange={(e) => setLatitude(e.target.value)}
+                  placeholder="e.g., 6.9271"
+                  required
+                />
+              </div>
+              <div className="profile-field">
+                <label>Longitude:</label>
+                <input
+                  type="text"
+                  value={longitude}
+                  onChange={(e) => setLongitude(e.target.value)}
+                  placeholder="e.g., 79.8612"
+                  required
+                />
+              </div>
+              <div className="form-buttons">
+                <button type="submit" className="save-button">
+                  {villagerLocation ? 'Update Location' : 'Save Location'}
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setLocationMode(false)}
+                >
+                  Back to Profile
+                </button>
+              </div>
+            </form>
           </div>
-          <div className="profile-actions">
-            <button className="edit-button" onClick={() => setEditMode(true)}>
-              Edit Profile
-            </button>
-            <button className="password-button" onClick={handlePasswordChangeRequest}>
-              Change Password
-            </button>
-            <button className="location-button" onClick={() => setLocationMode(true)}>
-              {villagerLocation ? 'View/Update Location' : 'Add Location'}
-            </button>
-            <button className="back-button" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-    <Footer/>
+        ) : (
+          <>
+            <div className="profile-details">
+              <div className="profile-field">
+                <label>Villager ID:</label>
+                <span>{profile.Villager_ID}</span>
+              </div>
+              <div className="profile-field">
+                <label>Full Name:</label>
+                <span>{profile.Full_Name}</span>
+              </div>
+              <div className="profile-field">
+                <label>Email:</label>
+                <span>{profile.Email}</span>
+              </div>
+              <div className="profile-field">
+                <label>Phone Number:</label>
+                <span>{profile.Phone_No}</span>
+              </div>
+              <div className="profile-field">
+                <label>NIC:</label>
+                <span>{profile.NIC || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Date of Birth:</label>
+                <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Address:</label>
+                <span>{profile.Address || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Regional Division:</label>
+                <span>{profile.RegionalDivision || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Job:</label>
+                <span>{profile.Job || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Gender:</label>
+                <span>{profile.Gender || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Marital Status:</label>
+                <span>{profile.Marital_Status || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Religion:</label>
+                <span>{profile.Religion || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Race:</label>
+                <span>{profile.Race || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Status:</label>
+                <span>{profile.Status}</span>
+              </div>
+              <div className="profile-field">
+                <label>Area ID:</label>
+                <span>{profile.Area_ID || 'N/A'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Location:</label>
+                <span>
+                  {villagerLocation
+                    ? `Lat: ${villagerLocation.lat.toFixed(8)}, Lng: ${villagerLocation.lng.toFixed(8)}`
+                    : 'Not set'}
+                </span>
+              </div>
+              <div className="profile-field">
+                <label>Upcoming Election Participant:</label>
+                <span>{profile.IsParticipant ? 'Yes' : 'No'}</span>
+              </div>
+              <div className="profile-field">
+                <label>Alive Status:</label>
+                <span>{profile.Alive_Status || 'N/A'}</span>
+              </div>
+            </div>
+            <div className="profile-actions">
+              <button className="edit-button" onClick={() => setEditMode(true)}>
+                Edit Profile
+              </button>
+              <button className="password-button" onClick={handlePasswordChangeRequest}>
+                Change Password
+              </button>
+              <button className="location-button" onClick={() => setLocationMode(true)}>
+                {villagerLocation ? 'View/Update Location' : 'Add Location'}
+              </button>
+              <button className="back-button" onClick={handleBack}>
+                Back to Dashboard
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+      <Footer/>
     </section>
   );
 };
