@@ -8,13 +8,15 @@ const createNICApplication = async (req, res) => {
     const { email, nicType } = req.body;
     const file = req.file;
 
-    if (!email || !nicType || !file) {
-      return res.status(400).json({ error: "Email, NIC type, and document are required" });
+    if (!email || !nicType) {
+      return res.status(400).json({ error: "Email and NIC type are required" });
     }
 
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.mimetype)) {
-      return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+    if (file) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+      }
     }
 
     const villager = await NICApplication.getVillagerByEmail(email);
@@ -27,12 +29,15 @@ const createNICApplication = async (req, res) => {
       return res.status(404).json({ error: "NIC type not found" });
     }
 
-    const fileName = `${villager.Villager_ID}_${nic.NIC_ID}_${Date.now()}${path.extname(file.originalname)}`;
-    const uploadDir = path.join(__dirname, "../../../Uploads");
-    const documentPath = fileName;
+    let documentPath = null;
+    if (file) {
+      const fileName = `${villager.Villager_ID}_${nic.NIC_ID}_${Date.now()}${path.extname(file.originalname)}`;
+      const uploadDir = path.join(__dirname, "../../../Uploads");
+      documentPath = fileName;
 
-    fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+      fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+    }
 
     const applyDate = new Date().toISOString().split("T")[0];
     await NICApplication.addNICApplication(
@@ -167,7 +172,7 @@ const generateNICReceipt = async (villager, nic, applyDate) => {
          .text(`Confirmation Date: ${confirmationDate}`, 40, 490);
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`හැඳුනුම්පත් වර්ගය: ${nic.NIC_Type || 'N/A'}`, 300, 430)
-         .text(`හැඳුනුම්පත් අංකය: ${nic.NIC_ID || 'N/A'}`, 300, 450)
+         .text(`හැ඾ුනුම්පත් අංකය: ${nic.NIC_ID || 'N/A'}`, 300, 450)
          .text(`අයදුම් දිනය: ${formattedApplyDate}`, 300, 470)
          .text(`තහවුරු කළ දිනය: ${confirmationDate}`, 300, 490);
     } else {

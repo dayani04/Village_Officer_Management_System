@@ -176,6 +176,7 @@ CREATE TABLE villager_has_allowances_recode (
     document_path VARCHAR(255),
     FOREIGN KEY (Villager_ID) REFERENCES Villager(Villager_ID) ON DELETE CASCADE,
     FOREIGN KEY (Allowances_ID) REFERENCES  Allowances_recode(Allowances_ID) ON DELETE CASCADE
+    
 );
 ALTER TABLE  villager_has_allowances_recode MODIFY status ENUM('Pending', 'Send', 'Rejected', 'Confirm') DEFAULT 'Pending';
 

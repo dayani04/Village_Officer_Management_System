@@ -1,6 +1,7 @@
 .permits-container {
   padding: 20px;
-  max-width: 1200px;
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
   background-color: #f9f9f9;
   border-radius: 8px;
@@ -12,29 +13,6 @@
   margin-bottom: 20px;
   color: #333;
   font-size: 24px;
-}
-
-.permits-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-.permits-table th,
-.permits-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.permits-table th {
-  background-color: #7a1632;
-  color: white;
-  font-weight: bold;
-}
-
-.permits-table tr:hover {
-  background-color: #f5f5f5;
 }
 
 .download-link {
@@ -53,8 +31,8 @@
   font-size: 14px;
 }
 
-.view-button {
-  background-color: #7a1632;
+.view-button-confirm {
+  background-color: #000000; /* Changed to black */
   color: white;
   padding: 6px 12px;
   border: none;
@@ -63,11 +41,12 @@
   font-size: 14px;
 }
 
-.view-button:hover {
-  background-color: #C75B7A;
+.view-button-confirm:hover {
+  background-color: #464444; /* Kept the original hover color */
 }
-.confirm-button{
-      background-color: #167a25;
+
+.confirm-button {
+  background-color: #167a25;
   color: white;
   padding: 6px 12px;
   border: none;
@@ -75,9 +54,11 @@
   cursor: pointer;
   font-size: 14px;
 }
-.confirm-button:hover{
-      background-color: #5bc781;
+
+.confirm-button:hover {
+  background-color: #5bc781;
 }
+
 .permits-actions {
   text-align: center;
 }
@@ -94,4 +75,38 @@
 
 .back-button:hover {
   background-color: #C75B7A;
+}
+
+.permits-no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+/* Additional styles for react-data-table-component */
+.rdt_Table {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.rdt_TableHeadRow {
+  background-color: #9ca3af !important; /* Lighter gray as requested */
+  color: white !important;
+}
+
+.rdt_TableRow:hover {
+  background-color: #f5f5f5;
+}
+
+.rdt_Pagination {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: white;
+}
+.permits-container h1 {
+  text-align: left; /* Changed from center to left */
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
 }

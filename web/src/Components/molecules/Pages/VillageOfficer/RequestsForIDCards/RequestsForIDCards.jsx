@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import DataTable from 'react-data-table-component';
 import * as nicApplicationApi from '../../../../../api/nicApplication';
 import './RequestsForIDCards.css';
 
@@ -16,7 +17,6 @@ const RequestsForIDCards = () => {
       try {
         const data = await nicApplicationApi.fetchNICApplications();
         console.log('Fetched NIC applications:', data);
-        // Filter applications to include only those with status 'Pending'
         const pendingApplications = data.filter(app => app.status === 'Pending');
         setApplications(pendingApplications);
         setLoading(false);
@@ -77,7 +77,6 @@ const RequestsForIDCards = () => {
 
     try {
       await nicApplicationApi.updateNICApplicationStatus(villagerId, nicId, newStatus);
-      // Remove the application from the list if its status is no longer 'Pending'
       setApplications(applications.filter(app =>
         !(app.Villager_ID === villagerId && app.NIC_ID === nicId)
       ));
@@ -88,7 +87,7 @@ const RequestsForIDCards = () => {
       });
       toast.success('Status updated successfully', {
         style: {
-          background: '#6ac476', // Corrected to match success color
+          background: '#6ac476',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -97,7 +96,7 @@ const RequestsForIDCards = () => {
       console.error('Status update error:', err);
       toast.error(err.error || 'Failed to update status', {
         style: {
-          background: '#f43f3f', // Corrected to match error color
+          background: '#f43f3f',
           color: '#fff',
           borderRadius: '4px',
         },
@@ -136,6 +135,80 @@ const RequestsForIDCards = () => {
     navigate('/dashboard');
   };
 
+  const columns = [
+    {
+      name: 'Villager Name',
+      selector: row => row.Full_Name,
+      sortable: true,
+    },
+    {
+      name: 'Villager ID',
+      selector: row => row.Villager_ID,
+      sortable: true,
+    },
+    {
+      name: 'NIC Type',
+      selector: row => row.NIC_Type,
+      sortable: true,
+    },
+    {
+      name: 'Apply Date',
+      selector: row => new Date(row.apply_date).toLocaleDateString(),
+      sortable: true,
+    },
+    {
+      name: 'Document',
+      cell: row => (
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleDownload(row.document_path);
+          }}
+          className="download-link"
+        >
+          Download
+        </a>
+      ),
+    },
+    {
+      name: 'Status',
+      cell: row => (
+        <select
+          value={pendingStatuses[`${row.Villager_ID}-${row.NIC_ID}`] || row.status || 'Pending'}
+          onChange={(e) => handleStatusSelect(row.Villager_ID, row.NIC_ID, e.target.value)}
+          className="status-select"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Send">Send</option>
+          
+        </select>
+      ),
+    },
+    {
+      name: 'Status Action',
+      cell: row => (
+        <button
+          className="confirm-button"
+          onClick={() => handleStatusConfirm(row.Villager_ID, row.NIC_ID)}
+        >
+          Confirm
+        </button>
+      ),
+    },
+    {
+      name: 'Action',
+      cell: row => (
+        <button
+          className="view-button-requests"
+          onClick={() => handleViewDetails(row.Villager_ID)}
+        >
+          View
+        </button>
+      ),
+    },
+  ];
+
   if (loading) {
     return <div className="requests-container">Loading...</div>;
   }
@@ -147,75 +220,47 @@ const RequestsForIDCards = () => {
   return (
     <div className="requests-container">
       <h1>NIC Applications</h1>
-      <table className="requests-table">
-        <thead>
-          <tr>
-            <th>Villager Name</th>
-            <th>Villager ID</th>
-            <th>NIC Type</th>
-            <th>Apply Date</th>
-            <th>Document</th>
-            <th>Status</th>
-            <th>Status Action</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applications.map((app) => (
-            <tr key={`${app.Villager_ID}-${app.NIC_ID}`}>
-              <td>{app.Full_Name}</td>
-              <td>{app.Villager_ID}</td>
-              <td>{app.NIC_Type}</td>
-              <td>{new Date(app.apply_date).toLocaleDateString()}</td>
-              <td>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDownload(app.document_path);
-                  }}
-                  className="download-link"
-                >
-                  Download
-                </a>
-              </td>
-              <td>
-                <select
-                  value={pendingStatuses[`${app.Villager_ID}-${app.NIC_ID}`] || app.status || 'Pending'}
-                  onChange={(e) => handleStatusSelect(app.Villager_ID, app.NIC_ID, e.target.value)}
-                  className="status-select"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Send">Send</option>
-                  <option value="Rejected">Rejected</option>
-                  <option value="Confirm">Confirm</option>
-                </select>
-              </td>
-              <td>
-                <button
-                  className="confirm-button"
-                  onClick={() => handleStatusConfirm(app.Villager_ID, app.NIC_ID)}
-                >
-                  Confirm
-                </button>
-              </td>
-              <td>
-                <button
-                  className="view-button"
-                  onClick={() => handleViewDetails(app.Villager_ID)}
-                >
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="requests-actions">
-        <button className="back-button" onClick={handleBack}>
-          Back to Dashboard
-        </button>
-      </div>
+      <DataTable
+        columns={columns}
+        data={applications}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="requests-no-data">No pending applications found.</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af', // Lighter gray as requested
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+              borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: {
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
+            },
+          },
+        }}
+      />
+   
       <Toaster />
     </div>
   );

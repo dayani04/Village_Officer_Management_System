@@ -14,7 +14,7 @@ const OptionCard = ({ imgSrc, altText, buttonText, linkTo }) => {
     navigate(linkTo);
   };
 
-  return (
+  return ( 
     
     <div className="optioncd-card">
       <img src={imgSrc} alt={altText} className="cardcd-image" />

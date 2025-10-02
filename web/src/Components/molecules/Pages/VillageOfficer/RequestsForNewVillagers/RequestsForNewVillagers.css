@@ -1,37 +1,18 @@
 .new-villagers-container {
   padding: 20px;
-  max-width: 1200px;
+  width: 100%;
+  height: 100%;
   margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .new-villagers-container h1 {
   text-align: center;
   margin-bottom: 20px;
   color: #333;
-}
-
-.new-villagers-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.new-villagers-table th,
-.new-villagers-table td {
-  padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.new-villagers-table th {
-  background-color: #9C284F;
-  color: white;
-}
-
-.new-villagers-table tr:hover {
-  background-color: #f5f5f5;
+  font-size: 24px;
 }
 
 .download-link {
@@ -45,6 +26,7 @@
 
 .new-villagers-actions {
   text-align: center;
+  margin-top: 20px;
 }
 
 .back-button {
@@ -59,4 +41,39 @@
 
 .back-button:hover {
   background-color: #7a1f3d;
+}
+
+.new-villagers-no-data {
+  text-align: center;
+  padding: 20px;
+  color: #333;
+}
+
+/* Styles for react-data-table-component */
+.rdt_Table {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
+}
+
+.rdt_TableHeadRow {
+  background-color: #9ca3af !important; /* Lighter gray for consistency */
+  color: white !important;
+  font-weight: bold;
+}
+
+.rdt_TableRow:hover {
+  background-color: #f5f5f5;
+}
+
+.rdt_Pagination {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: white;
+}
+.new-villagers-container h1 {
+  text-align: left; /* Changed from center to left */
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
 }

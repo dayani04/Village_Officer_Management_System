@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import DataTable from 'react-data-table-component';
 import * as villagerApi from '../../../../../api/villager';
 import { TbMail } from 'react-icons/tb';
 import './EligibleVoters.css';
@@ -19,7 +20,7 @@ const EligibleVoters = () => {
         const eligibleVoters = data.filter((villager) => {
           if (!villager.DOB || typeof villager.DOB !== 'string') return false;
           const dob = new Date(villager.DOB);
-          if (isNaN(dob.getTime())) return false; // Skip invalid dates
+          if (isNaN(dob.getTime())) return false;
           const today = new Date('2025-05-25');
           const age = today.getFullYear() - dob.getFullYear();
           const monthDiff = today.getMonth() - dob.getMonth();
@@ -96,85 +97,68 @@ const EligibleVoters = () => {
     return age;
   };
 
+  const columns = [
+    {
+      name: 'User ID',
+      selector: row => row.Villager_ID || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Full Name',
+      selector: row => row.Full_Name || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Address',
+      selector: row => row.Address || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'DOB',
+      selector: row => formatDate(row.DOB),
+      sortable: true,
+    },
+    {
+      name: 'Age',
+      selector: row => calculateAge(row.DOB),
+      sortable: true,
+    },
+    {
+      name: 'Regional Division',
+      selector: row => row.RegionalDivision || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Status',
+      selector: row => row.Status || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Area ID',
+      selector: row => row.Area_ID || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Action',
+      cell: row => (
+        <div className="eligible-voters-action-buttons">
+          <button
+            className={`eligible-voters-send-btn ${sentNotifications.has(row.Villager_ID) ? 'sent' : ''}`}
+            onClick={() => handleSendNotification(row.Villager_ID, row.Full_Name)}
+            title="Send Notification"
+          >
+            <TbMail />
+          </button>
+        </div>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="eligible-voters-container">Loading...</div>
-      </section>
-    );
-  }
-
-  if (error) {
-    return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="eligible-voters-container">
-          <h1>Voters (Age 18)</h1>
-          <p>Error: {error}</p>
-          <div className="eligible-voters-actions">
-            <button className="eligible-voters-back-btn" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-          <Toaster />
-        </div>
-      </section>
-    );
-  }
-
-  return (
-    <section className="w-full h-full flex flex-col p-4">
       <div className="eligible-voters-container">
         <h1>Voters (Age 18)</h1>
-        <div className="eligible-voters-table-wrapper">
-          <table className="eligible-voters-table">
-            <thead>
-              <tr>
-                <th>User ID</th>
-                <th>Full Name</th>
-                <th>Address</th>
-                <th>DOB</th>
-                <th>Age</th>
-                <th>Regional Division</th>
-                <th>Status</th>
-                <th>Area ID</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {voters.length > 0 ? (
-                voters.map((voter) => (
-                  <tr key={voter.Villager_ID}>
-                    <td>{voter.Villager_ID || 'N/A'}</td>
-                    <td>{voter.Full_Name || 'N/A'}</td>
-                    <td>{voter.Address || 'N/A'}</td>
-                    <td>{formatDate(voter.DOB)}</td>
-                    <td>{calculateAge(voter.DOB)}</td>
-                    <td>{voter.RegionalDivision || 'N/A'}</td>
-                    <td>{voter.Status || 'N/A'}</td>
-                    <td>{voter.Area_ID || 'N/A'}</td>
-                    <td>
-                      <div className="eligible-voters-action-buttons">
-                        <button
-                          className={`eligible-voters-send-btn ${sentNotifications.has(voter.Villager_ID) ? 'sent' : ''}`}
-                          onClick={() => handleSendNotification(voter.Villager_ID, voter.Full_Name)}
-                          title="Send Notification"
-                        >
-                          <TbMail />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="9" className="eligible-voters-no-data">
-                    No voters aged 18 found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <div>Loading...</div>
         <div className="eligible-voters-actions">
           <button className="eligible-voters-back-btn" onClick={handleBack}>
             Back to Dashboard
@@ -182,7 +166,70 @@ const EligibleVoters = () => {
         </div>
         <Toaster />
       </div>
-    </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="eligible-voters-container">
+        <h1>Voters (Age 18)</h1>
+        <p>Error: {error}</p>
+        <div className="eligible-voters-actions">
+          <button className="eligible-voters-back-btn" onClick={handleBack}>
+            Back to Dashboard
+          </button>
+        </div>
+        <Toaster />
+      </div>
+    );
+  }
+
+  return (
+    <div className="eligible-voters-container">
+      <h1>Voters (Age 18)</h1>
+      <DataTable
+        columns={columns}
+        data={voters}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="eligible-voters-no-data">No voters aged 18 found</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+              borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: {
+              '&:hover': {
+                backgroundColor: '#f1f1f1',
+              },
+            },
+          },
+        }}
+      />
+    
+      <Toaster />
+    </div>
   );
 };
 

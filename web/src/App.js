@@ -13,11 +13,12 @@ import OfficeSupport from './Components/molecules/Pages/OfficeSupport/OfficeSupp
 import PrivacyPolicy from './Components/molecules/Pages/PrivacyPolicy/PrivacyPolicy';
 import AboutUs from './Components/molecules/Pages/AboutUs/AboutUs';
 import ContactUs from './Components/molecules/Pages/Contact/Contact';
+import DocumentUpload from './Components/molecules/Pages/User/UserProfile/DocumentUpload';
 
 // User Family Details
 import FamilyDetails from './Components/molecules/Pages/User/UserFamilyDetails/FamilyDetails';
- import NewBornRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewBornRequest';
- import NewFamilyMemberRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewFamilyMemberRequest';
+import NewBornRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewBornRequest';
+import NewFamilyMemberRequest from './Components/molecules/Pages/User/UserFamilyDetails/NewFamilyMemberRequest';
 
 // User Election
 import UserElection from './Components/molecules/Pages/User/UserElection/UserElection';
@@ -37,12 +38,14 @@ import UserNICReceipt from './Components/molecules/Pages/User/UserIDCard/UserNIC
 // User Certificates
 import UserCertificatesBC from './Components/molecules/Pages/User/UserCertificates/UserCertificatesBC';
 import UserCertificates from './Components/molecules/Pages/User/UserCertificates/UserCertificates';
+import ViewCertificate from './Components/molecules/Pages/User/UserCertificates/ViewCertificate';
 
 // User Permits
 import UserPermitsID from './Components/molecules/Pages/User/UserPermits/UserPermitsID';
 import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPermitsPR';
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
 import UserPermitCertificates from './Components/molecules/Pages/User/UserPermits/UserPermitCertificates';
+import DownloadCertificate from './Components/molecules/Pages/User/UserCertificates/DownloadCertificate';
 
 // User Certificates Download
 import UserCertificatesDownload from './Components/molecules/Pages/User/UserCertificatesDownload/UserCertificatesDownload';
@@ -65,10 +68,8 @@ import EligibleVoters from './Components/molecules/Pages/VillageOfficer/Eligible
 import AddVillagers from './Components/molecules/Pages/VillageOfficer/AddVillagers/AddVillagers';
 import Houses from './Components/molecules/Pages/VillageOfficer/Houses/Houses';
 
-
 // Village Officer ID Card
 import RequestsForIDCardsVillagerDetails from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCardsVillagerDetails';
-//import IDCardVillagerDetails from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/IDCardVillagerDetails';
 import RequestsForIDCards from './Components/molecules/Pages/VillageOfficer/RequestsForIDCards/RequestsForIDCards';
 
 // Village Officer Election
@@ -95,12 +96,11 @@ import AllowanceOwnersDetails from './Components/molecules/Pages/VillageOfficer/
 // Village Officer Notification
 import AdminNotification from './Components/molecules/Pages/VillageOfficer/VillageOfficerNotification/AdminNotification';
 
- // Village Officer New Family Members
+// Village Officer New Family Members
 import RequestsForNewVillagers from './Components/molecules/Pages/VillageOfficer/RequestsForNewVillagers/RequestsForNewVillagers';
 
- // Village Officer New Born Requests
+// Village Officer New Born Requests
 import RequestsForNewBorn from './Components/molecules/Pages/VillageOfficer/RequestsForNewBorn/RequestsForNewBorn';
-
 
 // Secretary Dashboard Imports
 // Secretary Dashboard
@@ -130,9 +130,10 @@ import SecretaryNICApplicationsVillagerView from './Components/molecules/Pages/S
 
 // Secretary Election 
 import SecretaryElectionApplications from './Components/molecules/Pages/Secretary/SecretaryElectionApplications/SecretaryElectionApplications';
-import  SecretaryElectionApplicationsVillagerView from './Components/molecules/Pages/Secretary/SecretaryElectionApplications/SecretaryElectionApplicationsVillagerView';
+import SecretaryElectionApplicationsVillagerView from './Components/molecules/Pages/Secretary/SecretaryElectionApplications/SecretaryElectionApplicationsVillagerView';
 import SecretaryElectionOwnersView from './Components/molecules/Pages/Secretary/SecretaryElectionApplications/SecretaryElectionOwnersView';
 import SecretaryElectionOwners from './Components/molecules/Pages/Secretary/SecretaryElectionApplications/SecretaryElectionOwners';
+
 // Secretary Allowance 
 import SecretaryAllowanceApplications from './Components/molecules/Pages/Secretary/SecretaryAllowanceApplications/SecretaryAllowanceApplications';
 import SecretaryAllowanceOwnersView from './Components/molecules/Pages/Secretary/SecretaryAllowanceApplications/SecretaryAllowanceOwnersView';
@@ -148,7 +149,7 @@ function App() {
           <Route path="/" element={<Home />} />
 
           {/* User Routes */}
-          {/* User presonal details and others */}
+          {/* User personal details and others */}
           <Route path="/user_login" element={<UserLogin />} />
           <Route path="/forgot_password" element={<ForgotPassword />} />
           <Route path="/user_profile" element={<UserProfile />} />
@@ -159,6 +160,7 @@ function App() {
           <Route path="/contact_us" element={<ContactUs />} />
           <Route path="/villager_location_search" element={<VillagerLocationSearch />} />
           <Route path="/user_dashboard" element={<UserDashboard />} />
+          <Route path="/upload-documents" element={<DocumentUpload />} /> {/* Fixed route path */}
 
           {/* User Family Details */}
           <Route path="/family_details" element={<FamilyDetails />} />
@@ -183,6 +185,8 @@ function App() {
           {/* User Certificates */}
           <Route path="/user_certificates_bc" element={<UserCertificatesBC />} />
           <Route path="/user_certificates" element={<UserCertificates />} />
+          <Route path="/view-certificate" element={<ViewCertificate />} />
+          <Route path="/download-certificate" element={<DownloadCertificate />} />
 
           {/* User Permits */}
           <Route path="/user_permits_pr" element={<UserPermitsPR />} />
@@ -193,9 +197,6 @@ function App() {
           {/* User Certificates Download */}
           <Route path="/user_certificates_download" element={<UserCertificatesDownload />} />
           
-          
-         
-
           {/* Village Officer Dashboard with nested routes */}
           <Route element={<DashboardLayout />}>
             <Route path="/VillageOfficerDashBoard" element={<VillageOfficerDashBoard />} />
@@ -224,39 +225,36 @@ function App() {
             <Route path="/permit-villager-details/:villagerId" element={<RequestsForPermitsVillagerDetails />} />
             <Route path="/permits_owner_details/:villagerId" element={<PermitsOwnerDetails />} />
             
-            {/*villager officers nic */}
+            {/* Village officers NIC */}
             <Route path="/requests-for-id-cards" element={<RequestsForIDCards />} />
             <Route path="/id-villager-details/:villagerId" element={<RequestsForIDCardsVillagerDetails />} />
 
-            {/*villager officers election*/}
+            {/* Village officers election */}
             <Route path="/election-villager-details/:villagerId" element={<RequestsForElectionsVillagerDetails />} />
             <Route path="/requests-for-elections" element={<RequestsForElections />} />
 
-             {/*villager officers allowances*/}
+            {/* Village officers allowances */}
             <Route path="/requests-for-allowances" element={<RequestsForAllowances />} /> 
             <Route path="/requests_for_allowances_villager_details/:villagerId" element={<RequestsForAllowancesVillagerDetails />} />
             <Route path="/allowances_owners" element={<AllowanceOwners />} /> 
-            <Route path="/allowances_owners_details/:villagerId" element={<AllowanceOwnersDetails/>} />
+            <Route path="/allowances_owners_details/:villagerId" element={<AllowanceOwnersDetails />} />
             
             {/* Village Officer Notification */}
             <Route path="/admin_notification" element={<AdminNotification />} />
 
-            {/* Village Officer New Bron */}
-             <Route path="/requests-for-new-born" element={<RequestsForNewBorn />} />
+            {/* Village Officer New Born */}
+            <Route path="/requests-for-new-born" element={<RequestsForNewBorn />} />
             
             {/* Village Officer New Villager */}
             <Route path="/requests-for-new-villagers" element={<RequestsForNewVillagers />} />
            
-           
           </Route>
-
-
 
           {/* Secretary Dashboard with nested routes */}
           <Route element={<DashboardLayoutS />}>
             <Route path="/SecretaryDashBoard" element={<SecretaryDashBoard />} />
            
-            {/*secretary villager officers*/}
+            {/* Secretary villager officers */}
             <Route path="/secretary-villager-officers" element={<SecretaryVillagerOfficer />} />
             <Route path="/secretary-villager-officers/view/:id" element={<ViewVillageOfficer />} />
             <Route path="/secretary-villager-officers/add" element={<AddSecretaryVillagerOfficer />} />
@@ -264,16 +262,15 @@ function App() {
             <Route path="/secretary-villagers" element={<SecretaryVillagers />} />
             <Route path="/secretary-villagers/view/:id" element={<SecretaryViewVillager />} />
 
-            {/*secretary profile*/}
-            <Route path="/secretary-profile" element={< SecretaryProfile />} />
+            {/* Secretary profile */}
+            <Route path="/secretary-profile" element={<SecretaryProfile />} />
 
             {/* Secretary certificate */}
-            <Route path="editable-certificate/:applicationId" element={<EditableCertificate/>} />
+            <Route path="/editable-certificate/:applicationId" element={<EditableCertificate />} />
            
-
             {/* Secretary permit */}
             <Route path="/secretary_permit_applications" element={<SecretaryPermitApplications />} />
-            <Route path="/secretary_permit_applications_villager_view/:id" element={<SecretaryPermitApplicationsVillagerView/>} />
+            <Route path="/secretary_permit_applications_villager_view/:id" element={<SecretaryPermitApplicationsVillagerView />} />
             <Route path="/secretary_permits_owner" element={<SecretaryPermitsOwner />} /> 
             <Route path="/secretary_permits_owner_view/:id" element={<SecretaryPermitsOwnerView />} />
 
@@ -281,17 +278,17 @@ function App() {
             <Route path="/secretary_nic_applications_villager_view/:id" element={<SecretaryNICApplicationsVillagerView />} />
             <Route path="/secretary_nic_applications" element={<SecretaryNICApplications />} /> 
 
-            {/* Secretary Election  */}
-            <Route path="/secretary_election_applications" element={<SecretaryElectionApplications/>} />
-            <Route path="/secretary_election_owners" element={<SecretaryElectionOwners/>} />
-            <Route path="/secretary_election_owners_view/:id" element={<SecretaryElectionOwnersView/>} />
-            <Route path="/secretary_election_applications_villager_view/:id" element={<SecretaryElectionApplicationsVillagerView/>} />
+            {/* Secretary Election */}
+            <Route path="/secretary_election_applications" element={<SecretaryElectionApplications />} />
+            <Route path="/secretary_election_owners" element={<SecretaryElectionOwners />} />
+            <Route path="/secretary_election_owners_view/:id" element={<SecretaryElectionOwnersView />} />
+            <Route path="/secretary_election_applications_villager_view/:id" element={<SecretaryElectionApplicationsVillagerView />} />
 
-             {/* Secretary Allowance  */}
-            <Route path="/secretary_allowance_applications" element={<SecretaryAllowanceApplications/>} />
-            <Route path="/secretary_allowance_owners_view/:id" element={<SecretaryAllowanceOwnersView/>} />
-            <Route path="/secretary_allowance_applications_villager-view/:id" element={<SecretaryAllowanceApplicationsVillagerView/>} />
-            <Route path="/secretary_allowance_owners" element={<SecretaryAllowanceOwners/>} />
+            {/* Secretary Allowance */}
+            <Route path="/secretary_allowance_applications" element={<SecretaryAllowanceApplications />} />
+            <Route path="/secretary_allowance_owners_view/:id" element={<SecretaryAllowanceOwnersView />} />
+            <Route path="/secretary_allowance_applications_villager-view/:id" element={<SecretaryAllowanceApplicationsVillagerView />} />
+            <Route path="/secretary_allowance_owners" element={<SecretaryAllowanceOwners />} />
             
           </Route>
         </Routes>

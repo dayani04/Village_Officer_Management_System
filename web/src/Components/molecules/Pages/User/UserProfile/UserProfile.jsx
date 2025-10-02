@@ -569,6 +569,9 @@ const UserProfile = () => {
               <button className="location-button" onClick={() => setLocationMode(true)}>
                 {villagerLocation ? 'View/Update Location' : 'Add Location'}
               </button>
+              <button className="upload-button" onClick={() => navigate('/upload-documents')}>
+                Upload Documents
+              </button>
               <button className="back-button" onClick={handleBack}>
                 Back to Dashboard
               </button>

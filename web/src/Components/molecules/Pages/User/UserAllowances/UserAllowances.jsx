@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchAllowances, checkVillagerAllowanceApplication } from "../../../../../api/allowance";
+import { fetchAllowances, checkVillagerAllowanceApplication, submitAllowanceApplication } from "../../../../../api/allowance";
 import { getProfile } from "../../../../../api/villager";
 import "./UserAllowances.css";
 import NavBar from "../../../NavBar/NavBar";
@@ -107,12 +107,12 @@ const UserAllowances = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = () => {
+  const handleSubmit = async () => {
     if (!formData.email || !formData.type) {
       Swal.fire({
         icon: "error",
         title: t("formValidationTitle"),
-        text: t("formValidationMessage"),
+        text: t("allFieldsRequired"),
         confirmButtonText: t("ok"),
       });
       return;
@@ -148,8 +148,32 @@ const UserAllowances = () => {
       return;
     }
 
-    console.log("Navigating to UserAllowancesBC with formData:", formData);
-    navigate("/user_allowances_bc", { state: { formData } });
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("allowanceType", formData.type);
+
+      await submitAllowanceApplication(formDataToSend);
+
+      Swal.fire({
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        icon: "success",
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/user_dashboard");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLanguageChange = (lang) => {
@@ -254,11 +278,11 @@ const UserAllowances = () => {
             <div className="form-allowances-group">
               <button
                 type="button"
-                className="upload-allowance-button"
-                onClick={handleUploadClick}
+                className="submit-allowance-button"
+                onClick={handleSubmit}
                 disabled={loading || !!error || !formData.email || userAge === null}
               >
-                {t("next")}
+                {loading ? t("submitting") : t("submit")}
               </button>
             </div>
           </form>

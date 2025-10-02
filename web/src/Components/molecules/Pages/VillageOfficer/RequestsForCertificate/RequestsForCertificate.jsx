@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import DataTable from 'react-data-table-component';
 import * as certificateApi from '../../../../../api/certificateApplication';
-import VillageOfficerDashBoard from '../VillageOfficerDashBoard/VillageOfficerDashBoard';
 import './RequestsForCertificate.css';
 
 const RequestsForCertificate = () => {
@@ -15,16 +15,16 @@ const RequestsForCertificate = () => {
   useEffect(() => {
     const fetchApplications = async () => {
       try {
-        console.log('Fetching certificate applications');
+        console.log("Fetching certificate applications");
         const data = await certificateApi.fetchCertificateApplications();
-        console.log('Certificate applications:', data);
+        console.log('Fetched certificate applications:', data);
         setApplications(data);
         setLoading(false);
       } catch (err) {
         console.error('Fetch error:', err);
-        setError(err.message || 'Failed to fetch certificate applications');
+        setError(err?.response?.data?.error || err.message || 'Failed to fetch certificate applications');
         setLoading(false);
-        toast.error(err.message || 'Failed to fetch certificate applications', {
+        toast.error(err?.response?.data?.error || err.message || 'Failed to fetch certificate applications', {
           style: {
             background: '#f43f3f',
             color: '#fff',
@@ -38,7 +38,7 @@ const RequestsForCertificate = () => {
   }, []);
 
   const handleStatusSelect = (villagerId, applicationId, newStatus) => {
-    if (!['Pending', 'Approved', 'Rejected'].includes(newStatus)) {
+    if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
       toast.error('Invalid status selected.', {
         style: {
           background: '#f43f3f',
@@ -49,7 +49,7 @@ const RequestsForCertificate = () => {
       return;
     }
 
-    console.log('Selected status:', { villagerId, applicationId, newStatus });
+    console.log(`Selected status ${newStatus} for application ID: ${applicationId}, Villager ID: ${villagerId}`);
     setPendingStatuses({
       ...pendingStatuses,
       [`${villagerId}-${applicationId}`]: newStatus,
@@ -80,30 +80,43 @@ const RequestsForCertificate = () => {
       return;
     }
 
-    console.log('Confirming status change:', { villagerId, applicationId, newStatus });
-
     try {
-      await certificateApi.updateCertificateApplicationStatus(applicationId, newStatus);
-      setApplications(applications.map(app =>
-        app.application_id === applicationId
-          ? { ...app, status: newStatus }
-          : app
-      ));
+      console.log(`Confirming status update for application ID: ${applicationId} to ${newStatus}`);
+      const response = await certificateApi.updateCertificateApplicationStatus(applicationId, newStatus);
+      
+      // Update the status in the applications state instead of filtering out the row
+      setApplications(prevApplications =>
+        prevApplications.map(app =>
+          app.application_id === applicationId ? { ...app, status: newStatus } : app
+        )
+      );
+      
+      // Clear the pending status for this application
       setPendingStatuses(prev => {
         const updated = { ...prev };
         delete updated[`${villagerId}-${applicationId}`];
         return updated;
       });
+      
       toast.success('Status updated successfully', {
         style: {
-          background: '#7a1632',
+          background: '#6ac476',
           color: '#fff',
           borderRadius: '4px',
         },
       });
+      if (response.warning) {
+        toast.warn(response.warning, {
+          style: {
+            background: '#f1c40f',
+            color: '#fff',
+            borderRadius: '4px',
+          },
+        });
+      }
     } catch (err) {
-      console.error('Status update error:', err);
-      toast.error(err.message || 'Failed to update status', {
+      console.error('Status update error for application ID:', applicationId, err);
+      toast.error(err?.response?.data?.error || err.message || 'Failed to update status', {
         style: {
           background: '#f43f3f',
           color: '#fff',
@@ -115,17 +128,18 @@ const RequestsForCertificate = () => {
 
   const handleDownload = async (filename) => {
     try {
+      console.log(`Downloading document: ${filename}`);
       await certificateApi.downloadDocument(filename);
       toast.success('Document download initiated', {
         style: {
-          background: '#7a1632',
+          background: '#6ac476',
           color: '#fff',
           borderRadius: '4px',
         },
       });
     } catch (err) {
       console.error('Download error:', err);
-      toast.error(err.message || 'Failed to download document', {
+      toast.error(err?.response?.data?.error || err.message || 'Failed to download document', {
         style: {
           background: '#f43f3f',
           color: '#fff',
@@ -145,164 +159,178 @@ const RequestsForCertificate = () => {
     navigate(`/editable-certificate/${applicationId}`);
   };
 
-  const handleDownloadCertificate = async (certificatePath) => {
-    try {
-      await certificateApi.downloadDocument(certificatePath);
-      toast.success('Certificate download initiated', {
-        style: {
-          background: '#7a1632',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-    } catch (err) {
-      console.error('Certificate download error:', err);
-      toast.error(err.message || 'Failed to download certificate', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-    }
-  };
-
   const handleBack = () => {
-    navigate('/dashboard');
+    console.log('Navigating back to dashboard');
+    navigate('/VillageOfficerDashBoard');
   };
 
-  const sortedApplications = applications.sort((a, b) => {
-    // Sort by status (Pending first)
-    if (a.status === 'Pending' && b.status !== 'Pending') return -1;
-    if (a.status !== 'Pending' && b.status === 'Pending') return 1;
-    
-    // If same status, sort by date (newest first)
-    return new Date(b.apply_date) - new Date(a.apply_date);
-  });
+  const filteredAndSortedApplications = applications
+    .filter(app => app.status === 'Pending' || app.status === 'Rejected' || app.status === 'Confirm' || app.status === 'Send')
+    .sort((a, b) => {
+      if (a.status === 'Pending' && b.status !== 'Pending') return -1;
+      if (a.status !== 'Pending' && b.status === 'Pending') return 1;
+      return new Date(b.apply_date) - new Date(a.apply_date);
+    });
+
+  const columns = [
+    {
+      name: 'Villager Name',
+      selector: row => row.Full_Name,
+      sortable: true,
+    },
+    {
+      name: 'Villager ID',
+      selector: row => row.Villager_ID,
+      sortable: true,
+    },
+    {
+      name: 'Application ID',
+      selector: row => row.application_id,
+      sortable: true,
+    },
+    {
+      name: 'Apply Date',
+      selector: row => new Date(row.apply_date).toLocaleDateString(),
+      sortable: true,
+    },
+    {
+      name: 'Reason',
+      selector: row => row.reason || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Document',
+      cell: row => (
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleDownload(row.document_path);
+          }}
+          className="download-link"
+        >
+          Download
+        </a>
+      ),
+    },
+    {
+      name: 'Status',
+      cell: row => (
+        <select
+          value={pendingStatuses[`${row.Villager_ID}-${row.application_id}`] || row.status || 'Pending'}
+          onChange={(e) => handleStatusSelect(row.Villager_ID, row.application_id, e.target.value)}
+          className="status-select"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Send">Send</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Confirm">Confirm</option>
+        </select>
+      ),
+    },
+    {
+      name: 'Status Action',
+      cell: row => (
+        <button
+          className="confirm-button"
+          onClick={() => handleStatusConfirm(row.Villager_ID, row.application_id)}
+        >
+          Confirm
+        </button>
+      ),
+    },
+    {
+      name: 'Action',
+      cell: row => (
+        <button
+          className="view-button-allowances"
+          onClick={() => handleViewDetails(row.Villager_ID)}
+        >
+          View
+        </button>
+      ),
+    },
+    {
+      name: 'Send Certificate',
+      cell: row => (
+        <button
+          className="confirm-button"
+          onClick={() => handleSendCertificate(row.application_id)}
+          disabled={row.status !== 'Confirm'}
+        >
+          Certificate
+        </button>
+      ),
+    },
+  ];
 
   if (loading) {
-    return (
-      <div className="page-layout">
-        <div className="sidebar">
-          <VillageOfficerDashBoard />
-        </div>
-        <div className="villager-list-container">Loading...</div>
-      </div>
-    );
+    return <div className="allowances-container">Loading...</div>;
   }
 
   if (error) {
     return (
-      <div className="page-layout">
-        <div className="sidebar">
-          <VillageOfficerDashBoard />
-        </div>
-        <div className="villager-list-container">
-          Error: {error}
-          <div className="requests-actions">
-            <button className="back-button" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-          <Toaster />
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="page-layout">
-      <div className="sidebar">
-        <VillageOfficerDashBoard />
-      </div>
-      <div className="villager-list-container">
-        <h1>Certificate Applications</h1>
-        <table className="villager-table">
-          <thead>
-            <tr>
-              <th>Villager Name</th>
-              <th>Villager ID</th>
-              <th>Application ID</th>
-              <th>Apply Date</th>
-              <th>Reason</th>
-              <th>Document</th>
-              <th>Status</th>
-              <th>Status Action</th>
-              <th>Action</th>
-              <th>Send Certificate</th>
-            </tr>
-          </thead>
-          <tbody>
-            {sortedApplications.map((app) => (
-              <tr 
-                key={`${app.Villager_ID}-${app.application_id}`}
-                className={app.status === 'Pending' ? 'pending-row' : ''}
-              >
-                <td>{app.Full_Name}</td>
-                <td>{app.Villager_ID}</td>
-                <td>{app.application_id}</td>
-                <td>{new Date(app.apply_date).toLocaleDateString()}</td>
-                <td>{app.reason || 'N/A'}</td>
-                <td>
-                  <a
-                    href="#"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleDownload(app.document_path);
-                    }}
-                    className="download-link"
-                  >
-                    Download
-                  </a>
-                </td>
-                <td>
-                  <select
-                    value={pendingStatuses[`${app.Villager_ID}-${app.application_id}`] || app.status}
-                    onChange={(e) => handleStatusSelect(app.Villager_ID, app.application_id, e.target.value)}
-                    className={`status-select ${app.status.toLowerCase()}`}
-                    disabled={loading}
-                  >
-                    <option value="Pending">Pending</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                  </select>
-                </td>
-                <td>
-                  <button
-                    className="confirm-button"
-                    onClick={() => handleStatusConfirm(app.Villager_ID, app.application_id)}
-                  >
-                    Confirm
-                  </button>
-                </td>
-                <td>
-                  <button
-                    className="view-button"
-                    onClick={() => handleViewDetails(app.Villager_ID)}
-                  >
-                    View
-                  </button>
-                </td>
-                <td>
-                  <button
-                    className="send-button"
-                    onClick={() => handleSendCertificate(app.application_id)}
-                    disabled={app.status !== 'Approved'}
-                  >
-                    Send
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <div className="requests-actions">
+      <div className="allowances-container">
+        <div className="error-message">Error: {error}</div>
+        <div className="allowances-actions">
           <button className="back-button" onClick={handleBack}>
             Back to Dashboard
           </button>
         </div>
         <Toaster />
       </div>
+    );
+  }
+
+  return (
+    <div className="allowances-container">
+      <h1>Certificate Applications</h1>
+      <DataTable
+        columns={columns}
+        data={filteredAndSortedApplications}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="allowances-no-data">No applications found.</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+              borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: {
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
+            },
+          },
+        }}
+      />
+      <div className="allowances-actions">
+        <button className="back-button" onClick={handleBack}>
+          Back to Dashboard
+        </button>
+      </div>
+      <Toaster />
     </div>
   );
 };

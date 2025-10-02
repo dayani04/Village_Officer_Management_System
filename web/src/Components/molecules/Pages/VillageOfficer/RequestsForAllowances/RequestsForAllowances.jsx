@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import DataTable from 'react-data-table-component';
 import * as allowanceApi from '../../../../../api/allowanceApplication';
 import './RequestsForAllowances.css';
 
@@ -16,7 +17,6 @@ const RequestsForAllowances = () => {
       try {
         const data = await allowanceApi.fetchAllowanceApplications();
         console.log('Fetched allowance applications:', data);
-        // Filter applications to include only those with status 'Pending'
         const pendingApplications = data.filter(app => app.status === 'Pending');
         setApplications(pendingApplications);
         setLoading(false);
@@ -74,7 +74,6 @@ const RequestsForAllowances = () => {
 
     try {
       await allowanceApi.updateAllowanceApplicationStatus(villagerId, allowancesId, newStatus);
-      // Remove the application from the list if its status is no longer 'Pending'
       setApplications(applications.filter(app =>
         !(app.Villager_ID === villagerId && app.Allowances_ID === allowancesId)
       ));
@@ -133,6 +132,80 @@ const RequestsForAllowances = () => {
     navigate('/dashboard');
   };
 
+  const columns = [
+    {
+      name: 'Villager Name',
+      selector: row => row.Full_Name,
+      sortable: true,
+    },
+    {
+      name: 'Villager ID',
+      selector: row => row.Villager_ID,
+      sortable: true,
+    },
+    {
+      name: 'Allowance Type',
+      selector: row => row.Allowances_Type,
+      sortable: true,
+    },
+    {
+      name: 'Apply Date',
+      selector: row => new Date(row.apply_date).toLocaleDateString(),
+      sortable: true,
+    },
+    {
+      name: 'Document',
+      cell: row => (
+        <a
+          href="#"
+          onClick={(e) => {
+            e.preventDefault();
+            handleDownload(row.document_path);
+          }}
+          className="download-link"
+        >
+          Download
+        </a>
+      ),
+    },
+    {
+      name: 'Status',
+      cell: row => (
+        <select
+          value={pendingStatuses[`${row.Villager_ID}-${row.Allowances_ID}`] || row.status || 'Pending'}
+          onChange={(e) => handleStatusSelect(row.Villager_ID, row.Allowances_ID, e.target.value)}
+          className="status-select"
+        >
+          <option value="Pending">Pending</option>
+          <option value="Send">Send</option>
+         
+        </select>
+      ),
+    },
+    {
+      name: 'Status Action',
+      cell: row => (
+        <button
+          className="confirm-button"
+          onClick={() => handleStatusConfirm(row.Villager_ID, row.Allowances_ID)}
+        >
+          Confirm
+        </button>
+      ),
+    },
+    {
+      name: 'Action',
+      cell: row => (
+        <button
+          className="view-button-allowances"
+          onClick={() => handleViewDetails(row.Villager_ID)}
+        >
+          View
+        </button>
+      ),
+    },
+  ];
+
   if (loading) {
     return <div className="allowances-container">Loading...</div>;
   }
@@ -144,74 +217,47 @@ const RequestsForAllowances = () => {
   return (
     <div className="allowances-container">
       <h1>Allowance Applications</h1>
-      <table className="allowances-table">
-        <thead>
-          <tr>
-            <th>Villager Name</th>
-            <th>Villager ID</th>
-            <th>Allowance Type</th>
-            <th>Apply Date</th>
-            <th>Document</th>
-            <th>Status</th>
-            <th>Status Action</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {applications.map((app) => (
-            <tr key={`${app.Villager_ID}-${app.Allowances_ID}`}>
-              <td>{app.Full_Name}</td>
-              <td>{app.Villager_ID}</td>
-              <td>{app.Allowances_Type}</td>
-              <td>{new Date(app.apply_date).toLocaleDateString()}</td>
-              <td>
-                <a
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    handleDownload(app.document_path);
-                  }}
-                  className="download-link"
-                >
-                  Download
-                </a>
-              </td>
-              <td>
-                <select
-                  value={pendingStatuses[`${app.Villager_ID}-${app.Allowances_ID}`] || app.status || 'Pending'}
-                  onChange={(e) => handleStatusSelect(app.Villager_ID, app.Allowances_ID, e.target.value)}
-                  className="status-select"
-                >
-                  <option value="Pending">Pending</option>
-                  <option value="Send">Send</option>
-                  
-                </select>
-              </td>
-              <td>
-                <button
-                  className="confirm-button"
-                  onClick={() => handleStatusConfirm(app.Villager_ID, app.Allowances_ID)}
-                >
-                  Confirm
-                </button>
-              </td>
-              <td>
-                <button
-                  className="view-button"
-                  onClick={() => handleViewDetails(app.Villager_ID)}
-                >
-                  View
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="allowances-actions">
-        <button className="back-button" onClick={handleBack}>
-          Back to Dashboard
-        </button>
-      </div>
+      <DataTable
+        columns={columns}
+        data={applications}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="allowances-no-data">No pending applications found.</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af', // Lighter gray
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+              borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: {
+              '&:hover': {
+                backgroundColor: '#f5f5f5',
+              },
+            },
+          },
+        }}
+      />
+     
       <Toaster />
     </div>
   );

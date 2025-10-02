@@ -5,9 +5,8 @@ const PDFDocument = require("pdfkit");
 
 const createPermitApplication = async (req, res) => {
   try {
-    const { email, permitType } = req.body;
+    const { email, permitType, requiredDate } = req.body;
     const files = req.files || {};
-
     console.log("Raw req.files:", files);
     console.log("Raw req.body:", req.body);
 
@@ -17,19 +16,32 @@ const createPermitApplication = async (req, res) => {
     console.log("Received data:", {
       email,
       permitType,
+      requiredDate,
       document: document ? document.originalname : "undefined",
       policeReport: policeReport ? policeReport.originalname : "undefined",
     });
 
-    if (!email || !permitType || !document || !policeReport) {
+    if (!email || !permitType || !requiredDate) {
       console.log("Validation failed: Missing required fields");
-      return res.status(400).json({ error: "Email, permit type, ID document, and police report are required" });
+      return res.status(400).json({ error: "Email, permit type, and required date are required" });
     }
 
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(document.mimetype) || !allowedTypes.includes(policeReport.mimetype)) {
-      console.log("Validation failed: Invalid file type");
-      return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+    const parsedRequiredDate = new Date(requiredDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (isNaN(parsedRequiredDate) || parsedRequiredDate <= today) {
+      console.log("Validation failed: Invalid required date");
+      return res.status(400).json({ error: "Required date must be a valid future date" });
+    }
+
+    if (document && !["application/pdf", "image/png", "image/jpeg"].includes(document.mimetype)) {
+      console.log("Validation failed: Invalid document file type");
+      return res.status(400).json({ error: "Document must be a PDF, PNG, or JPG file" });
+    }
+
+    if (policeReport && !["application/pdf", "image/png", "image/jpeg"].includes(policeReport.mimetype)) {
+      console.log("Validation failed: Invalid police report file type");
+      return res.status(400).json({ error: "Police report must be a PDF, PNG, or JPG file" });
     }
 
     const villager = await PermitApplication.getVillagerByEmail(email);
@@ -44,17 +56,24 @@ const createPermitApplication = async (req, res) => {
       return res.status(400).json({ error: `Permit type '${permitType}' not found` });
     }
 
+    let documentPath = null;
+    let policeReportPath = null;
     const timestamp = Date.now();
-    const documentFileName = `${villager.Villager_ID}_${permit.Permits_ID}_doc_${timestamp}${path.extname(document.originalname)}`;
-    const policeReportFileName = `${villager.Villager_ID}_${permit.Permits_ID}_police_${timestamp}${path.extname(policeReport.originalname)}`;
     const uploadDir = path.join(__dirname, "../../../Uploads");
-    const documentPath = `${documentFileName}`;
-    const policeReportPath = `${policeReportFileName}`;
 
-    fs.mkdirSync(uploadDir, { recursive: true });
+    if (document) {
+      const documentFileName = `${villager.Villager_ID}_${permit.Permits_ID}_doc_${timestamp}${path.extname(document.originalname)}`;
+      documentPath = documentFileName;
+      fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, documentFileName), document.buffer);
+    }
 
-    fs.writeFileSync(path.join(uploadDir, documentFileName), document.buffer);
-    fs.writeFileSync(path.join(uploadDir, policeReportFileName), policeReport.buffer);
+    if (policeReport) {
+      const policeReportFileName = `${villager.Villager_ID}_${permit.Permits_ID}_police_${timestamp}${path.extname(policeReport.originalname)}`;
+      policeReportPath = policeReportFileName;
+      fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, policeReportFileName), policeReport.buffer);
+    }
 
     const applyDate = new Date().toISOString().split("T")[0];
     await PermitApplication.addPermitApplication(
@@ -62,7 +81,8 @@ const createPermitApplication = async (req, res) => {
       permit.Permits_ID,
       applyDate,
       documentPath,
-      policeReportPath
+      policeReportPath,
+      requiredDate
     );
 
     res.status(201).json({ message: "Permit application submitted successfully" });
@@ -105,10 +125,7 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
     const stream = fs.createWriteStream(certificatePath);
     doc.pipe(stream);
 
-    // Define base directory (project root)
     const baseDir = path.join(__dirname, '../../../');
-
-    // Register fonts
     const robotoPath = path.join(baseDir, 'fonts/Roboto-Regular.ttf');
     const notoSinhalaPath = path.join(baseDir, 'fonts/NotoSansSinhala-Regular.ttf');
     let sinhalaFontAvailable = false;
@@ -136,17 +153,15 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
       doc.registerFont('NotoSansSinhala', 'Helvetica');
     }
 
-    // Draw decorative border
     doc.lineWidth(2)
-       .strokeColor('#D4A017') // Gold
+       .strokeColor('#D4A017')
        .rect(20, 20, 555, 802)
        .stroke();
     doc.lineWidth(1)
-       .strokeColor('#921940') // Maroon
+       .strokeColor('#921940')
        .rect(25, 25, 545, 792)
        .stroke();
 
-    // Header with flag and emblem
     const flagPath = path.join(baseDir, 'public/assets/sri-lanka-flag.png');
     const emblemPath = path.join(baseDir, 'public/assets/sri-lanka-emblem.png');
     console.log('Flag Path:', flagPath);
@@ -165,7 +180,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
       doc.font('Roboto').fontSize(10).fillColor('#333').text('Emblem missing', 495, 40);
     }
 
-    // Certificate Title
     doc.font('Roboto').fontSize(24).fillColor('#921940')
        .text('Permit Certificate', 0, 120, { align: 'center' });
     if (sinhalaFontAvailable) {
@@ -176,7 +190,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
          .text('Sinhala font unavailable', 0, 150, { align: 'center' });
     }
 
-    // Certificate Number
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text(`Certificate Number: ${villager.Villager_ID}-${permit.Permits_ID}`, 0, 190, { align: 'center' });
     if (sinhalaFontAvailable) {
@@ -184,7 +197,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
          .text(`සහතික අංකය: ${villager.Villager_ID}-${permit.Permits_ID}`, 0, 210, { align: 'center' });
     }
 
-    // Villager Information
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Issued To:', 40, 250, { underline: true });
     if (sinhalaFontAvailable) {
@@ -194,24 +206,21 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
 
     const address = villager.Address && !villager.Address.includes('@') ? villager.Address : 'Not Provided';
     if (sinhalaFontAvailable) {
-      // Two-column layout
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
-         .text(`Address: ${villager.address}`, 40, 340);
+         .text(`Address: ${address}`, 40, 340);
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`නම: ${villager.Full_Name || 'N/A'}`, 300, 300)
          .text(`ගම්වාසී හැඳුනුම්පත: ${villager.Villager_ID || 'N/A'}`, 300, 320)
-         .text(`ලිපිනය: ${villager.address}`, 300, 340);
+         .text(`ලිපිනය: ${address}`, 300, 340);
     } else {
-      // Fallback single-column layout
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
-         .text(`Address: ${villager.address}`, 40, 340);
+         .text(`Address: ${address}`, 40, 340);
     }
 
-    // Permit Information
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Permit Details:', 40, 380, { underline: true });
     if (sinhalaFontAvailable) {
@@ -236,7 +245,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
          .text(`Issue Date: ${formattedApplyDate}`, 40, 470);
     }
 
-    // Official Statement
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text('This certificate confirms that the above-named individual has been granted the specified permit.', 40, 510, { width: 515, align: 'justify' });
     if (sinhalaFontAvailable) {
@@ -244,7 +252,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
          .text('මෙම සහතිකය ඉහත නම් කරන ලද පුද්ගලයාට නිශ්චිත බලපත්‍රය ලබා දී ඇති බව තහවුරු කරයි.', 40, 540, { width: 515, align: 'justify' });
     }
 
-    // Issued By
     doc.font('Roboto').fontSize(12)
        .text('Issued by: Village Authority', 40, 600)
        .text(`Date: ${new Date().toISOString().split('T')[0]}`, 40, 620);
@@ -254,7 +261,6 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
          .text(`දිනය: ${new Date().toISOString().split('T')[0]}`, 300, 620);
     }
 
-    // Footer Line
     doc.lineWidth(1).strokeColor('#D4A017')
        .moveTo(40, 780).lineTo(555, 780).stroke();
 
@@ -293,7 +299,6 @@ const updatePermitApplicationStatus = async (req, res) => {
       return res.status(404).json({ error: "Permit application not found" });
     }
 
-    // Generate certificate if status is Confirm
     let certificateFileName = null;
     if (status === "Confirm") {
       const application = await PermitApplication.getPermitApplicationByIds(villagerId, permitsId);

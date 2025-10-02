@@ -3,7 +3,8 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { getProfile } from "../../../../../api/villager"; // Import getProfile
+import { getProfile,} from "../../../../../api/villager"; // Import submitCertificateApplication
+import { submitCertificateApplication, fetchVillagerDetails } from "../../../../../api/certificateApplication";
 import "./UserCertificates.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -14,6 +15,7 @@ const UserCertificates = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "", // Will be set to logged-in user's email
+    reason: "", // Added from UserCertificatesBC
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -41,13 +43,11 @@ const UserCertificates = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    // Only allow changes to fields other than email (none in this case, but kept for consistency)
-    if (name !== "email") {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+    // Allow changes to email and reason
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const validateEmail = (email) => {
@@ -55,7 +55,7 @@ const UserCertificates = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validation
@@ -79,8 +79,49 @@ const UserCertificates = () => {
       return;
     }
 
-    console.log("Navigating to UserCertificatesBC with formData:", formData);
-    navigate("/user_certificates_bc", { state: { formData } });
+    if (!formData.reason.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: t("reasonRequiredTitle"),
+        text: t("reasonRequiredMessage"),
+        confirmButtonText: t("ok"),
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("reason", formData.reason);
+
+      // Log FormData contents for debugging
+      console.log("Submitting formData:", {
+        email: formData.email,
+        reason: formData.reason,
+      });
+
+      await submitCertificateApplication(formDataToSend);
+
+      Swal.fire({
+        icon: "success",
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/user_dashboard");
+      });
+    } catch (error) {
+      console.error("Error during submission:", error);
+      Swal.fire({
+        icon: "error",
+        title: t("error"),
+        text: error || t("submissionFailed"),
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLanguageChange = (lang) => {
@@ -102,7 +143,7 @@ const UserCertificates = () => {
             <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
           </div>
 
-          <form className="certificates-form">
+          <form className="certificates-form" onSubmit={handleSubmit}>
             <div className="form-certificates-group">
               <label htmlFor="email">{t("emailLabel")}</label>
               <input
@@ -118,13 +159,25 @@ const UserCertificates = () => {
             </div>
 
             <div className="form-certificates-group">
+              <label htmlFor="reason">{t("reasonLabel")}</label>
+              <textarea
+                id="reason"
+                name="reason"
+                value={formData.reason}
+                onChange={handleInputChange}
+                placeholder={t("reasonPlaceholder")}
+                required
+                disabled={loading}
+              />
+            </div>
+
+            <div className="form-certificates-group">
               <button
-                type="button"
+                type="submit"
                 className="upload-certificates-button"
-                onClick={handleUploadClick}
-                disabled={loading || !!error || !formData.email}
+                disabled={loading || !!error || !formData.email || !formData.reason}
               >
-                {t("next")}
+                {loading ? t("submitting") : t("submit")}
               </button>
             </div>
           </form>

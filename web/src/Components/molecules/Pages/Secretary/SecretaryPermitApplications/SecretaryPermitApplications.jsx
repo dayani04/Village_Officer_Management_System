@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
+import DataTable from "react-data-table-component";
 import { TbMail } from "react-icons/tb";
+import { FaEye } from "react-icons/fa";
 import {
   fetchPermitApplications,
   updatePermitApplicationStatus,
@@ -130,136 +132,176 @@ const SecretaryPermitApplications = () => {
     navigate("/SecretaryDashBoard");
   };
 
+  const columns = [
+    {
+      name: "Villager Name",
+      selector: (row) => row.Full_Name || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Villager ID",
+      selector: (row) => row.Villager_ID || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Permit Type",
+      selector: (row) => row.Permits_Type || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Apply Date",
+      selector: (row) =>
+        row.apply_date ? new Date(row.apply_date).toLocaleDateString() : "N/A",
+      sortable: true,
+    },
+    // {
+      //  name: "Document",
+      // cell: (row) => (
+        // <button
+          // className="permit-applications-download-btn"
+          // onClick={() => handleDownload(row.document_path)}
+        // >
+          // Download
+        // </button>
+      // ),
+    // },
+    // {
+      // name: "Police Report",
+      // cell: (row) => (
+        // <button
+          // className="permit-applications-download-btn"
+          // onClick={() => handleDownload(row.police_report_path)}
+        // >
+          // Download
+        // </button>
+      // ),
+    // },
+    {
+      name: "Status",
+      cell: (row) => (
+        <select
+          className="permit-applications-select"
+          value={statusUpdates[`${row.Villager_ID}-${row.Permits_ID}`] || row.status}
+          onChange={(e) =>
+            handleStatusChange(row.Villager_ID, row.Permits_ID, e.target.value)
+          }
+        >
+          {[ "Send", "Rejected", "Confirm"].map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      name: "Send",
+      cell: (row) => (
+        <div className="permit-applications-action-buttons">
+          <button
+            className={`eligible-voters-send-btn ${
+              sentNotifications.has(`${row.Villager_ID}-${row.Permits_ID}`) ? "sent" : ""
+            }`}
+            onClick={() =>
+              handleSend(row.Villager_ID, row.Permits_ID, row.Permits_Type, row.Full_Name)
+            }
+            title="Send Notification"
+            disabled={sentNotifications.has(`${row.Villager_ID}-${row.Permits_ID}`)}
+          >
+            <TbMail />
+          </button>
+        </div>
+      ),
+    },
+    {
+      name: "View",
+      cell: (row) => (
+        <button
+          className="view-button-allowances"
+          onClick={() => handleViewDetails(row.Villager_ID)}
+        >
+          View
+        </button>
+      ),
+    },
+  ];
+
   if (loading) {
     return (
-      <div className="page-layout">
-        <div className="villager-list-container">
-          <div className="permit-applications-container">Loading...</div>
-        </div>
+      <div className="villagerss-container">
+        <h1>Permit Applications (Status: Send)</h1>
+        <div>Loading...</div>
+        <Toaster />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="page-layout">
-        <div className="villager-list-container">
-          <div className="permit-applications-container">
-            <h1>Permit Applications (Status: Send)</h1>
-            <p className="error-message">{error}</p>
-            <div className="permit-applications-actions">
-              <button className="permit-applications-back-btn" onClick={handleBack}>
-                Back to Dashboard
-              </button>
-            </div>
-            <Toaster />
-          </div>
+      <div className="villagerss-container">
+        <h1>Permit Applications (Status: Send)</h1>
+        <p className="error-message">{error}</p>
+        <div className="villagers-actions">
+         
         </div>
+        <Toaster />
       </div>
     );
   }
 
   return (
-    <div className="page-layout">
-      <div className="villager-list-container">
-        <div className="permit-applications-container">
-          <h1>Permit Applications (Status: Send)</h1>
-          <div className="permit-applications-table-wrapper">
-            <table className="permit-applications-table">
-              <thead>
-                <tr>
-                  <th>Villager Name</th>
-                  <th>Villager ID</th>
-                  <th>Permit Type</th>
-                  <th>Apply Date</th>
-                  <th>Document</th>
-                  <th>Police Report</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                  <th>View</th>
-                </tr>
-              </thead>
-              <tbody>
-                {applications.length > 0 ? (
-                  applications.map((app) => (
-                    <tr key={`${app.Villager_ID}-${app.Permits_ID}`}>
-                      <td>{app.Full_Name || "N/A"}</td>
-                      <td>{app.Villager_ID || "N/A"}</td>
-                      <td>{app.Permits_Type || "N/A"}</td>
-                      <td>{app.apply_date ? new Date(app.apply_date).toLocaleDateString() : "N/A"}</td>
-                      <td>
-                        <a
-                          href="#"
-                          onClick={() => handleDownload(app.document_path)}
-                          className="permit-applications-download-link"
-                        >
-                          Download
-                        </a>
-                      </td>
-                      <td>
-                        <a
-                          href="#"
-                          onClick={() => handleDownload(app.police_report_path)}
-                          className="permit-applications-download-link"
-                        >
-                          Download
-                        </a>
-                      </td>
-                      <td>
-                        <select
-                          className="permit-applications-select"
-                          value={statusUpdates[`${app.Villager_ID}-${app.Permits_ID}`] || app.status}
-                          onChange={(e) => handleStatusChange(app.Villager_ID, app.Permits_ID, e.target.value)}
-                        >
-                          {["Pending", "Send", "Rejected", "Confirm"].map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td>
-                        <div className="permit-applications-action-buttons">
-                          <button
-                            className={`permit-applications-send-btn ${
-                              sentNotifications.has(`${app.Villager_ID}-${app.Permits_ID}`) ? "sent" : ""
-                            }`}
-                            onClick={() => handleSend(app.Villager_ID, app.Permits_ID, app.Permits_Type, app.Full_Name)}
-                            title="Send Notification"
-                            disabled={sentNotifications.has(`${app.Villager_ID}-${app.Permits_ID}`)}
-                          >
-                            <TbMail />
-                          </button>
-                        </div>
-                      </td>
-                      <td>
-                        <button
-                          className="owners-view-btn"
-                          onClick={() => handleViewDetails(app.Villager_ID)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="9" className="permit-applications-no-data">
-                      No applications with status "Send"
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="permit-applications-actions">
-            <button className="permit-applications-back-btn" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-          <Toaster />
-        </div>
+    <div className="villagerss-container">
+      <h1>Permit Applications (Status: Send)</h1>
+      <DataTable
+        columns={columns}
+        data={applications}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={
+          <div className="villagers-no-data">No applications with status "Send"</div>
+        }
+        customStyles={{
+          table: {
+            style: {
+            
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              backgroundColor: "white",
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: "#9ca3af",
+              color: "white",
+              fontWeight: "bold",
+              padding: "12px",
+            },
+          },
+          cells: {
+            style: {
+              padding: "12px",
+              borderBottom: "1px solid #ddd",
+            },
+          },
+          rows: {
+            style: {
+              "&:nth-child(even)": {
+                backgroundColor: "#f9f9f9",
+              },
+              "&:hover": {
+                backgroundColor: "#f1f1f1",
+              },
+            },
+          },
+        }}
+      />
+      <div className="villagers-actions">
+      
       </div>
+      <Toaster />
     </div>
   );
 };

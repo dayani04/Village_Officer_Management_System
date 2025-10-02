@@ -94,3 +94,14 @@ export const sendElectionNotification = async (electionType, message) => {
     throw error.response ? error.response.data : error.message;
   }
 };
+export const submitElectionApplication = async (formData) => {
+  try {
+    const response = await api.post("/election-applications/", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting election application:", error);
+    throw error.response ? error.response.data : error.message;
+  }
+};

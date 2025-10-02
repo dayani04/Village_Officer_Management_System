@@ -12,7 +12,6 @@ import {
 import { IoMdArrowDropdownCircle, IoMdArrowDropupCircle } from "react-icons/io";
 import { MdOutlineDiscount } from "react-icons/md";
 
-
 const SidebarS = () => {
   const location = useLocation();
 
@@ -33,18 +32,17 @@ const SidebarS = () => {
   }, [location.pathname]);
 
   return (
-   
     <div
       className="d-flex flex-column p-4"
       style={{
         width: "250px",
-        height: "100vh", // Full viewport height
-        position: "fixed", // Fix the sidebar to the viewport
+        height: "100vh",
+        position: "fixed",
         top: 0,
         left: 0,
-        background: "#9C284F",
+        background: "linear-gradient(135deg, #4A2C4E, #8A2B3A, #2A4066)",
         color: "white",
-        overflowY: "auto", // Allow scrolling if content overflows
+        overflowY: "auto",
         zIndex: 999,
       }}
     >
@@ -52,12 +50,12 @@ const SidebarS = () => {
         {/* Dashboard */}
         <li className="nav-item">
           <NavLink
-            to="/VillageOfficerDashBoard"
+            to="/SecretaryDashBoard"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ textDecoration: "none", color: "white" }}
             activeStyle={{ fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.2)" }}
           >
-            <TbDashboard className="me-2" /> Secretary Dashboard
+            <TbDashboard className="me-2" />  Dashboard
           </NavLink>
         </li>
 
@@ -66,7 +64,7 @@ const SidebarS = () => {
           <button
             onClick={() => setIsProductSubMenuOpen(!isProductSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer",color: "white" }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Villagers
@@ -79,7 +77,6 @@ const SidebarS = () => {
           </button>
           {isProductSubMenuOpen && (
             <ul className="list-unstyled ps-4 mt-1">
-             
               <li>
                 <NavLink
                   to="/secretary-villagers"
@@ -90,7 +87,6 @@ const SidebarS = () => {
                   Villagers
                 </NavLink>
               </li>
-             
             </ul>
           )}
         </li>
@@ -100,7 +96,7 @@ const SidebarS = () => {
           <button
             onClick={() => setIsDiscountSubMenuOpen(!isDiscountSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer",color: "white" }}
           >
             <div className="d-flex align-items-center">
               <MdOutlineDiscount className="me-2" /> Requests
@@ -133,7 +129,7 @@ const SidebarS = () => {
                   ID Cards
                 </NavLink>
               </li>
-               <li>
+              <li>
                 <NavLink
                   to="/secretary_permit_applications"
                   className="nav-link p-2 rounded hover-bg"
@@ -143,7 +139,7 @@ const SidebarS = () => {
                   Permits
                 </NavLink>
               </li>
-             <li>
+              <li>
                 <NavLink
                   to="/secretary_election_applications"
                   className="nav-link p-2 rounded hover-bg"
@@ -162,7 +158,7 @@ const SidebarS = () => {
           <button
             onClick={() => setIsUsersSubMenuOpen(!isUsersSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer",color: "white" }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Holders
@@ -198,7 +194,7 @@ const SidebarS = () => {
             </ul>
           )}
         </li>
-          <li className="nav-item">
+        <li className="nav-item">
           <NavLink
             to="/secretary_election_owners"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
@@ -239,20 +235,19 @@ const SidebarS = () => {
             <TbUserCircle className="me-2" /> My Profile
           </NavLink>
         </li>
-   {/* Logout */}
-      <li className="nav-item">
+        {/* Logout */}
+        <li className="nav-item">
           <NavLink
             to="/"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ color: "white" }}
           >
             <TbLogout className="me-2" /> Logout
-               </NavLink>
+          </NavLink>
         </li>
       </ul>
     </div>
- 
   );
 };
 
-export default SidebarS; 
+export default SidebarS;
