@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import { getToken, setToken } from "../utils/auth";
 
@@ -25,8 +24,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-
-
 export const fetchVillagers = async () => {
   try {
     const response = await api.get("/villagers");
@@ -51,32 +48,42 @@ export const fetchVillager = async (villagerId) => {
 
 export const addVillager = async (newVillager) => {
   try {
-    const payload = {
-      villager_id: newVillager.villager_id,
-      full_name: newVillager.full_name || "",
-      email: newVillager.email || "",
-      password: newVillager.password || "",
-      phone_no: newVillager.phone_no || "",
-      nic: newVillager.nic || null,
-      dob: newVillager.dob || null,
-      address: newVillager.address || null,
-      regional_division: newVillager.regional_division || null,
-      status: newVillager.status || "Active",
-      area_id: newVillager.area_id || null,
-      latitude: newVillager.latitude || null,
-      longitude: newVillager.longitude || null,
-      is_election_participant: Boolean(newVillager.is_election_participant),
-      alive_status: newVillager.alive_status || "Alive",
-      job: newVillager.job || null,
-      gender: newVillager.gender || "Other",
-      marital_status: newVillager.marital_status || "Unmarried",
-      religion: newVillager.religion || "Others",
-      race: newVillager.race || "Sinhalese",
-    };
-    if (!payload.villager_id || !payload.full_name || !payload.email || !payload.password || !payload.phone_no) {
+    const formData = new FormData();
+    formData.append("villager_id", newVillager.villager_id || "");
+    formData.append("full_name", newVillager.full_name || "");
+    formData.append("email", newVillager.email || "");
+    formData.append("password", newVillager.password || "");
+    formData.append("phone_no", newVillager.phone_no || "");
+    formData.append("nic", newVillager.nic || "");
+    formData.append("dob", newVillager.dob || "");
+    formData.append("address", newVillager.address || "");
+    formData.append("regional_division", newVillager.regional_division || "");
+    formData.append("status", newVillager.status || "Active");
+    formData.append("area_id", newVillager.area_id || "");
+    formData.append("latitude", newVillager.latitude || "");
+    formData.append("longitude", newVillager.longitude || "");
+    formData.append("is_election_participant", Boolean(newVillager.is_election_participant));
+    formData.append("alive_status", newVillager.alive_status || "Alive");
+    formData.append("job", newVillager.job || "");
+    formData.append("gender", newVillager.gender || "Other");
+    formData.append("marital_status", newVillager.marital_status || "Unmarried");
+    formData.append("religion", newVillager.religion || "Others");
+    formData.append("race", newVillager.race || "Sinhalese");
+
+    if (newVillager.birthCertificate) {
+      formData.append("birthCertificate", newVillager.birthCertificate);
+    }
+    if (newVillager.nicCopy) {
+      formData.append("nicCopy", newVillager.nicCopy);
+    }
+
+    if (!newVillager.villager_id || !newVillager.full_name || !newVillager.email || !newVillager.password || !newVillager.phone_no) {
       throw new Error("Villager ID, Full Name, Email, Password, and Phone Number are required");
     }
-    const response = await api.post("/villagers", payload);
+
+    const response = await api.post("/villagers", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
     console.log("Added villager:", response.data);
     return response.data;
   } catch (error) {
@@ -87,31 +94,41 @@ export const addVillager = async (newVillager) => {
 
 export const updateVillager = async (villagerId, updatedVillager) => {
   try {
-    const payload = {
-      full_name: updatedVillager.full_name || "",
-      email: updatedVillager.email || "",
-      phone_no: updatedVillager.phone_no || "",
-      address: updatedVillager.address !== undefined ? updatedVillager.address : null,
-      regional_division: updatedVillager.regional_division !== undefined ? updatedVillager.regional_division : null,
-      status: updatedVillager.status || "Active",
-      is_election_participant: Boolean(updatedVillager.is_election_participant),
-      alive_status: updatedVillager.alive_status || "Alive",
-      job: updatedVillager.job !== undefined ? updatedVillager.job : null,
-      gender: updatedVillager.gender || "Other",
-      marital_status: updatedVillager.marital_status || "Unmarried",
-      dob: updatedVillager.dob || null,
-      religion: updatedVillager.religion || "Others",
-      race: updatedVillager.race || "Sinhalese",
-    };
-    if (!payload.full_name || !payload.email || !payload.phone_no) {
+    const formData = new FormData();
+    formData.append("full_name", updatedVillager.full_name || "");
+    formData.append("email", updatedVillager.email || "");
+    formData.append("phone_no", updatedVillager.phone_no || "");
+    formData.append("address", updatedVillager.address !== undefined ? updatedVillager.address : "");
+    formData.append("regional_division", updatedVillager.regional_division !== undefined ? updatedVillager.regional_division : "");
+    formData.append("status", updatedVillager.status || "Active");
+    formData.append("is_election_participant", Boolean(updatedVillager.is_election_participant));
+    formData.append("alive_status", updatedVillager.alive_status || "Alive");
+    formData.append("job", updatedVillager.job !== undefined ? updatedVillager.job : "");
+    formData.append("gender", updatedVillager.gender || "Other");
+    formData.append("marital_status", updatedVillager.marital_status || "Unmarried");
+    formData.append("dob", updatedVillager.dob || "");
+    formData.append("religion", updatedVillager.religion || "Others");
+    formData.append("race", updatedVillager.race || "Sinhalese");
+
+    if (updatedVillager.birthCertificate) {
+      formData.append("birthCertificate", updatedVillager.birthCertificate);
+    }
+    if (updatedVillager.nicCopy) {
+      formData.append("nicCopy", updatedVillager.nicCopy);
+    }
+
+    if (!updatedVillager.full_name || !updatedVillager.email || !updatedVillager.phone_no) {
       throw new Error("Full Name, Email, and Phone Number are required");
     }
-    const response = await api.put(`/villagers/${villagerId}`, payload);
+
+    const response = await api.put(`/villagers/${villagerId}`, formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
     console.log(`Updated villager ${villagerId}:`, response.data);
     return response.data;
   } catch (error) {
     console.error(`Error updating villager ${villagerId}:`, error.response || error.message);
-    throw error.response ? error.response.data : error.message;
+    throw error.response ? error.response.data : new Error(error.message || 'Unknown error');
   }
 };
 
@@ -311,14 +328,19 @@ export const fetchNewBornRequests = async () => {
 
 export const downloadDocument = async (filename) => {
   try {
-    // Ensure only the filename is sent, removing any directory prefix
-    const cleanFilename = filename.replace(/^Uploads[\\/]/, '');
-    const response = await api.get(`/villagers/documents/${cleanFilename}`, { responseType: 'blob' });
+    // Ensure filename is sanitized
+    const cleanFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '');
+    const response = await api.get(`/villagers/documents/${cleanFilename}`, {
+      responseType: 'blob',
+    });
+    if (!response.data || response.data.size === 0) {
+      throw new Error('Empty or invalid document received');
+    }
     console.log(`Downloaded document ${cleanFilename}`);
     return response.data;
   } catch (error) {
     console.error(`Error downloading document ${filename}:`, error.response || error.message);
-    throw error.response ? error.response.data : error.message;
+    throw error.response ? { error: error.response.data.error || 'Failed to download document' } : { error: error.message };
   }
 };
 
@@ -392,4 +414,18 @@ export const fetchHouseCount = async () => {
     console.error("Error fetching house count:", error.response || error.message);
     throw error.response ? error.response.data : error.message;
   }
+};
+
+export const updateVillagerDocuments = async (formData) => {
+  try {
+    const response = await api.post("/villagers/documents", formData, {
+      headers: { "Content-Type": "multipart/form-data" }
+    });
+    console.log("Uploaded documents:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading documents:", error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+  
 };

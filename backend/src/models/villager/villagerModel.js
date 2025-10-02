@@ -1,10 +1,12 @@
 const pool = require("../../config/database");
+const path = require('path'); // Added import
+const fs = require('fs'); // Added import
 
 const getAllVillagers = async () => {
   const [rows] = await pool.query(`
     SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
            Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
-           Marital_Status, Religion, Race, Created_At 
+           Marital_Status, Religion, Race, Created_At, BirthCertificate, NICCopy 
     FROM Villager
   `);
   return rows;
@@ -12,10 +14,14 @@ const getAllVillagers = async () => {
 
 const getVillagerById = async (id) => {
   const [rows] = await pool.query(`
-    SELECT Villager_ID, Full_Name, Email, Phone_No, NIC, DOB, Address, RegionalDivision, 
-           Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
-           Marital_Status, Religion, Race, Created_At 
-    FROM Villager WHERE Villager_ID = ?
+    SELECT 
+      v.Villager_ID, v.Full_Name, v.Email, v.Phone_No, v.NIC, v.DOB, v.Address, 
+      v.RegionalDivision, v.Status, v.Area_ID, v.Latitude, v.Longitude, v.IsParticipant, 
+      v.Alive_Status, v.Job, v.Gender, v.Marital_Status, v.Religion, v.Race, v.Created_At,
+      vd.BirthCertificatePath AS BirthCertificate, vd.NICCopyPath AS NICCopy
+    FROM Villager v
+    LEFT JOIN VillagerDocuments vd ON v.Villager_ID = vd.Villager_ID
+    WHERE v.Villager_ID = ?
   `, [id]);
   return rows[0];
 };
@@ -24,7 +30,7 @@ const getVillagerByEmail = async (email) => {
   const [rows] = await pool.query(`
     SELECT Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, RegionalDivision, 
            Status, Area_ID, Latitude, Longitude, IsParticipant, Alive_Status, Job, Gender, 
-           Marital_Status, Religion, Race, Created_At 
+           Marital_Status, Religion, Race, Created_At, BirthCertificate, NICCopy 
     FROM Villager WHERE Email = ?
   `, [email]);
   return rows[0];
@@ -33,19 +39,20 @@ const getVillagerByEmail = async (email) => {
 const addVillager = async (
   villager_id, full_name, email, password, phone_no, nic, dob, address, 
   regional_division, status, area_id, latitude, longitude, is_participant, 
-  alive_status, job, gender, marital_status, religion, race
+  alive_status, job, gender, marital_status, religion, race, birthCertificate, nicCopy
 ) => {
   const [result] = await pool.query(
     `INSERT INTO Villager (
       Villager_ID, Full_Name, Email, Password, Phone_No, NIC, DOB, Address, 
       RegionalDivision, Status, Area_ID, Latitude, Longitude, IsParticipant, 
-      Alive_Status, Job, Gender, Marital_Status, Religion, Race, Created_At
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
+      Alive_Status, Job, Gender, Marital_Status, Religion, Race, BirthCertificate, NICCopy, Created_At
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)`,
     [
       villager_id, full_name, email, password, phone_no, nic, dob, address,
       regional_division, status || "Active", area_id, latitude, longitude,
       is_participant, alive_status || "Alive", job, gender || "Other", 
-      marital_status || "Unmarried", religion || "Others", race || "Sinhalese"
+      marital_status || "Unmarried", religion || "Others", race || "Sinhalese",
+      birthCertificate, nicCopy
     ]
   );
   return villager_id;
@@ -53,7 +60,8 @@ const addVillager = async (
 
 const updateVillager = async (
   id, full_name, email, phone_no, address, regional_division, status, 
-  is_participant, alive_status, job, gender, marital_status, dob, religion, race
+  is_participant, alive_status, job, gender, marital_status, dob, religion, race,
+  birthCertificate, nicCopy
 ) => {
   try {
     if (!full_name || !email || !phone_no) {
@@ -65,7 +73,7 @@ const updateVillager = async (
       `UPDATE Villager SET 
         Full_Name = ?, Email = ?, Phone_No = ?, Address = ?, RegionalDivision = ?, 
         Status = ?, IsParticipant = ?, Alive_Status = ?, Job = ?, Gender = ?, 
-        Marital_Status = ?, DOB = ?, Religion = ?, Race = ?
+        Marital_Status = ?, DOB = ?, Religion = ?, Race = ?, BirthCertificate = ?, NICCopy = ?
       WHERE Villager_ID = ?`,
       [
         full_name, email, phone_no, 
@@ -78,6 +86,7 @@ const updateVillager = async (
         marital_status || "Unmarried",
         dob !== undefined ? dob : null,
         religion || "Others", race || "Sinhalese",
+        birthCertificate, nicCopy,
         id
       ]
     );
@@ -289,6 +298,77 @@ const getRaceCount = async () => {
   return rows;
 };
 
+// New model function for updating documents
+const updateVillagerDocuments = async (villagerId, birthCertificate, nicCopy) => {
+  try {
+    const [existing] = await pool.query(
+      'SELECT BirthCertificatePath, NICCopyPath FROM VillagerDocuments WHERE Villager_ID = ?',
+      [villagerId]
+    );
+
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+
+    if (existing.length > 0) {
+      // Delete old files if they exist and new files are provided
+      if (existing[0].BirthCertificatePath && birthCertificate) {
+        const oldPath = path.join(uploadDir, path.basename(existing[0].BirthCertificatePath));
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+      if (existing[0].NICCopyPath && nicCopy) {
+        const oldPath = path.join(uploadDir, path.basename(existing[0].NICCopyPath));
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      // Update existing record
+      const [result] = await pool.query(
+        `UPDATE VillagerDocuments 
+         SET BirthCertificatePath = ?, NICCopyPath = ? 
+         WHERE Villager_ID = ?`,
+        [birthCertificate || existing[0].BirthCertificatePath, nicCopy || existing[0].NICCopyPath, villagerId]
+      );
+      return result.affectedRows > 0;
+    } else {
+      // Insert new record
+      const [result] = await pool.query(
+        `INSERT INTO VillagerDocuments (Villager_ID, BirthCertificatePath, NICCopyPath) 
+         VALUES (?, ?, ?)`,
+        [villagerId, birthCertificate, nicCopy]
+      );
+      return result.insertId;
+    }
+  } catch (error) {
+    console.error(`Error updating documents for villager ${villagerId}:`, error);
+    throw error;
+  }
+};
+const addVillagerDocuments = async (villagerId, birthCertificate, nicCopy) => {
+  const [result] = await pool.query(
+    `INSERT INTO VillagerDocuments (Villager_ID, BirthCertificatePath, NICCopyPath) VALUES (?, ?, ?)`,
+    [villagerId, birthCertificate, nicCopy]
+  );
+  return result.insertId;
+};
+const upsertVillagerDocuments = async (villagerId, birthCertificatePath, nicCopyPath) => {
+  const [rows] = await pool.query(
+    "SELECT * FROM VillagerDocuments WHERE Villager_ID = ?",
+    [villagerId]
+  );
+  if (rows.length > 0) {
+    // Update existing row
+    await pool.query(
+      "UPDATE VillagerDocuments SET BirthCertificatePath = ?, NICCopyPath = ? WHERE Villager_ID = ?",
+      [birthCertificatePath, nicCopyPath, villagerId]
+    );
+  } else {
+    // Insert new row
+    await pool.query(
+      "INSERT INTO VillagerDocuments (Villager_ID, BirthCertificatePath, NICCopyPath) VALUES (?, ?, ?)",
+      [villagerId, birthCertificatePath, nicCopyPath]
+    );
+  }
+};
+
+
 module.exports = {
   getAllVillagers,
   getVillagerById,
@@ -314,5 +394,8 @@ module.exports = {
   getHouseCount,
   getMonthlyRegistrationCount,
   getReligionCount,
-   getRaceCount,
+  getRaceCount,
+  updateVillagerDocuments, 
+  addVillagerDocuments,
+  upsertVillagerDocuments
 };

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import DataTable from 'react-data-table-component';
 import * as villagerOfficerApi from '../../../../../api/villageOfficer';
-import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaPlus } from 'react-icons/fa';
+import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaPlus } from 'react-icons/fa'; // Font Awesome icons
+import { TbDotsVertical } from 'react-icons/tb'; // Tabler Icon for dropdown
 import './VillagerOfficer.css';
 
 const VillagerOfficer = () => {
@@ -10,6 +12,7 @@ const VillagerOfficer = () => {
   const [officers, setOfficers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dropdownOpen, setDropdownOpen] = useState({});
 
   useEffect(() => {
     const fetchOfficers = async () => {
@@ -98,108 +101,175 @@ const VillagerOfficer = () => {
     navigate(`/villager-officers/edit/${id}`);
   };
 
-  if (loading) {
-    return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="villager-officer-container">Loading...</div>
-      </section>
-    );
-  }
+  const toggleDropdown = (officerId) => {
+    setDropdownOpen(prev => ({
+      ...prev,
+      [officerId]: !prev[officerId]
+    }));
+  };
 
-  if (error) {
-    return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="villager-officer-container">
-          <h1>Villager Officers</h1>
-          <p>Error: {error}</p>
-          <div className="villager-officer-actions">
-            <button className="villager-officer-back-btn" onClick={handleBack}>
-              Back to Dashboard
+  const handleAction = (action, officerId, fullName) => {
+    setDropdownOpen(prev => ({ ...prev, [officerId]: false }));
+    switch (action) {
+      case 'edit':
+        handleEditOfficer(officerId);
+        break;
+      case 'delete':
+        handleDeleteOfficer(officerId, fullName);
+        break;
+      case 'toggleStatus':
+        handleToggleStatus(officerId, officers.find(o => o.Villager_Officer_ID === officerId).Status, fullName);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const columns = [
+    {
+      name: 'Officer ID',
+      selector: row => row.Villager_Officer_ID || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Full Name',
+      selector: row => row.Full_Name || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Email',
+      selector: row => row.Email || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Phone No',
+      selector: row => row.Phone_No || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Status',
+      selector: row => row.Status || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Actions',
+      cell: row => (
+        <div className="villager-officer-action-buttons">
+          <button
+            className="villager-officer-action-btn"
+            onClick={() => toggleDropdown(row.Villager_Officer_ID)}
+          >
+             Action <TbDotsVertical />
+          </button>
+          <div className={`villager-officer-dropdown ${dropdownOpen[row.Villager_Officer_ID] ? 'active' : ''}`}>
+            <button
+              className="villager-officer-dropdown-item villager-officer-edit-item"
+              onClick={() => handleAction('edit', row.Villager_Officer_ID, row.Full_Name)}
+            >
+              <FaEdit style={{ marginRight: '8px' }} /> Edit
+            </button>
+            <button
+              className="villager-officer-dropdown-item villager-officer-delete-item"
+              onClick={() => handleAction('delete', row.Villager_Officer_ID, row.Full_Name)}
+            >
+              <FaTrash style={{ marginRight: '8px' }} /> Delete
+            </button>
+            <button
+              className="villager-officer-dropdown-item villager-officer-status-item"
+              onClick={() => handleAction('toggleStatus', row.Villager_Officer_ID, row.Full_Name)}
+            >
+              {row.Status === 'Active' ? <FaToggleOff style={{ marginRight: '8px' }} /> : <FaToggleOn style={{ marginRight: '8px' }} />} 
+              {row.Status === 'Active' ? 'Deactivate' : 'Activate'}
             </button>
           </div>
-          <Toaster />
         </div>
-      </section>
-    );
-  }
+        
+      ),
+    },
+  ];
 
-  return (
-    <section className="w-full h-full flex flex-col p-4">
-      <div className="villager-officer-container">
+  if (loading) {
+    return (
+      <div className="villager-officers-container">
         <h1>Villager Officers</h1>
-        <div className="villager-officer-actions">
-          <button className="villager-officer-add-btn" onClick={handleAddOfficer}>
-            <FaPlus /> Add Officer
-          </button>
-        </div>
-        <div className="villager-officer-table-wrapper">
-          <table className="villager-officer-table">
-            <thead>
-              <tr>
-                <th>Officer ID</th>
-                <th>Full Name</th>
-                <th>Email</th>
-                <th>Phone No</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {officers.length > 0 ? (
-                officers.map((officer) => (
-                  <tr key={officer.Villager_Officer_ID}>
-                    <td>{officer.Villager_Officer_ID || 'N/A'}</td>
-                    <td>{officer.Full_Name || 'N/A'}</td>
-                    <td>{officer.Email || 'N/A'}</td>
-                    <td>{officer.Phone_No || 'N/A'}</td>
-                    <td>{officer.Status || 'N/A'}</td>
-                    <td>
-                      <div className="villager-officer-action-buttons">
-                        <button
-                          className="villager-officer-edit-btn"
-                          onClick={() => handleEditOfficer(officer.Villager_Officer_ID)}
-                          title="Edit Officer"
-                        >
-                          <FaEdit />
-                        </button>
-                        <button
-                          className="villager-officer-delete-btn"
-                          onClick={() => handleDeleteOfficer(officer.Villager_Officer_ID, officer.Full_Name)}
-                          title="Delete Officer"
-                        >
-                          <FaTrash />
-                        </button>
-                        <button
-                          className="villager-officer-status-btn"
-                          onClick={() =>
-                            handleToggleStatus(officer.Villager_Officer_ID, officer.Status, officer.Full_Name)
-                          }
-                          title={officer.Status === 'Active' ? 'Deactivate' : 'Activate'}
-                        >
-                          {officer.Status === 'Active' ? <FaToggleOn /> : <FaToggleOff />}
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="6" className="villager-officer-no-data">
-                    No villager officers found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <div>Loading...</div>
         <div className="villager-officer-actions">
           <button className="villager-officer-back-btn" onClick={handleBack}>
             Back to Dashboard
           </button>
         </div>
         <Toaster />
+      </div> 
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="villager-officers-container">
+        <h1>Villager Officers</h1>
+        <p className="error-message">Error: {error}</p>
+       
+        <Toaster />
       </div>
-    </section>
+    );
+  }
+
+  return (
+    <div className="villager-officers-container">
+      <h1>Villager Officers</h1>
+      <div className="villager-officer-actions">
+        <button className="villager-officers-add-btn" onClick={handleAddOfficer}>
+          <FaPlus /> Add Officer
+        </button>
+      </div> 
+
+      <DataTable 
+        
+        columns={columns}
+        data={officers}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="villager-officer-no-data">No villager officers found</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+                 marginBottom: '60px',
+              
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+               borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: { 
+              
+              '&:hover': {
+                backgroundColor: '#f1f1f1',
+             
+              },
+            },
+          },
+        }}
+      />
+      <Toaster />
+    </div>
   );
 };
 

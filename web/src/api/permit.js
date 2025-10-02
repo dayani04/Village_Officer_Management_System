@@ -47,3 +47,19 @@ export const checkVillagerPermitApplication = async (villagerId, year, month) =>
     throw error.response ? error.response.data : error.message;
   }
 };
+
+export const submitPermitApplication = async (formData) => {
+  try {
+    console.log("Submitting permit application to:", `${API_URL}/permit-applications/`);
+    const response = await api.post("/permit-applications/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    console.log("Permit application response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting permit application:", error.response || error.message);
+    throw error.response ? error.response.data : error.message;
+  }
+};

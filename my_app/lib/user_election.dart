@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'user_election_upload.dart'; // Create this for the upload step
 
 class UserElectionPage extends StatefulWidget {
   const UserElectionPage({super.key});
@@ -44,10 +43,11 @@ class _UserElectionPageState extends State<UserElectionPage> {
           'Authorization': 'Bearer $token',
         },
       );
-      if (profileRes.statusCode != 200)
-        throw Exception('Failed to fetch profile');
+      if (profileRes.statusCode != 200) {
+        throw Exception('Failed to fetch profile: ${profileRes.statusCode}');
+      }
       final profile = jsonDecode(profileRes.body);
-      userEmail = profile['Email'];
+      userEmail = profile['Email'] ?? '';
       // Defensive: handle both int and String for Villager_ID
       final rawVillagerId = profile['Villager_ID'];
       if (rawVillagerId is int) {
@@ -68,8 +68,9 @@ class _UserElectionPageState extends State<UserElectionPage> {
           'Authorization': 'Bearer $token',
         },
       );
-      if (electionsRes.statusCode != 200)
-        throw Exception('Failed to fetch election types');
+      if (electionsRes.statusCode != 200) {
+        throw Exception('Failed to fetch election types: ${electionsRes.statusCode}');
+      }
       final elections = jsonDecode(electionsRes.body);
       // Fetch allowed election types (notifications)
       final notifRes = await http.get(
@@ -111,7 +112,7 @@ class _UserElectionPageState extends State<UserElectionPage> {
       });
     } catch (e) {
       setState(() {
-        error = e.toString();
+        error = 'Error: ${e.toString()}';
         loading = false;
       });
     }
@@ -121,7 +122,7 @@ class _UserElectionPageState extends State<UserElectionPage> {
     if (dob == null || dob.isEmpty) return null;
     try {
       final dobDate = DateTime.parse(dob);
-      final currentDate = DateTime.now();
+      final currentDate = DateTime.now(); // Updated to use current date
       int age = currentDate.year - dobDate.year;
       int monthDiff = currentDate.month - dobDate.month;
       if (monthDiff < 0 || (monthDiff == 0 && currentDate.day < dobDate.day)) {
@@ -133,13 +134,21 @@ class _UserElectionPageState extends State<UserElectionPage> {
     }
   }
 
-  void handleNext() {
+  Future<void> handleSubmit() async {
     if (userEmail == null || userEmail!.isEmpty || selectedType == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an election type.')),
+        const SnackBar(content: Text('Please provide an email and select an election type.')),
       );
       return;
     }
+
+    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(userEmail!)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Invalid email format.')),
+      );
+      return;
+    }
+
     if (userAge == null || userAge! < 17) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -150,6 +159,7 @@ class _UserElectionPageState extends State<UserElectionPage> {
       );
       return;
     }
+
     if (!allowedElectionTypes.contains(selectedType)) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -158,23 +168,56 @@ class _UserElectionPageState extends State<UserElectionPage> {
       );
       return;
     }
+
     if (appliedElections.contains(selectedType)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You have already applied for this election type.'),
+        SnackBar(
+          content: Text('You have already applied for $selectedType.'),
         ),
       );
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => UserElectionUploadPage(
-          email: userEmail ?? '',
-          electionType: selectedType!,
-        ),
-      ),
-    );
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final formData = <String, String>{
+        'email': userEmail!,
+        'electionType': selectedType!,
+      };
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:5000/api/election-applications/'),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      formData.forEach((key, value) {
+        request.fields[key] = value;
+      });
+
+      final response = await request.send();
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Election application submitted successfully.')),
+        );
+        Navigator.pushReplacementNamed(context, '/user_dashboard');
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        throw Exception('Failed to submit application: $responseBody');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -187,82 +230,86 @@ class _UserElectionPageState extends State<UserElectionPage> {
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-          ? Center(child: Text('Error: $error'))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Apply for Election',
-                    style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Email:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    userEmail ?? '',
-                    style: const TextStyle(color: Colors.black87),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<String>(
-                    value: selectedType,
-                    items: electionTypes
-                        .where((e) => allowedElectionTypes.contains(e['Type']))
-                        .map<DropdownMenuItem<String>>((election) {
-                          final isApplied = appliedElections.contains(
-                            election['Type'],
-                          );
-                          return DropdownMenuItem<String>(
-                            value: election['Type'],
-                            enabled: !isApplied,
-                            child: Text(
-                              isApplied
-                                  ? '${election['Type']} (Already Applied)'
-                                  : election['Type'],
-                            ),
-                          );
-                        })
-                        .toList(),
-                    onChanged: (v) => setState(() => selectedType = v),
-                    decoration: const InputDecoration(
-                      labelText: 'Election Type',
-                    ),
-                    disabledHint: const Text('No available elections'),
-                  ),
-                  if (userAge != null && userAge! < 17)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'You must be at least 17 years old to apply. Your age: $userAge',
-                        style: const TextStyle(color: Colors.red),
+              ? Center(child: Text(error!))
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Apply for Election',
+                        style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  if (appliedElections.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'You have already applied for: ${appliedElections.join(", ")}',
-                        style: const TextStyle(color: Colors.orange),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Email:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF921940),
+                      Text(
+                        userEmail ?? '',
+                        style: const TextStyle(color: Colors.black87),
                       ),
-                      onPressed: loading || userEmail == null || userAge == null
-                          ? null
-                          : handleNext,
-                      child: const Text('Next'),
-                    ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        value: selectedType,
+                        items: electionTypes
+                            .where((e) => allowedElectionTypes.contains(e['Type']))
+                            .map<DropdownMenuItem<String>>((election) {
+                              final isApplied = appliedElections.contains(
+                                election['Type'],
+                              );
+                              return DropdownMenuItem<String>(
+                                value: election['Type'],
+                                enabled: !isApplied,
+                                child: Text(
+                                  isApplied
+                                      ? '${election['Type']} (Already Applied)'
+                                      : election['Type'],
+                                ),
+                              );
+                            })
+                            .toList(),
+                        onChanged: (v) => setState(() => selectedType = v),
+                        decoration: const InputDecoration(
+                          labelText: 'Election Type',
+                        ),
+                        disabledHint: Text(
+                          userAge != null && userAge! < 17
+                              ? 'You must be at least 17 years old to apply. Your age: $userAge'
+                              : 'No available elections',
+                        ),
+                      ),
+                      if (userAge != null && userAge! < 17)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You must be at least 17 years old to apply. Your age: $userAge',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      if (appliedElections.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You have already applied for: ${appliedElections.join(", ")}',
+                            style: const TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF921940),
+                          ),
+                          onPressed: loading || userEmail == null || userAge == null || userAge! < 17
+                              ? null
+                              : handleSubmit,
+                          child: Text(loading ? 'Submitting...' : 'Submit'),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

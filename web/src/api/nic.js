@@ -20,7 +20,6 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Fetch all NIC types (GET /nics/)
 export const fetchNICs = async () => {
   try {
     const response = await api.get("/nics/");
@@ -31,13 +30,26 @@ export const fetchNICs = async () => {
   }
 };
 
-// Fetch a single NIC by ID (GET /nics/:id)
 export const fetchNIC = async (nicId) => {
   try {
     const response = await api.get(`/nics/${nicId}`);
     return response.data;
   } catch (error) {
     console.error(`Error fetching NIC ${nicId}:`, error);
+    throw error.response ? error.response.data : error.message;
+  }
+};
+
+export const submitNICApplication = async (formData) => {
+  try {
+    const response = await api.post("/nic-applications/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error submitting NIC application:", error);
     throw error.response ? error.response.data : error.message;
   }
 };

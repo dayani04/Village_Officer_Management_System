@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchPermits, checkVillagerPermitApplication } from "../../../../../api/permit";
+import { fetchPermits, checkVillagerPermitApplication, submitPermitApplication } from "../../../../../api/permit";
 import { getProfile } from "../../../../../api/villager";
 import "./UserPermit.css";
 import NavBar from "../../../NavBar/NavBar";
@@ -70,7 +70,7 @@ const UserPermits = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = () => {
+  const handleSubmit = async () => {
     if (!formData.email || !formData.type || !formData.requiredDate) {
       Swal.fire({
         icon: "error",
@@ -114,8 +114,33 @@ const UserPermits = () => {
       return;
     }
 
-    console.log("Navigating to UserPermitsPR with formData:", formData);
-    navigate("/user_permits_pr", { state: { formData } });
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("permitType", formData.type);
+      formDataToSend.append("requiredDate", formData.requiredDate);
+
+      await submitPermitApplication(formDataToSend);
+
+      Swal.fire({
+        title: "Success",
+        text: "Permit application submitted successfully",
+        icon: "success",
+        confirmButtonText: "OK",
+      }).then(() => {
+        navigate("/user_dashboard");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: "Error",
+        text: error.error || "Failed to submit permit application",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -193,11 +218,11 @@ const UserPermits = () => {
             <div className="form-permits-group">
               <button
                 type="button"
-                className="upload-permit-button"
-                onClick={handleUploadClick}
+                className="submit-permit-button"
+                onClick={handleSubmit}
                 disabled={loading || !!error || !formData.email}
               >
-                Next
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </form>

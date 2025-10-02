@@ -3,18 +3,18 @@ import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import * as certificateApi from '../../../../../api/certificateApplicationAPI.js';
+import { fetchApplicationDetails, saveCertificatePath } from '../../../../../api/certificateApplicationAPI';
 import toast, { Toaster } from 'react-hot-toast';
 
 const fieldsData = [
   { key: 'fullName', labels: ['නම:', 'முழு பெயர்:', 'Full Name:'] },
   { key: 'address', labels: ['ලිපිනය:', 'முகவரி:', 'Address:'] },
-  { key: 'areaId', labels: ['කොට්ඨාස අංකය:', 'பிரிவு எண்:', 'Area ID:'] },
+  { key: 'regionalDivision', labels: ['පළාත:', 'பிரிவு:', 'Regional Division:'] },
   { key: 'gender', labels: ['ස්ත්‍රී පුරුෂබාවය:', 'பாலை:', 'Gender:'] },
   { key: 'age', labels: ['වයස:', 'வய:', 'Age:'] },
   { key: 'nic', labels: ['ජාතික හැඳුනුම්පත් අංකය:', 'தேசிய அடையாள அட்டை எண்:', 'National Identity Card Number:'] },
-  { key: 'civilStatus', labels: ['විවාහක/අවිවාහක:', 'திருமண நிலை:', 'Civil Status:'] },
-  { key: 'occupation', labels: ['රැකියාව:', 'தொழில்:', 'Occupation:'] },
+  { key: 'maritalStatus', labels: ['විවාහක/අවිවාහක:', 'திருமண நிலை:', 'Marital Status:'] },
+  { key: 'job', labels: ['රැකියාව:', 'தொழில்:', 'Job:'] },
   { key: 'character', labels: ['චරිතය:', 'குணம்:', 'Character:'] },
   { key: 'voterId', labels: ['ඡන්ද ලේඛන අංකය:', 'வாக்காளர் பட்டியல் எண்:', 'Voter Roll Number:'] },
   { key: 'date', labels: ['දිනය:', 'தேதி:', 'Date:'] },
@@ -30,16 +30,17 @@ const EditableCertificate = () => {
   const [signatureInput, setSignatureInput] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
+  const [certificateFile, setCertificateFile] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const data = await certificateApi.fetchCertificateDetails(applicationId);
+        console.log(`Fetching details for application ID: ${applicationId}`);
+        const data = await fetchApplicationDetails(applicationId);
 
         if (!data) {
-          throw new Error(`Application ID ${applicationId} not found in database`);
+          throw new Error(`No data returned for application ID ${applicationId}`);
         }
 
         // Calculate age
@@ -47,7 +48,7 @@ const EditableCertificate = () => {
         if (data.DOB) {
           const dob = new Date(data.DOB);
           if (!isNaN(dob.getTime())) {
-            const today = new Date('2025-05-26T12:04:00+05:30');
+            const today = new Date();
             age = today.getFullYear() - dob.getFullYear();
             const m = today.getMonth() - dob.getMonth();
             if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
@@ -57,34 +58,41 @@ const EditableCertificate = () => {
           }
         }
 
-        // Set fields with explicit voterId handling
+        // Set fields with updated mappings
         const newFields = {
           fullName: data.Full_Name || '-',
           address: data.Address || '-',
-          areaId: data.ZipCode || '-',
-
-          gender: '',
+          regionalDivision: data.RegionalDivision || data.ZipCode || '-', // Prefer RegionalDivision if available, fallback to ZipCode
+          gender: data.Gender || '-',
           age,
           nic: data.NIC || '-',
-          civilStatus: '',
-          occupation: '',
+          maritalStatus: data.Marital_Status || '-', // Mapped to Marital_Status
+          job: data.Job || '-', // Mapped to Job
           character: 'Good',
-          voterId: data.electionrecodeID ? data.electionrecodeID.toString() : 'No Voter ID',
-          date: new Date().toISOString().split('T')[0], // Current date
-          signature: signatureInput || '-', // Use user input or default
+          voterId: data.electionrecodeID || 'No Voter ID',
+          date: new Date().toISOString().split('T')[0],
+          signature: signatureInput || '-',
         };
 
-        console.log('Voter ID from API:', data.electionrecodeID);
+        console.log('Fetched data:', data);
         console.log('Mapped fields:', newFields);
 
         setFields(newFields);
         setLoading(false);
       } catch (err) {
-        const errorMessage = err.response?.status === 404
-          ? `Application ID ${applicationId} not found. Please verify the ID exists in villager_has_certificate_recode.`
-          : err.message || 'Failed to fetch certificate details';
+        const errorMessage = err.message.includes('not found')
+          ? `${err.message}. Please verify the database records using the following steps:`
+          : `Failed to fetch certificate details: ${err.message}`;
         setError(errorMessage);
         setLoading(false);
+        toast.error(errorMessage, {
+          style: {
+            background: '#f43f3f',
+            color: '#fff',
+            borderRadius: '8px',
+            padding: '16px',
+          },
+        });
       }
     };
 
@@ -102,64 +110,60 @@ const EditableCertificate = () => {
 
   const downloadPDF = async () => {
     try {
-      const canvas = await html2canvas(certRef.current, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
+      const canvas = await html2canvas(certRef.current, {
+        scale: 1,
+        useCORS: true,
+        logging: false,
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.7);
       const pdf = new jsPDF('portrait', 'mm', 'a4');
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-
+      pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
       const timestamp = new Date().toISOString().replace(/[:.-]/g, '');
       const filename = `certificate_${applicationId}_${timestamp}.pdf`;
-
+      const pdfBlob = pdf.output('blob');
+      console.log(`Generated PDF size: ${(pdfBlob.size / (1024 * 1024)).toFixed(2)} MB`); // Log file size
       pdf.save(filename);
+      setCertificateFile(pdfBlob);
+      toast.success('PDF downloaded successfully!', {
+        style: {
+          background: '#6ac476',
+          color: '#fff',
+          borderRadius: '8px',
+          padding: '16px',
+        },
+      });
     } catch (err) {
-      const errorMessage = err.message || err.toString();
-      setError(`Failed to generate PDF: ${errorMessage}`);
+      console.error('PDF generation error:', err);
+      toast.error(`Failed to generate PDF: ${err.message}`, {
+        style: {
+          background: '#f43f3f',
+          color: '#fff',
+          borderRadius: '8px',
+          padding: '16px',
+        },
+      });
     }
   };
 
   const sendPDF = async () => {
     try {
-      const canvas = await html2canvas(certRef.current, { scale: 2 });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('portrait', 'mm', 'a4');
-      pdf.addImage(imgData, 'PNG', 0, 0, 210, 297);
-
-      const timestamp = new Date().toISOString().replace(/[:.-]/g, '');
-      const filename = `certificate_${applicationId}_${timestamp}.pdf`;
-      const certificatePath = `Uploads/certificates/${filename}`;
-
-      const pdfBlob = pdf.output('blob');
+      if (!certificateFile) {
+        toast.error('Please download the PDF first before sending.');
+        return;
+      }
       const formData = new FormData();
-      formData.append('certificate', pdfBlob, filename);
-      formData.append('certificatePath', certificatePath);
-
-      const response = await certificateApi.saveCertificatePath(applicationId, formData);
-
-      console.log('API response:', response);
-
-      // Show only success toast without navigation
-      toast.success('Certificate saved and sent successfully!', {
-        duration: 3000,
+      formData.append("certificate", certificateFile, `certificate_${applicationId}.pdf`);
+      await saveCertificatePath(applicationId, formData);
+      toast.success('Certificate sent and saved successfully!', {
         style: {
-          background: '#7a1632',
+          background: '#6ac476',
           color: '#fff',
           borderRadius: '8px',
-          padding: '16px'
-        }
+          padding: '16px',
+        },
       });
-
-    } catch (err) {
-      console.error('PDF generation or save error:', err);
-      toast.error(err.message || 'Failed to save certificate', {
-        duration: 4000,
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '8px',
-          padding: '16px'
-        }
-      });
-
+    } catch (error) {
+      toast.error(`Failed to send certificate: ${error.message || error}`);
     }
   };
 
@@ -168,15 +172,24 @@ const EditableCertificate = () => {
   if (error) {
     return (
       <div className="container py-4">
-        <p><strong>Error:</strong> {error}</p>
-        <p><strong>Debugging Steps:</strong></p>
-        <ul>
-          <li>Run: <code>SELECT * FROM villager_has_certificate_recode WHERE application_id = {applicationId};</code></li>
-          <li>Ensure a record exists with application_id={applicationId}.</li>
-          <li>Run: <code>SELECT * FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId});</code></li>
-          <li>Run: <code>SELECT ZipCode FROM area WHERE Area_ID = (SELECT Area_ID FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}));</code></li>
-          <li>Run: <code>SELECT electionrecodeID FROM villager_hase_election_recode WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}) AND status='Approved' ORDER BY apply_date DESC LIMIT 1;</code></li>
-        </ul>
+        <Toaster position="top-right" />
+        <div className="alert alert-danger">
+          <p><strong>Error:</strong> {error}</p>
+          <p><strong>Debugging Steps:</strong></p>
+          <ul>
+            <li>Run: <code>SELECT * FROM villager_has_certificate_recode WHERE application_id = {applicationId};</code></li>
+            <li>Ensure a record exists with application_id={applicationId}.</li>
+            <li>Run: <code>SELECT * FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId});</code></li>
+            <li>Run: <code>SELECT ZipCode FROM area WHERE Area_ID = (SELECT Area_ID FROM villager WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}));</code></li>
+            <li>Run: <code>SELECT electionrecodeID FROM villager_hase_election_recode WHERE Villager_ID = (SELECT Villager_ID FROM villager_has_certificate_recode WHERE application_id = {applicationId}) AND status='Approved' ORDER BY apply_date DESC LIMIT 1;</code></li>
+          </ul>
+          <button
+            className="btn btn-secondary"
+            onClick={() => navigate('/VillageOfficerDashBoard')}
+          >
+            Back to Dashboard
+          </button>
+        </div>
       </div>
     );
   }
@@ -184,9 +197,6 @@ const EditableCertificate = () => {
   return (
     <div className="container py-4">
       <Toaster position="top-right" />
-      {success && (
-        <div className="alert alert-success">{success}</div>
-      )}
       <div className="mb-3">
         <label htmlFor="signatureInput" className="form-label">
           Signature of Grama Niladhari:
@@ -206,7 +216,7 @@ const EditableCertificate = () => {
         style={{
           width: '794px',
           minHeight: '1123px',
-          backgroundImage: 'url("/images/certificate.jpeg")', // Update image path
+          backgroundImage: 'url("/images/certificate.jpeg")',
           backgroundSize: 'cover',
           backgroundPosition: 'top left',
         }}
@@ -258,7 +268,7 @@ const EditableCertificate = () => {
           Download as PDF
         </button>
         <button className="btn btn-success px-4 py-2" onClick={sendPDF}>
-          Send
+          Send Certificate
         </button>
       </div>
     </div>

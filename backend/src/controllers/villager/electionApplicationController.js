@@ -1,4 +1,3 @@
-// backend/controllers/villager/electionApplicationController.js
 const ElectionApplication = require("../../models/villager/electionApplicationModel");
 const ElectionNotification = require("../../models/villager/electionNotificationModel");
 const path = require("path");
@@ -11,13 +10,15 @@ const createElectionApplication = async (req, res) => {
     const { email, electionType } = req.body;
     const file = req.file;
 
-    if (!email || !electionType || !file) {
-      return res.status(400).json({ error: "Email, election type, and ID document are required" });
+    if (!email || !electionType) {
+      return res.status(400).json({ error: "Email and election type are required" });
     }
 
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.mimetype)) {
-      return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+    if (file) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+      }
     }
 
     const villager = await ElectionApplication.getVillagerByEmail(email);
@@ -30,24 +31,25 @@ const createElectionApplication = async (req, res) => {
       return res.status(404).json({ error: "Election type not found" });
     }
 
-    // Check if a notification exists for this election
     const notification = await ElectionNotification.getNotificationByElectionId(election.ID);
     if (!notification) {
       return res.status(400).json({ error: "No active notification for this election type" });
     }
 
-    // Check if villager has already applied for this election
     const existingApplication = await ElectionApplication.getElectionApplicationByIds(villager.Villager_ID, election.ID);
     if (existingApplication) {
       return res.status(400).json({ error: "You have already applied for this election" });
     }
 
-    const fileName = `${villager.Villager_ID}_${election.ID}_${Date.now()}${path.extname(file.originalname)}`;
-    const uploadDir = path.join(__dirname, "../../../Uploads");
-    const documentPath = `${fileName}`;
+    let documentPath = null;
+    if (file) {
+      const fileName = `${villager.Villager_ID}_${election.ID}_${Date.now()}${path.extname(file.originalname)}`;
+      const uploadDir = path.join(__dirname, "../../../Uploads");
+      documentPath = fileName;
 
-    fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+      fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+    }
 
     const applyDate = new Date().toISOString().split("T")[0];
     await ElectionApplication.addElectionApplication(
@@ -193,13 +195,13 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
-         .text(`Address: ${address}`, 40, 340);
-        
+         .text(`Address: ${address}`, 40, 340)
+         .text(`Voting Place: ${votingPlace}`, 40, 360);
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`නම: ${villager.Full_Name || 'N/A'}`, 300, 300)
          .text(`ගම්වාසී හැඳුනුම්පත: ${villager.Villager_ID || 'N/A'}`, 300, 320)
-         .text(`ලිපිනය: ${address}`, 300, 340);
-        
+         .text(`ලිපිනය: ${address}`, 300, 340)
+         .text(`ඡන්ද පොළ: ${votingPlace}`, 300, 360);
     } else {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
@@ -222,14 +224,12 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
          .text(`Election Type: ${election.Type || 'N/A'}`, 40, 450)
          .text(`Election ID: ${election.ID || 'N/A'}`, 40, 470)
          .text(`Issue Date: ${formattedApplyDate}`, 40, 490)
-         .text(`Election Date: ${formattedElectionDate}`, 40, 510)
-          .text(`Voting Place: ${votingPlace}`, 40, 360);
+         .text(`Election Date: ${formattedElectionDate}`, 40, 510);
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`ඡන්ද වර්ගය: ${election.Type || 'N/A'}`, 300, 450)
          .text(`ඡන්ද හැඳුනුම්පත: ${election.ID || 'N/A'}`, 300, 470)
          .text(`නිකුත් කළ දිනය: ${formattedApplyDate}`, 300, 490)
-         .text(`ඡන්ද දිනය: ${formattedElectionDate}`, 300, 510)
-          .text(`ඡන්ද පොළ: ${votingPlace}`, 300, 360);
+         .text(`ඡන්ද දිනය: ${formattedElectionDate}`, 300, 510);
     } else {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Election Type: ${election.Type || 'N/A'}`, 40, 450)

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchNICs } from "../../../../../api/nic";
+import { fetchNICs, submitNICApplication } from "../../../../../api/nic";
 import { getProfile } from "../../../../../api/villager";
 import "./UserIDCard.css";
 import NavBar from "../../../NavBar/NavBar";
@@ -22,14 +22,13 @@ const UserIDCard = () => {
   const [error, setError] = useState(null);
   const [userAge, setUserAge] = useState(null);
 
-  // Function to calculate age from DOB
   const calculateAge = (dob) => {
     if (!dob) {
       console.log("No DOB provided, returning null");
       return null;
     }
     const dobDate = new Date(dob);
-    const currentDate = new Date("2025-06-12");
+    const currentDate = new Date();
     const age = currentDate.getFullYear() - dobDate.getFullYear();
     const monthDiff = currentDate.getMonth() - dobDate.getMonth();
     if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < dobDate.getDate())) {
@@ -38,12 +37,10 @@ const UserIDCard = () => {
     return age;
   };
 
-  // Fetch logged-in user's profile and NIC types on component mount
   useEffect(() => {
     console.log("useEffect running to fetch profile and NIC types");
     const loadData = async () => {
       try {
-        // Fetch logged-in user's profile
         const profile = await getProfile();
         console.log("Profile fetched:", profile);
         setFormData((prevData) => ({
@@ -51,16 +48,13 @@ const UserIDCard = () => {
           email: profile.Email || "",
         }));
 
-        // Calculate user age from DOB
         const age = calculateAge(profile.DOB);
         console.log("Calculated age:", age);
         setUserAge(age);
 
-        // Fetch NIC types
         const nics = await fetchNICs();
         console.log("Raw NIC types fetched:", nics);
 
-        // Filter NIC types based on age
         let filteredNics = nics;
         if (age !== null) {
           if (age <= 15) {
@@ -106,10 +100,9 @@ const UserIDCard = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Validation
     if (!formData.email || !formData.type) {
       Swal.fire({
         icon: "error",
@@ -130,7 +123,6 @@ const UserIDCard = () => {
       return;
     }
 
-    // Validate NIC type against age
     if (userAge !== null) {
       if (userAge <= 15 && formData.type !== "postal ID Card") {
         Swal.fire({
@@ -152,8 +144,32 @@ const UserIDCard = () => {
       }
     }
 
-    console.log("Navigating to UserIDCardBC with formData:", formData);
-    navigate("/user_id_card_bc", { state: { formData } });
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("nicType", formData.type);
+
+      await submitNICApplication(formDataToSend);
+
+      Swal.fire({
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        icon: "success",
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/user_dashboard");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLanguageChange = (lang) => {
@@ -161,7 +177,6 @@ const UserIDCard = () => {
     changeLanguage(lang);
   };
 
-  // Map API type to translation key
   const getTranslationKey = (apiType) => {
     const translationMap = {
       "postal ID Card": "postalIdCard",
@@ -247,11 +262,11 @@ const UserIDCard = () => {
             <div className="form-idcard-group">
               <button
                 type="button"
-                className="upload-idcard-button"
-                onClick={handleUploadClick}
+                className="submit-idcard-button"
+                onClick={handleSubmit}
                 disabled={loading || !!error || !formData.email || userAge === null}
               >
-                {t("next")}
+                {loading ? t("submitting") || "Submitting..." : t("submit") || "Submit"}
               </button>
             </div>
           </form>

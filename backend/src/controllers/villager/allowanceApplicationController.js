@@ -8,13 +8,8 @@ const createAllowanceApplication = async (req, res) => {
     const { email, allowanceType } = req.body;
     const file = req.file;
 
-    if (!email || !allowanceType || !file) {
-      return res.status(400).json({ error: "Email, allowance type, and document are required" });
-    }
-
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.mimetype)) {
-      return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+    if (!email || !allowanceType) {
+      return res.status(400).json({ error: "Email and allowance type are required" });
     }
 
     const villager = await AllowanceApplication.getVillagerByEmail(email);
@@ -27,12 +22,20 @@ const createAllowanceApplication = async (req, res) => {
       return res.status(404).json({ error: `Allowance type '${allowanceType}' not found` });
     }
 
-    const fileName = `${villager.Villager_ID}_${allowance.Allowances_ID}_${Date.now()}${path.extname(file.originalname)}`;
-    const uploadDir = path.join(__dirname, "../../../Uploads");
-    const documentPath = fileName;
+    let documentPath = null;
+    if (file) {
+      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
+      if (!allowedTypes.includes(file.mimetype)) {
+        return res.status(400).json({ error: "Only PDF, PNG, or JPG files are allowed" });
+      }
 
-    fs.mkdirSync(uploadDir, { recursive: true });
-    fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+      const fileName = `${villager.Villager_ID}_${allowance.Allowances_ID}_${Date.now()}${path.extname(file.originalname)}`;
+      const uploadDir = path.join(__dirname, "../../../Uploads");
+      documentPath = fileName;
+
+      fs.mkdirSync(uploadDir, { recursive: true });
+      fs.writeFileSync(path.join(uploadDir, fileName), file.buffer);
+    }
 
     const applyDate = new Date().toISOString().split("T")[0];
     const result = await AllowanceApplication.addAllowanceApplication(

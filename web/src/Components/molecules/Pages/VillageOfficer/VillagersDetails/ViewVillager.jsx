@@ -4,11 +4,54 @@ import toast, { Toaster } from 'react-hot-toast';
 import * as villagerApi from '../../../../../api/villager';
 import './ViewVillager.css';
 
+const DownloadCertificate = ({ filename, documentType, disabled }) => {
+  const handleDownload = async () => {
+    if (!filename) {
+      toast.error(`${documentType} not available`, {
+        style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
+      });
+      return;
+    }
+
+    try {
+      const cleanFilename = filename.replace(/[^a-zA-Z0-9._-]/g, '');
+      const blob = await villagerApi.downloadDocument(cleanFilename);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${documentType}_${cleanFilename}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      toast.success(`${documentType} downloaded successfully`, {
+        style: { background: '#4caf50', color: '#fff', borderRadius: '4px' },
+      });
+    } catch (err) {
+      console.error(`Error downloading ${documentType}:`, err);
+      toast.error(err.error || `Failed to download ${documentType}`, {
+        style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
+      });
+    }
+  };
+
+  return (
+    <button
+      className="view-villager-download-btn"
+      onClick={handleDownload}
+      disabled={disabled || !filename}
+    >
+      {disabled ? 'Downloading...' : 'Download'}
+    </button>
+  );
+};
+
 const ViewVillager = () => {
   const { villagerId } = useParams();
   const navigate = useNavigate();
   const [villager, setVillager] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState({ BirthCertificate: false, NICCopy: false });
   const [error, setError] = useState('');
 
   useEffect(() => {
@@ -18,11 +61,7 @@ const ViewVillager = () => {
         setError(errorMessage);
         setLoading(false);
         toast.error(errorMessage, {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+          style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
         });
         return;
       }
@@ -40,11 +79,7 @@ const ViewVillager = () => {
         setError(errorMessage);
         setLoading(false);
         toast.error(errorMessage, {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+          style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
         });
       }
     };
@@ -60,6 +95,7 @@ const ViewVillager = () => {
     return (
       <section className="w-full h-full flex items-center justify-center">
         <div className="view-villager-container">Loading...</div>
+        <Toaster />
       </section>
     );
   }
@@ -108,7 +144,10 @@ const ViewVillager = () => {
           <p><strong>Email:</strong> {villager.Email || 'N/A'}</p>
           <p><strong>Phone Number:</strong> {villager.Phone_No || 'N/A'}</p>
           <p><strong>NIC:</strong> {villager.NIC || 'N/A'}</p>
-          <p><strong>Date of Birth:</strong> {villager.DOB ? new Date(villager.DOB).toLocaleDateString() : 'N/A'}</p>
+          <p>
+            <strong>Date of Birth:</strong>{' '}
+            {villager.DOB ? new Date(villager.DOB).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : 'N/A'}
+          </p>
           <p><strong>Address:</strong> {villager.Address || 'N/A'}</p>
           <p><strong>Regional Division:</strong> {villager.RegionalDivision || 'N/A'}</p>
           <p><strong>Status:</strong> {villager.Status || 'N/A'}</p>
@@ -117,6 +156,30 @@ const ViewVillager = () => {
           <p><strong>Longitude:</strong> {villager.Longitude ?? 'N/A'}</p>
           <p><strong>Election Participant:</strong> {villager.IsParticipant ? 'Yes' : 'No'}</p>
           <p><strong>Alive Status:</strong> {villager.Alive_Status || 'N/A'}</p>
+          <p>
+            <strong>Birth Certificate:</strong>{' '}
+            {villager.BirthCertificate ? (
+              <DownloadCertificate
+                filename={villager.BirthCertificate}
+                documentType="Birth Certificate"
+                disabled={downloading.BirthCertificate}
+              />
+            ) : (
+              'N/A'
+            )}
+          </p>
+          <p>
+            <strong>NIC Copy:</strong>{' '}
+            {villager.NICCopy ? (
+              <DownloadCertificate
+                filename={villager.NICCopy}
+                documentType="NIC Copy"
+                disabled={downloading.NICCopy}
+              />
+            ) : (
+              'N/A'
+            )}
+          </p>
         </div>
         <div className="view-villager-actions">
           <button className="view-villager-back-btn" onClick={handleBack}>

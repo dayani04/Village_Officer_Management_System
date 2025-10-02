@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { fetchElections, fetchElectionNotifications, checkVillagerElectionApplication } from "../../../../../api/election";
+import { fetchElections, fetchElectionNotifications, checkVillagerElectionApplication, submitElectionApplication } from "../../../../../api/election";
 import { getProfile } from "../../../../../api/villager";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -68,7 +68,6 @@ const UserElection = () => {
         setAllowedElectionTypes(allowedTypes);
 
         if (profile.Villager_ID) {
-          // Fetch applications for all election types
           const applicationPromises = elections.map((election) =>
             checkVillagerElectionApplication(profile.Villager_ID, election.Type)
           );
@@ -106,12 +105,12 @@ const UserElection = () => {
     return emailRegex.test(email);
   };
 
-  const handleUploadClick = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.email || !formData.type) {
       Swal.fire({
         title: t("formValidationTitle"),
-        text: t("formValidationMessage"),
+        text: t("allFieldsRequired"),
         icon: "error",
         confirmButtonText: t("ok"),
       });
@@ -158,8 +157,32 @@ const UserElection = () => {
       return;
     }
 
-    console.log("Navigating to UserElectionID with formData:", formData);
-    navigate("/user_election_id", { state: { formData } });
+    setLoading(true);
+    try {
+      const formDataToSend = new FormData();
+      formDataToSend.append("email", formData.email);
+      formDataToSend.append("electionType", formData.type);
+
+      await submitElectionApplication(formDataToSend);
+
+      Swal.fire({
+        title: t("submissionSuccessTitle"),
+        text: t("submissionSuccessMessage"),
+        icon: "success",
+        confirmButtonText: t("ok"),
+      }).then(() => {
+        navigate("/user_dashboard");
+      });
+    } catch (error) {
+      Swal.fire({
+        title: t("error"),
+        text: error.error || t("submissionFailed"),
+        icon: "error",
+        confirmButtonText: t("ok"),
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLanguageChange = (lang) => {
@@ -262,11 +285,11 @@ const UserElection = () => {
             <div className="form-group">
               <button
                 type="button"
-                className="upload-button"
-                onClick={handleUploadClick}
+                className="submit-button"
+                onClick={handleSubmit}
                 disabled={loading || !!error || !formData.email || userAge === null || userAge < 17}
               >
-                {t("next")}
+                {loading ? t("submitting") : t("submit")}
               </button>
             </div>
           </form>

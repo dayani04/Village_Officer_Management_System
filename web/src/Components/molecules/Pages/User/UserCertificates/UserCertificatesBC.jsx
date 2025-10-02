@@ -1,9 +1,9 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import Swal from "sweetalert2";
-import { submitCertificateApplication } from "../../../../../api/certificateApplication";
+import { submitCertificateApplication, fetchVillagerDetails } from "../../../../../api/certificateApplication";
 import "./UserCertificatesBC.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
@@ -11,8 +11,8 @@ import Footer from "../../../Footer/Footer";
 const UserCertificatesBC = () => {
   const { t } = useTranslation();
   const { changeLanguage } = useContext(LanguageContext);
-  const [file, setFile] = useState(null);
-  const [reason, setReason] = useState(""); // Add state for reason
+  const [reason, setReason] = useState("");
+  const [email, setEmail] = useState("");
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
@@ -20,41 +20,49 @@ const UserCertificatesBC = () => {
   // Get form data from UserCertificates
   const { formData } = location.state || { formData: { email: "" } };
 
-  const handleFileChange = (e) => {
-    const uploadedFile = e.target.files[0];
-    if (uploadedFile) {
-      const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-      if (!allowedTypes.includes(uploadedFile.type)) {
+  // Fetch email if not provided in location.state
+  useEffect(() => {
+    const fetchUserEmail = async () => {
+      try {
+        // Replace with your actual API call to get the logged-in user's details
+        console.log("Fetching user email");
+        const userDetails = await fetchVillagerDetails("current"); // Adjust to your auth API
+        if (userDetails && userDetails.email) {
+          setEmail(userDetails.email);
+          console.log("Fetched user email:", userDetails.email);
+        } else {
+          console.error("No email found in user details");
+          navigate("/user_certificates", { state: { error: t("emailNotFound") } });
+        }
+      } catch (error) {
+        console.error("Error fetching user email:", error);
         Swal.fire({
           icon: "error",
-          title: t("uploadRequiredTitleBC"),
-          text: t("invalidFileType"),
+          title: t("error"),
+          text: t("failedToFetchEmail"),
           confirmButtonText: t("ok"),
         });
-        return;
+        navigate("/user_certificates");
       }
-      setFile(uploadedFile);
+    };
+
+    if (!formData.email) {
+      fetchUserEmail();
+    } else {
+      setEmail(formData.email);
     }
-  };
-
-  const handleFileClick = () => {
-    document.getElementById("file-upload").click();
-  };
-
-  const handleDelete = () => {
-    setFile(null);
-  };
+  }, [formData.email, navigate, t]);
 
   const handleBack = () => {
     navigate("/user_certificates");
   };
 
   const handleSubmit = async () => {
-    if (!file) {
+    if (!email.trim()) {
       Swal.fire({
         icon: "error",
-        title: t("uploadRequiredTitleBC"),
-        text: t("uploadRequiredMessageBC"),
+        title: t("emailRequiredTitle"),
+        text: t("emailRequiredMessage"),
         confirmButtonText: t("ok"),
       });
       return;
@@ -70,29 +78,16 @@ const UserCertificatesBC = () => {
       return;
     }
 
-    const allowedTypes = ["application/pdf", "image/png", "image/jpeg"];
-    if (!allowedTypes.includes(file.type)) {
-      Swal.fire({
-        icon: "error",
-        title: t("uploadRequiredTitleBC"),
-        text: t("invalidFileType"),
-        confirmButtonText: t("ok"),
-      });
-      return;
-    }
-
     setLoading(true);
     try {
       const formDataToSend = new FormData();
-      formDataToSend.append("email", formData.email || "");
-      formDataToSend.append("reason", reason); // Include reason in the payload
-      formDataToSend.append("document", file);
+      formDataToSend.append("email", email);
+      formDataToSend.append("reason", reason);
 
-      // Log formDataToSend for debugging
+      // Log FormData contents for debugging
       console.log("Submitting formData:", {
-        email: formData.email,
+        email,
         reason,
-        document: file.name,
       });
 
       await submitCertificateApplication(formDataToSend);
@@ -103,9 +98,7 @@ const UserCertificatesBC = () => {
         text: t("submissionSuccessMessage"),
         confirmButtonText: t("ok"),
       }).then(() => {
-
-        navigate("/user_dashboard"); // Redirect to dashboard after success
-
+        navigate("/user_dashboard");
       });
     } catch (error) {
       console.error("Error during submission:", error);
@@ -142,35 +135,23 @@ const UserCertificatesBC = () => {
         </div>
 
         <form className="certificates-bc-form-content">
-          <div className="file-certificates-bc-upload-section">
+          <div className="email-certificates-bc-section">
+            <label htmlFor="email" className="email-certificates-bc-label">
+              {t("emailLabel")}
+            </label>
             <input
-              type="file"
-              id="file-upload"
-              accept=".pdf,.jpg,.png"
-              onChange={handleFileChange}
-              className="file-certificates-bc-input-field"
-              style={{ display: "none" }}
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="email-certificates-bc-input"
+              placeholder={t("emailPlaceholder")}
+              disabled={loading}
             />
-            {file && (
-              <div className="file-certificates-bc-info">
-                <span className="file-certificates-bc-name">{file.name}</span>
-                <a
-                  href={URL.createObjectURL(file)}
-                  download={file.name}
-                  className="file-certificates-bc-download-link"
-                >
-                  <br />
-                  {t("downloadLink")}
-                </a>
-              </div>
-            )}
           </div>
 
           <div className="reason-certificates-bc-section">
-            <label
-              htmlFor="reason"
-              className="reason-certificates-bc-label"
-            >
+            <label htmlFor="reason" className="reason-certificates-bc-label">
               {t("reasonLabel")}
             </label>
             <textarea
@@ -184,26 +165,6 @@ const UserCertificatesBC = () => {
           </div>
 
           <div className="form-certificates-bc-buttons-section">
-            <button
-              type="button"
-              className="upload-certificates-bc-btn"
-              onClick={handleFileClick}
-              disabled={loading}
-            >
-              📎 {t("uploadBCButton")}
-            </button>
-
-            {file && (
-              <button
-                type="button"
-                className="delete-certificates-bc-btn"
-                onClick={handleDelete}
-                disabled={loading}
-              >
-                {t("delete")}
-              </button>
-            )}
-
             <div className="navigation-certificates-bc-buttons">
               <button
                 type="button"

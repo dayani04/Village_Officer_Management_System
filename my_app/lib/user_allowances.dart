@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'user_allowances_bc.dart';
 
 class UserAllowancesPage extends StatefulWidget {
   const UserAllowancesPage({Key? key}) : super(key: key);
@@ -43,8 +42,9 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
           'Authorization': 'Bearer $token',
         },
       );
-      if (profileRes.statusCode != 200)
-        throw Exception('Failed to fetch profile');
+      if (profileRes.statusCode != 200) {
+        throw Exception('Failed to fetch profile: ${profileRes.statusCode}');
+      }
       final profile = jsonDecode(profileRes.body);
       email = profile['Email'] ?? '';
       // Defensive: handle both int and String for Villager_ID
@@ -68,8 +68,9 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
           'Authorization': 'Bearer $token',
         },
       );
-      if (allowancesRes.statusCode != 200)
-        throw Exception('Failed to fetch allowance types');
+      if (allowancesRes.statusCode != 200) {
+        throw Exception('Failed to fetch allowance types: ${allowancesRes.statusCode}');
+      }
       final allowances = jsonDecode(allowancesRes.body);
       // Filter allowance types based on age
       List<dynamic> filteredAllowances = allowances;
@@ -106,7 +107,7 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
       });
     } catch (e) {
       setState(() {
-        error = e.toString();
+        error = 'Error: ${e.toString()}';
         loading = false;
       });
     }
@@ -116,7 +117,7 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
     if (dob == null || dob.isEmpty) return null;
     try {
       final dobDate = DateTime.parse(dob);
-      final currentDate = DateTime(2025, 6, 19); // match React code
+      final currentDate = DateTime.now(); // Updated to use current date
       int age = currentDate.year - dobDate.year;
       int monthDiff = currentDate.month - dobDate.month;
       if (monthDiff < 0 || (monthDiff == 0 && currentDate.day < dobDate.day)) {
@@ -128,37 +129,81 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
     }
   }
 
-  void handleNext() {
+  Future<void> handleSubmit() async {
     if (email.isEmpty || selectedType.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select an allowance type.')),
+        const SnackBar(content: Text('Please provide an email and select an allowance type.')),
       );
       return;
     }
-    if (selectedType == 'Adult Allowances' &&
-        (userAge == null || userAge! < 70)) {
+
+    if (!RegExp(r'^[^\s@]+@[^\s@]+\.[^\s@]+$').hasMatch(email)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You are not eligible for Adult Allowances.'),
+        const SnackBar(content: Text('Invalid email format.')),
+      );
+      return;
+    }
+
+    if (selectedType == 'Adult Allowances' && (userAge == null || userAge! < 70)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'You must be at least 70 years old to apply for Adult Allowances. Your age: ${userAge ?? 'N/A'}',
+          ),
         ),
       );
       return;
     }
+
     if (appliedAllowances.contains(selectedType)) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('You have already applied for this allowance type.'),
+        SnackBar(
+          content: Text('You have already applied for $selectedType.'),
         ),
       );
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            UserAllowancesBCPage(email: email, type: selectedType),
-      ),
-    );
+
+    setState(() {
+      loading = true;
+    });
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('token');
+      final formData = <String, String>{
+        'email': email,
+        'allowanceType': selectedType,
+      };
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://localhost:5000/api/allowance-applications/'),
+      );
+      request.headers['Authorization'] = 'Bearer $token';
+      formData.forEach((key, value) {
+        request.fields[key] = value;
+      });
+
+      final response = await request.send();
+      if (response.statusCode == 201) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Allowance application submitted successfully.')),
+        );
+        Navigator.pushReplacementNamed(context, '/user_dashboard');
+      } else {
+        final responseBody = await response.stream.bytesToString();
+        throw Exception('Failed to submit application: $responseBody');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
   }
 
   @override
@@ -168,77 +213,77 @@ class _UserAllowancesPageState extends State<UserAllowancesPage> {
       body: loading
           ? const Center(child: CircularProgressIndicator())
           : error != null
-          ? Center(child: Text('Error: $error'))
-          : Padding(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Email',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  TextField(
-                    controller: TextEditingController(text: email),
-                    enabled: false,
-                    decoration: const InputDecoration(),
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'Allowance Type',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  DropdownButtonFormField<String>(
-                    value: selectedType.isEmpty ? null : selectedType,
-                    items: allowanceTypes.map<DropdownMenuItem<String>>((item) {
-                      final isApplied = appliedAllowances.contains(
-                        item['Allowances_Type'],
-                      );
-                      return DropdownMenuItem<String>(
-                        value: item['Allowances_Type'],
-                        enabled: !isApplied,
-                        child: Text(
-                          isApplied
-                              ? '${item['Allowances_Type']} (Already Applied)'
-                              : item['Allowances_Type'],
+              ? Center(child: Text(error!))
+              : Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Email',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      TextField(
+                        controller: TextEditingController(text: email),
+                        enabled: false,
+                        decoration: const InputDecoration(
+                          hintText: 'Enter your email',
                         ),
-                      );
-                    }).toList(),
-                    onChanged: (v) => setState(() => selectedType = v ?? ''),
-                    decoration: const InputDecoration(
-                      labelText: 'Select Allowance Type',
-                    ),
-                  ),
-                  if (selectedType == 'Adult Allowances' &&
-                      userAge != null &&
-                      userAge! < 70)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'You must be at least 70 years old to apply for Adult Allowances. Your age: $userAge',
-                        style: TextStyle(color: Colors.red),
                       ),
-                    ),
-                  if (appliedAllowances.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Text(
-                        'You have already applied for: ${appliedAllowances.join(", ")}',
-                        style: TextStyle(color: Colors.orange),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Allowance Type',
+                        style: TextStyle(fontWeight: FontWeight.bold),
                       ),
-                    ),
-                  const SizedBox(height: 24),
-                  Center(
-                    child: ElevatedButton(
-                      onPressed: loading || email.isEmpty || userAge == null
-                          ? null
-                          : handleNext,
-                      child: const Text('Next'),
-                    ),
+                      DropdownButtonFormField<String>(
+                        value: selectedType.isEmpty ? null : selectedType,
+                        items: allowanceTypes.map<DropdownMenuItem<String>>((item) {
+                          final isApplied = appliedAllowances.contains(
+                            item['Allowances_Type'],
+                          );
+                          return DropdownMenuItem<String>(
+                            value: item['Allowances_Type'],
+                            enabled: !isApplied,
+                            child: Text(
+                              isApplied
+                                  ? '${item['Allowances_Type']} (Already Applied)'
+                                  : item['Allowances_Type'],
+                            ),
+                          );
+                        }).toList(),
+                        onChanged: (value) => setState(() => selectedType = value ?? ''),
+                        decoration: const InputDecoration(
+                          labelText: 'Select Allowance Type',
+                        ),
+                      ),
+                      if (selectedType == 'Adult Allowances' && userAge != null && userAge! < 70)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You must be at least 70 years old to apply for Adult Allowances. Your age: $userAge',
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                      if (appliedAllowances.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            'You have already applied for: ${appliedAllowances.join(", ")}',
+                            style: const TextStyle(color: Colors.orange),
+                          ),
+                        ),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: loading || email.isEmpty || userAge == null
+                              ? null
+                              : handleSubmit,
+                          child: Text(loading ? 'Submitting...' : 'Submit'),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
     );
   }
 }

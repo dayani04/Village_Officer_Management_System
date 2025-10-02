@@ -40,7 +40,7 @@ const Sidebar = () => {
         position: "fixed",
         top: 0,
         left: 0,
-        background: "#9C284F",
+        background: "linear-gradient(135deg, #4A2C4E, #8A2B3A, #2A4066)",
         color: "white",
         overflowY: "auto",
         zIndex: 999,
@@ -52,9 +52,9 @@ const Sidebar = () => {
             to="/VillageOfficerDashBoard"
             className="nav-link d-flex align-items-center p-2 rounded hover-bg"
             style={{ textDecoration: "none", color: "white" }}
-            activeStyle={{ fontWeight: "bold", backgroundColor: "#9C284F" }}
-          > 
-            <TbDashboard className="me-2" /> Villager Dashboard
+            activeStyle={{ fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.2)" }}
+          >
+            <TbDashboard className="me-2" /> Dashboard
           </NavLink>
         </li>
 
@@ -62,7 +62,7 @@ const Sidebar = () => {
           <button
             onClick={() => setIsProductSubMenuOpen(!isProductSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Villagers
@@ -113,7 +113,7 @@ const Sidebar = () => {
           <button
             onClick={() => setIsDiscountSubMenuOpen(!isDiscountSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
           >
             <div className="d-flex align-items-center">
               <MdOutlineDiscount className="me-2" /> Requests
@@ -138,7 +138,7 @@ const Sidebar = () => {
               </li>
               <li>
                 <NavLink
-                  to="/RequestsForCertificate"
+                  to="/requests_for_certificate"
                   className="nav-link p-2 rounded hover-bg"
                   style={{ color: "white" }}
                   activeStyle={{ fontWeight: "bold" }}
@@ -214,7 +214,7 @@ const Sidebar = () => {
           <button
             onClick={() => setIsUsersSubMenuOpen(!isUsersSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Holders

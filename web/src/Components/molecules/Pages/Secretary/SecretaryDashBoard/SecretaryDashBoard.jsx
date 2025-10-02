@@ -116,7 +116,7 @@ const SecretaryDashBoard = () => {
               religion.find((item) => item.Religion === 'Christianity')?.villager_count || 0,
               religion.find((item) => item.Religion === 'Others')?.villager_count || 0,
             ],
-            backgroundColor: ['#9C284F', '#B13E62', '#7A1F3D', '#D26E88', '#E5A0B3'],
+            backgroundColor: ['#9C284F', '#B13E62', '#7A1F3D', '#a95a70ff','#D26E88'],
             hoverOffset: 4,
           }],
         });
@@ -182,7 +182,7 @@ const SecretaryDashBoard = () => {
     <Box sx={{ display: 'flex' }}>
       <Sidebar />
       <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#F4F6F8', minHeight: '100vh' }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>Dashboard</Typography>
+        <Typography variant="h5" sx={{ mb: 3 }}>Secretary Dashboard</Typography>
 
         <DashboardCards />
 

@@ -3,6 +3,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const sendConfirmationEmail = require("../../utills/mailer");
 const crypto = require("crypto");
+const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
@@ -37,6 +38,8 @@ const createVillager = async (req, res) => {
       alive_status, job, gender, marital_status, religion, race
     } = req.body;
 
+    const files = req.files;
+
     if (!villager_id || !full_name || !email || !password || !phone_no) {
       return res.status(400).json({ error: "Required fields are missing" });
     }
@@ -47,11 +50,29 @@ const createVillager = async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const timestamp = Date.now();
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    // Handle file uploads
+    let birthCertificatePath = null;
+    let nicCopyPath = null;
+
+    if (files.birthCertificate) {
+      birthCertificatePath = `${villager_id}_birthCertificate_${timestamp}${path.extname(files.birthCertificate[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, birthCertificatePath), files.birthCertificate[0].buffer);
+    }
+
+    if (files.nicCopy) {
+      nicCopyPath = `${villager_id}_nicCopy_${timestamp}${path.extname(files.nicCopy[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, nicCopyPath), files.nicCopy[0].buffer);
+    }
+
     await User.addVillager(
       villager_id, full_name, email, hashedPassword, phone_no, nic, dob, address,
       regional_division, status || "Active", area_id, latitude, longitude,
       is_participant, alive_status || "Alive", job, gender, marital_status,
-      religion, race
+      religion, race, birthCertificatePath, nicCopyPath
     );
 
     await sendConfirmationEmail(email, "Welcome to Village Officer Management System", "Your account has been created successfully.");
@@ -68,6 +89,7 @@ const updateVillager = async (req, res) => {
       full_name, email, phone_no, address, regional_division, status, 
       is_election_participant, alive_status, job, gender, marital_status, dob, religion, race 
     } = req.body;
+    const files = req.files;
     const villagerId = req.params.id;
 
     if (!full_name || !email || !phone_no) {
@@ -81,6 +103,23 @@ const updateVillager = async (req, res) => {
 
     const currentUser = await User.getVillagerById(villagerId);
     if (!currentUser) return res.status(404).json({ error: "User not found" });
+
+    const timestamp = Date.now();
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
+
+    let birthCertificatePath = currentUser.BirthCertificate;
+    let nicCopyPath = currentUser.NICCopy;
+
+    if (files.birthCertificate) {
+      birthCertificatePath = `${villagerId}_birthCertificate_${timestamp}${path.extname(files.birthCertificate[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, birthCertificatePath), files.birthCertificate[0].buffer);
+    }
+
+    if (files.nicCopy) {
+      nicCopyPath = `${villagerId}_nicCopy_${timestamp}${path.extname(files.nicCopy[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, nicCopyPath), files.nicCopy[0].buffer);
+    }
 
     const parsedIsElectionParticipant = typeof is_election_participant === 'boolean' 
       ? is_election_participant 
@@ -96,11 +135,13 @@ const updateVillager = async (req, res) => {
       is_election_participant: parsedIsElectionParticipant,
       alive_status: alive_status !== undefined ? alive_status : currentUser.Alive_Status,
       job: job !== undefined ? job : currentUser.Job,
-      gender: gender !== undefined ? gender : currentUser.Gender,
-      marital_status: marital_status !== undefined ? marital_status : currentUser.Marital_Status,
+      gender: gender || currentUser.Gender,
+      marital_status: marital_status || currentUser.Marital_Status,
       dob: dob !== undefined ? dob : currentUser.DOB,
-      religion: religion !== undefined ? religion : currentUser.Religion,
-      race: race !== undefined ? race : currentUser.Race
+      religion: religion || currentUser.Religion,
+      race: race || currentUser.Race,
+      birthCertificate: birthCertificatePath,
+      nicCopy: nicCopyPath
     };
 
     const updated = await User.updateVillager(
@@ -118,7 +159,9 @@ const updateVillager = async (req, res) => {
       updateData.marital_status,
       updateData.dob,
       updateData.religion,
-      updateData.race
+      updateData.race,
+      updateData.birthCertificate,
+      updateData.nicCopy
     );
 
     if (!updated) return res.status(404).json({ error: "User not found" });
@@ -163,9 +206,11 @@ const loginVillager = async (req, res) => {
       return res.status(400).json({ error: "Invalid credentials" });
     }
 
-    const token = jwt.sign({ userId: user.Villager_ID }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { userId: user.Villager_ID, email: user.Email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     res.json({
       message: "Login successful",
@@ -505,21 +550,25 @@ const getNewBornRequests = async (req, res) => {
 
 const downloadDocument = async (req, res) => {
   try {
-    let { filename } = req.params;
-    // Normalize the filename to remove any directory prefix
-    filename = path.basename(filename);
-    const filePath = path.join(__dirname, '..', '..', 'Uploads', filename);
-    
-    console.log(`Attempting to download file: ${filePath}`);
-
+    const { filename } = req.params;
+    const villagerId = req.user.userId;
+    const villager = await User.getVillagerById(villagerId);
+    if (!villager) {
+      return res.status(404).json({ error: 'Villager not found' });
+    }
+    const documentPaths = [villager.BirthCertificate, villager.NICCopy].filter(Boolean);
+    if (!documentPaths.includes(filename)) {
+      return res.status(403).json({ error: 'Unauthorized access to document' });
+    }
+    const cleanFilename = path.basename(filename);
+    const filePath = path.join(__dirname, '..', '..', 'Uploads', cleanFilename);
     if (!fs.existsSync(filePath)) {
       console.error(`File not found at path: ${filePath}`);
       return res.status(404).json({ error: 'File not found' });
     }
-
-    res.download(filePath, filename, (err) => {
+    res.download(filePath, cleanFilename, (err) => {
       if (err) {
-        console.error(`Error downloading file ${filename}:`, err);
+        console.error(`Error downloading file ${cleanFilename}:`, err);
         res.status(500).json({ error: 'Failed to download document', details: err.message });
       }
     });
@@ -603,6 +652,37 @@ const getRaceCount = async (req, res) => {
   }
 };
 
+const updateVillagerDocuments = async (req, res) => {
+  try {
+    const files = req.files;
+    const villagerId = req.user?.userId;
+    if (!villagerId) {
+      return res.status(401).json({ error: 'Unauthorized: No user ID provided' });
+    }
+    const currentUser = await User.getVillagerById(villagerId);
+    if (!currentUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    const timestamp = Date.now();
+    const uploadDir = path.join(__dirname, '..', '..', 'Uploads');
+    fs.mkdirSync(uploadDir, { recursive: true });
+    let birthCertificatePath = null;
+    let nicCopyPath = null;
+    if (files.birthCertificate) {
+      birthCertificatePath = `${villagerId}_birthCertificate_${timestamp}${path.extname(files.birthCertificate[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, birthCertificatePath), files.birthCertificate[0].buffer);
+    }
+    if (files.nicCopy) {
+      nicCopyPath = `${villagerId}_nicCopy_${timestamp}${path.extname(files.nicCopy[0].originalname)}`;
+      fs.writeFileSync(path.join(uploadDir, nicCopyPath), files.nicCopy[0].buffer);
+    }
+    await User.updateVillagerDocuments(villagerId, birthCertificatePath, nicCopyPath);
+    res.json({ message: 'Documents uploaded successfully' });
+  } catch (error) {
+    console.error(`Error in updateVillagerDocuments for ID ${req.user?.userId || 'unknown'}:`, error);
+    res.status(500).json({ error: 'Database error', details: error.message });
+  }
+};
 module.exports = {
   getVillagers,
   getVillager,
@@ -633,4 +713,5 @@ module.exports = {
   getMonthlyVillagerGrowth,
   getReligionCount,
   getRaceCount,
+  updateVillagerDocuments, // Added new export
 };

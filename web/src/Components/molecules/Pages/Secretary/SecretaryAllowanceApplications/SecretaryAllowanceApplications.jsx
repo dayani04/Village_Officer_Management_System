@@ -1,15 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import { TbMail } from 'react-icons/tb';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import toast, { Toaster } from "react-hot-toast";
+import DataTable from "react-data-table-component";
+import { TbMail } from "react-icons/tb";
+import { FaEye } from "react-icons/fa";
 import {
   fetchAllowanceApplications,
   updateAllowanceApplicationStatus,
   downloadDocument,
   saveNotification,
-} from '../../../../../api/allowanceApplication';
-import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
-import './SecretaryAllowanceApplications.css';
+} from "../../../../../api/allowanceApplication";
+import "./SecretaryAllowanceApplications.css";
 
 const SecretaryAllowanceApplications = () => {
   const navigate = useNavigate();
@@ -24,18 +25,18 @@ const SecretaryAllowanceApplications = () => {
       try {
         setLoading(true);
         const data = await fetchAllowanceApplications();
-        const sendApplications = data.filter((app) => app.status === 'Send');
+        const sendApplications = data.filter((app) => app.status === "Send");
         setApplications(sendApplications);
         setLoading(false);
       } catch (err) {
-        console.error('Error fetching applications:', err);
-        setError(err.error || 'Failed to fetch allowance applications');
+        console.error("Error fetching applications:", err);
+        setError(err.error || "Failed to fetch allowance applications");
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch allowance applications', {
+        toast.error(err.error || "Failed to fetch allowance applications", {
           style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
+            background: "#f43f3f",
+            color: "#fff",
+            borderRadius: "4px",
           },
         });
       }
@@ -53,11 +54,11 @@ const SecretaryAllowanceApplications = () => {
   const handleSend = async (villagerId, allowancesId, allowanceType, fullName) => {
     const newStatus = statusUpdates[`${villagerId}-${allowancesId}`];
     if (!newStatus) {
-      toast.error('Please select a status', {
+      toast.error("Please select a status", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
       return;
@@ -68,8 +69,9 @@ const SecretaryAllowanceApplications = () => {
       await saveNotification(villagerId, message);
 
       setApplications((prev) =>
-        prev.filter((app) =>
-          !(app.Villager_ID === villagerId && app.Allowances_ID === allowancesId && newStatus !== 'Send')
+        prev.filter(
+          (app) =>
+            !(app.Villager_ID === villagerId && app.Allowances_ID === allowancesId && newStatus !== "Send")
         )
       );
 
@@ -82,18 +84,18 @@ const SecretaryAllowanceApplications = () => {
 
       toast.success(`Status updated and notification sent to ${fullName}`, {
         style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#4caf50",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     } catch (err) {
-      console.error('Error in handleSend:', err);
-      toast.error(err.error || 'Failed to update status or send notification', {
+      console.error("Error in handleSend:", err);
+      toast.error(err.error || "Failed to update status or send notification", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     }
@@ -103,152 +105,185 @@ const SecretaryAllowanceApplications = () => {
     try {
       const blob = await downloadDocument(filename);
       const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.setAttribute('download', filename);
+      link.setAttribute("download", filename);
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err.error || 'Failed to download document', {
+      toast.error(err.error || "Failed to download document", {
         style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
+          background: "#f43f3f",
+          color: "#fff",
+          borderRadius: "4px",
         },
       });
     }
   };
-    const handleViewDetails = (villagerId) => {
-    console.log('Navigating to villager:', villagerId);
+
+  const handleViewDetails = (villagerId) => {
     navigate(`/secretary_allowance_applications_villager-view/${villagerId}`);
   };
 
   const handleBack = () => {
-    navigate('/SecretaryDashBoard');
+    navigate("/SecretaryDashBoard");
   };
+
+  const columns = [
+    {
+      name: "Villager Name",
+      selector: (row) => row.Full_Name || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Villager ID",
+      selector: (row) => row.Villager_ID || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Allowance Type",
+      selector: (row) => row.Allowances_Type || "N/A",
+      sortable: true,
+    },
+    {
+      name: "Apply Date",
+      selector: (row) => (row.apply_date ? new Date(row.apply_date).toLocaleDateString() : "N/A"),
+      sortable: true,
+    },
+    // {
+      // name: "Document",
+      // cell: (row) => (
+        // <button
+          // className="allowance-applications-download-btn"
+          // onClick={() => handleDownload(row.document_path)}
+        // >
+          // Download
+        // </button>
+      // ),
+    // },
+    {
+      name: "Status",
+      cell: (row) => (
+        <select
+          className="allowance-applications-select"
+          value={statusUpdates[`${row.Villager_ID}-${row.Allowances_ID}`] || row.status}
+          onChange={(e) => handleStatusChange(row.Villager_ID, row.Allowances_ID, e.target.value)}
+        >
+          {[ "Send", "Rejected", "Confirm"].map((status) => (
+            <option key={status} value={status}>
+              {status}
+            </option>
+          ))}
+        </select>
+      ),
+    },
+    {
+      name: "Send",
+      cell: (row) => (
+        <div className="allowance-applications-action-buttons">
+          <button
+            className={`eligible-voters-send-btn ${
+              sentNotifications.has(`${row.Villager_ID}-${row.Allowances_ID}`) ? "sent" : ""
+            }`}
+            onClick={() =>
+              handleSend(row.Villager_ID, row.Allowances_ID, row.Allowances_Type, row.Full_Name)
+            }
+            title="Send Notification"
+            disabled={sentNotifications.has(`${row.Villager_ID}-${row.Allowances_ID}`)}
+          >
+            <TbMail />
+          </button>
+        </div>
+      ),
+    },
+    {
+      name: "View",
+      cell: (row) => (
+        <button
+          className="view-button-allowances"
+          onClick={() => handleViewDetails(row.Villager_ID)}
+        >
+          View
+        </button>
+      ),
+    },
+  ];
 
   if (loading) {
     return (
-      <div className="page-layout">
-        
-        <div className="villager-list-container">
-          <div className="allowance-applications-container">Loading...</div>
-        </div>
+      <div className="villagerss-container">
+        <h1>Allowance Applications (Status: Send)</h1>
+        <div>Loading...</div>
+        <Toaster />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="page-layout">
-       
-        <div className="villager-list-container">
-          <div className="allowance-applications-container">
-            <h1>Allowance Applications (Status: Send)</h1>
-            <p className="error-message">{error}</p>
-            <div className="allowance-applications-actions">
-              <button className="allowance-applications-back-btn" onClick={handleBack}>
-                Back to Dashboard
-              </button>
-            </div>
-            <Toaster />
-          </div>
+      <div className="villagerss-container">
+        <h1>Allowance Applications (Status: Send)</h1>
+        <p className="error-message">{error}</p>
+        <div className="villagers-actions">
+        
         </div>
+        <Toaster />
       </div>
     );
   }
 
   return (
-    <div className="page-layout">
-      <div className="villager-list-container">
-        <div className="allowance-applications-container">
-          <h1>Allowance Applications (Status: Send)</h1>
-          <div className="allowance-applications-table-wrapper">
-            <table className="allowance-applications-table">
-              <thead>
-                <tr>
-                  <th>Villager Name</th>
-                  <th>Villager ID</th>
-                  <th>Allowance Type</th>
-                  <th>Apply Date</th>
-                  <th>Document</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {applications.length > 0 ? (
-                  applications.map((app) => (
-                    <tr key={`${app.Villager_ID}-${app.Allowances_ID}`}>
-                      <td>{app.Full_Name || 'N/A'}</td>
-                      <td>{app.Villager_ID || 'N/A'}</td>
-                      <td>{app.Allowances_Type || 'N/A'}</td>
-                      <td>{app.apply_date ? new Date(app.apply_date).toLocaleDateString() : 'N/A'}</td>
-                      <td>
-                        <a
-                          href="#"
-                          onClick={() => handleDownload(app.document_path)}
-                          className="allowance-applications-download-link"
-                        >
-                          Download
-                        </a>
-                      </td>
-                      <td>
-                        <select
-                          className="allowance-applications-select"
-                          value={statusUpdates[`${app.Villager_ID}-${app.Allowances_ID}`] || app.status}
-                          onChange={(e) => handleStatusChange(app.Villager_ID, app.Allowances_ID, e.target.value)}
-                        >
-                          {['Pending', 'Send', 'Rejected', 'Confirm'].map((status) => (
-                            <option key={status} value={status}>
-                              {status}
-                            </option>
-                          ))}
-                        </select>
-                      </td>
-                      <td>
-                        <div className="allowance-applications-action-buttons">
-                          <button
-                            className={`allowance-applications-send-btn ${sentNotifications.has(`${app.Villager_ID}-${app.Allowances_ID}`) ? 'sent' : ''}`}
-                            onClick={() => handleSend(app.Villager_ID, app.Allowances_ID, app.Allowances_Type, app.Full_Name)}
-                            title="Send Notification"
-                            disabled={sentNotifications.has(`${app.Villager_ID}-${app.Allowances_ID}`)}
-                          >
-                            <TbMail />
-                          </button>
-                        </div>
-                      </td>
-                       <td>
-                        <button
-                          className="owners-view-btn"
-                          onClick={() => handleViewDetails(app.Villager_ID)}
-                        >
-                          View
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="7" className="allowance-applications-no-data">
-                      No applications with status "Send"
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-          <div className="allowance-applications-actions">
-            <button className="allowance-applications-back-btn" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-          <Toaster />
-        </div>
+    <div className="villagerss-container">
+      <h1>Allowance Applications (Status: Send)</h1>
+      <DataTable
+        columns={columns}
+        data={applications}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={
+          <div className="villagers-no-data">No applications with status "Send"</div>
+        }
+        customStyles={{
+          table: {
+            style: {
+            
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              backgroundColor: "white",
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: "#9ca3af",
+              color: "white",
+              fontWeight: "bold",
+              padding: "12px",
+            },
+          },
+          cells: {
+            style: {
+              padding: "12px",
+              borderBottom: "1px solid #ddd",
+            },
+          },
+          rows: {
+            style: {
+              "&:hover": {
+                backgroundColor: "#f1f1f1",
+              },
+            },
+          },
+        }}
+      />
+      <div className="villagers-actions">
+     
       </div>
+      <Toaster />
     </div>
   );
 };

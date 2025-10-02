@@ -182,7 +182,7 @@ const VillageOfficerDashboard = () => {
     <Box sx={{ display: 'flex' }}>
       <Sidebar />
       <Box component="main" sx={{ flexGrow: 1, p: 3, bgcolor: '#F4F6F8', minHeight: '100vh' }}>
-        <Typography variant="h5" sx={{ mb: 3 }}>Dashboard</Typography>
+        <Typography variant="h5" sx={{ mb: 3 }}>Village Officer Dashboard</Typography>
 
         <DashboardCards />
 

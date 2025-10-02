@@ -5,46 +5,28 @@
 
 .sidebar {
   width: 250px;
-  background-color: #f8f9fa;
+  background-color: #f9f9f9;
 }
 
-.villager-list-container {
-  flex: 1;
+.allowances-container {
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.villager-list-container h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.villager-table {
   width: 100%;
-  border-collapse: collapse;
-  background-color: white;
+  height: 100%;
+  margin: 0 auto;
+  background-color: #f9f9f9;
+  border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.villager-table th,
-.villager-table td {
-  padding: 12px;
+.allowances-container h1 {
   text-align: left;
-  border-bottom: 1px solid #ddd;
-}
-
-.villager-table th {
-  background-color: #7a1632;
-  color: white;
-}
-
-.villager-table tr:hover {
-  background-color: #f5f5f5;
+  margin-bottom: 20px;
+  color: #333;
+  font-size: 24px;
 }
 
 .download-link {
-  color: #007bff;
+  color: #7a1632;
   text-decoration: none;
 }
 
@@ -53,49 +35,42 @@
 }
 
 .status-select {
-  padding: 5px 10px;
-  border-radius: 4px;
+  padding: 8px;
   border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
 }
 
-.status-select.pending {
-  background-color: #fff3cd;
-  border-color: #ffeeba;
+.confirm-button {
+  background-color: #aceeae;
+  color: rgb(8, 8, 8);
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-.status-select.approved {
-  background-color: #d4edda;
-  border-color: #c3e6cb;
+.confirm-button:hover {
+  background-color: #45a049;
 }
 
-.status-select.rejected {
-  background-color: #f8d7da;
-  border-color: #f5c6cb;
-}
-
-.confirm-button,
-.view-button,
-.send-button {
-  background-color: #7a1632;
+.view-button-allowances {
+  background-color: #000000;
   color: white;
   padding: 6px 12px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  font-size: 14px;
 }
 
-.confirm-button:hover,
-.view-button:hover,
-.send-button:hover {
-  background-color: #5a1024;
+.view-button-allowances:hover {
+  background-color: #464444;
 }
 
-.send-button:disabled {
-  background-color: #cccccc;
-  cursor: not-allowed;
-}
-
-.requests-actions {
+.allowances-actions {
+  text-align: center;
   margin-top: 20px;
 }
 
@@ -103,36 +78,46 @@
   background-color: #7a1632;
   color: white;
   padding: 10px 20px;
-  border: none;
   border-radius: 4px;
+  border: none;
   cursor: pointer;
+  font-size: 16px;
 }
 
 .back-button:hover {
-  background-color: #5a1024;
+  background-color: #c75b7a;
 }
 
-.pending-row {
-  background-color: #fff3cd !important;
-  transition: background-color 0.3s ease;
+.allowances-no-data {
+  text-align: center;
+  padding: 20px;
+  color: #666;
 }
 
-.pending-row:hover {
-  background-color: #ffe7b3 !important;
+.error-message {
+  color: #f43f3f;
+  text-align: center;
+  margin-bottom: 20px;
 }
 
-.villager-table tr {
-  transition: background-color 0.3s ease;
+/* Additional styles for react-data-table-component */
+.rdt_Table {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: white;
 }
 
-.villager-table tbody tr:not(.pending-row) {
-  background-color: #ffffff;
+.rdt_TableHeadRow {
+  background-color: #9ca3af !important;
+  color: white !important;
 }
 
-.villager-table tbody tr:not(.pending-row):hover {
-  background-color: #f8f9fa;
+.rdt_TableRow:hover {
+  background-color: #f5f5f5;
 }
 
-.application-row {
-  transition: background-color 0.3s ease;
+.rdt_Pagination {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  background-color: white;
 }

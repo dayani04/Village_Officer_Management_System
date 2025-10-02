@@ -2,15 +2,12 @@ const jwt = require("jsonwebtoken");
 
 const authenticateToken = (req, res, next) => {
   const token = req.headers["authorization"]?.split(" ")[1]; // Bearer token
-
   if (!token) {
     console.log("No token provided");
     return res.status(401).json({ error: "No token provided" });
   }
 
-  // Secret key should match the one used to generate the token
-  const secretKey = process.env.JWT_SECRET || "your-secret-key"; // Use environment variable if available
-
+  const secretKey = process.env.JWT_SECRET || "your-secret-key";
   console.log("Verifying token:", token.substring(0, 20) + "...");
 
   jwt.verify(token, secretKey, (err, user) => {
@@ -20,7 +17,7 @@ const authenticateToken = (req, res, next) => {
     }
 
     console.log("Token verified successfully for user:", user);
-    req.user = user; // Attach user info to the request object
+    req.user = user;
     next();
   });
 };
