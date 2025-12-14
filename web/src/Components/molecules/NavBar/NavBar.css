@@ -42,10 +42,10 @@
     color: #333;
   }
   
-  .navbar-menu {
-    background-color: #9C284F;
-    padding: 10px 0;
-  }
+ .navbar-menu {
+  background: linear-gradient(135deg, #4A2C4E, #8A2B3A, #2A4066); /* Match sidebar gradient */
+  padding: 10px 0;
+}
   
   .navbar-menu ul {
     list-style: none;

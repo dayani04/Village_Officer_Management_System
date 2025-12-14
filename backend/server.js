@@ -98,3 +98,45 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
+
+// Temporary debug endpoint to generate a permit certificate (no auth)
+const PDFDocument = require('pdfkit');
+const { registerFonts } = require('./src/utills/registerFonts');
+app.get('/api/debug/generate-permit', async (req, res) => {
+  try {
+    const villager = { Villager_ID: 'VDBG', Full_Name: 'දේමෝ පරිශීලක', Address: 'Test Address' };
+    const permit = { Permits_ID: 'DBG', Permits_Type: 'Debug Permit' };
+    const applyDate = new Date().toISOString().split('T')[0];
+
+    const doc = new PDFDocument({ margin: 40, size: 'A4' });
+    const timestamp = Date.now();
+    const filename = `${villager.Villager_ID}_${permit.Permits_ID}_certificate_${timestamp}.pdf`;
+    const outDir = path.join(__dirname, 'Uploads');
+    const outPath = path.join(outDir, filename);
+    fs.mkdirSync(outDir, { recursive: true });
+
+    const stream = fs.createWriteStream(outPath);
+    doc.pipe(stream);
+
+    const { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath } = registerFonts(doc);
+    console.log('DEBUG /api/debug/generate-permit registerFonts:', { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath });
+
+    doc.font('Roboto').fontSize(24).fillColor('#921940').text('Permit Certificate', 0, 120, { align: 'center' });
+    if (sinhalaAvailable) doc.font('NotoSansSinhala').fontSize(22).text('බලපත්‍ර සහතිකය', 0, 150, { align: 'center' });
+    else doc.font('Roboto').fontSize(12).fillColor('#f43f3f').text('Sinhala font unavailable', 0, 150, { align: 'center' });
+
+    doc.end();
+
+    stream.on('finish', () => {
+      console.log('DEBUG generated:', outPath);
+      res.json({ ok: true, path: `/Uploads/${filename}`, sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath });
+    });
+    stream.on('error', (err) => {
+      console.error('DEBUG write error:', err);
+      res.status(500).json({ ok: false, error: err.message });
+    });
+  } catch (error) {
+    console.error('DEBUG generation error:', error);
+    res.status(500).json({ ok: false, error: error.message });
+  }
+});

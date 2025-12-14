@@ -46,13 +46,45 @@ const Sidebar = () => {
         zIndex: 999,
       }}
     >
+      <div className="text-center mb-4">
+        <div className="d-flex justify-content-center align-items-center gap-3 mb-3">
+          <img 
+            src="/assets/sri-lanka-emblem.png" 
+            alt="Sri Lanka Emblem" 
+            style={{ 
+              width: "100px", 
+              height: "70px", 
+              objectFit: "contain" 
+            }} 
+          />
+          <img 
+            src="/assets/sri-lanka-flag.png" 
+            alt="Sri Lanka Flag" 
+            style={{ 
+              width: "90px", 
+              height: "70px", 
+              objectFit: "contain" 
+            }} 
+          />
+        </div>
+      </div>
       <ul className="nav flex-column gap-2">
         <li className="nav-item">
           <NavLink
             to="/VillageOfficerDashBoard"
-            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
-            style={{ textDecoration: "none", color: "white" }}
-            activeStyle={{ fontWeight: "bold", backgroundColor: "rgba(255,255,255,0.2)" }}
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ textDecoration: "none", color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
           >
             <TbDashboard className="me-2" /> Dashboard
           </NavLink>
@@ -62,7 +94,13 @@ const Sidebar = () => {
           <button
             onClick={() => setIsProductSubMenuOpen(!isProductSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white", transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "none";
+            }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Villagers
@@ -77,20 +115,20 @@ const Sidebar = () => {
             <ul className="list-unstyled ps-4 mt-1">
               <li>
                 <NavLink
-                  to="/add_villagers"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
-                >
-                  Add Villager
-                </NavLink>
-              </li>
-              <li>
-                <NavLink
                   to="/villagers"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Villagers
                 </NavLink>
@@ -98,9 +136,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/villagers_houses"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Houses
                 </NavLink>
@@ -113,7 +161,13 @@ const Sidebar = () => {
           <button
             onClick={() => setIsDiscountSubMenuOpen(!isDiscountSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white", transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "none";
+            }}
           >
             <div className="d-flex align-items-center">
               <MdOutlineDiscount className="me-2" /> Requests
@@ -129,9 +183,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-allowances"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Allowance
                 </NavLink>
@@ -139,9 +203,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests_for_certificate"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Certificate
                 </NavLink>
@@ -149,9 +223,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-id-cards"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   ID Cards
                 </NavLink>
@@ -159,9 +243,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-permits"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Permits
                 </NavLink>
@@ -169,9 +263,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-elections"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Election
                 </NavLink>
@@ -179,9 +283,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/eligible-voters"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Voter List
                 </NavLink>
@@ -189,9 +303,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-new-villagers"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   New Villager
                 </NavLink>
@@ -199,9 +323,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/requests-for-new-born"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   New Born
                 </NavLink>
@@ -214,7 +348,13 @@ const Sidebar = () => {
           <button
             onClick={() => setIsUsersSubMenuOpen(!isUsersSubMenuOpen)}
             className="btn btn-toggle d-flex align-items-center p-2 rounded justify-content-between"
-            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white" }}
+            style={{ width: "100%", border: "none", background: "none", cursor: "pointer", color: "white", transition: "all 0.3s ease" }}
+            onMouseEnter={(e) => {
+              e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = "none";
+            }}
           >
             <div className="d-flex align-items-center">
               <TbUsers className="me-2" /> Holders
@@ -230,9 +370,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/allowances_owners"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Allowance
                 </NavLink>
@@ -240,9 +390,19 @@ const Sidebar = () => {
               <li>
                 <NavLink
                   to="/permit_owner"
-                  className="nav-link p-2 rounded hover-bg"
-                  style={{ color: "white" }}
-                  activeStyle={{ fontWeight: "bold" }}
+                  className="nav-link p-2 rounded"
+                  style={{ color: "white", transition: "all 0.3s ease" }}
+                  activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+                  onMouseEnter={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!e.target.classList.contains('active')) {
+                      e.target.style.background = "none";
+                    }
+                  }}
                 >
                   Permit
                 </NavLink>
@@ -254,8 +414,19 @@ const Sidebar = () => {
         <li className="nav-item">
           <NavLink
             to="/villager-officers"
-            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
-            style={{ color: "white" }}
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
           >
             <TbUserPlus className="me-2" /> Village Officer
           </NavLink>
@@ -264,8 +435,19 @@ const Sidebar = () => {
         <li className="nav-item">
           <NavLink
             to="/admin_notification"
-            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
-            style={{ color: "white" }}
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
           >
             <TbBell className="me-2" /> Notifications
           </NavLink>
@@ -274,8 +456,19 @@ const Sidebar = () => {
         <li className="nav-item">
           <NavLink
             to="/Village_officer_profile"
-            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
-            style={{ color: "white" }}
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
           >
             <TbUserCircle className="me-2" /> My Profile
           </NavLink>
@@ -284,8 +477,19 @@ const Sidebar = () => {
         <li className="nav-item">
           <NavLink
             to="/"
-            className="nav-link d-flex align-items-center p-2 rounded hover-bg"
-            style={{ color: "white" }}
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
           >
             <TbLogout className="me-2" /> Logout
           </NavLink>

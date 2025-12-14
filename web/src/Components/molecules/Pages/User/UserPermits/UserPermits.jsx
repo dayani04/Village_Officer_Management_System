@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaArrowLeft } from 'react-icons/fa';
 import { fetchPermits, checkVillagerPermitApplication, submitPermitApplication } from "../../../../../api/permit";
 import { getProfile } from "../../../../../api/villager";
-import "./UserPermit.css";
+import "../../../../../index.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
 
@@ -143,14 +144,28 @@ const UserPermits = () => {
     }
   };
 
+  const handleBack = () => {
+    navigate('/user_dashboard');
+  };
+
   return (
     <section>
       <NavBar />
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Dashboard">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">Permit Application</h1>
+          </div>
+        </div>
+      </div>
+      <br/>
+
       <div>
-        <br />
-        <br />
-        <h1 className="form-permits-title">Permit Application</h1>
-        <br />
         <div className="user-permits-container">
           <form className="permits-form">
             <div className="form-permits-group">

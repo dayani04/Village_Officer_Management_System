@@ -3,9 +3,11 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaArrowLeft } from 'react-icons/fa';
 import { fetchNICs, submitNICApplication } from "../../../../../api/nic";
 import { getProfile } from "../../../../../api/villager";
 import "./UserIDCard.css";
+import "../../../../../index.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
 
@@ -177,6 +179,10 @@ const UserIDCard = () => {
     changeLanguage(lang);
   };
 
+  const handleBack = () => {
+    navigate('/user_dashboard');
+  };
+
   const getTranslationKey = (apiType) => {
     const translationMap = {
       "postal ID Card": "postalIdCard",
@@ -190,16 +196,23 @@ const UserIDCard = () => {
   return (
     <section>
       <NavBar />
-      <div>
-        <br />
-        <br />
-        <h1 className="form-idcard-title">{t("idcardFormTitle")}</h1>
-        <br />
-        <div className="user-idcard-container">
-          <div className="language-idcard-switch">
-            <button onClick={() => handleLanguageChange("en")}>English</button>
-            <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Dashboard">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">{t("idcardFormTitle")}</h1>
           </div>
+        </div>
+      </div>
+      <br/>
+
+      <div>
+        <div className="user-idcard-container">
+
 
           <form className="election-idcard-form">
             <div className="form-idcard-group">

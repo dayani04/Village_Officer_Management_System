@@ -56,7 +56,15 @@ const LoginForm = () => {
       <NavBar/>
     <div className="login-container">
       <div className="login-form">
-        <h2>Login</h2>
+        <h2 style={{ 
+          color: "black", 
+          textAlign: "center", 
+          marginBottom: "20px", 
+          width: "100%", 
+          display: "block",
+          marginLeft: "-80px",
+          marginRight: "0"
+        }}>Login</h2>
         {error && <div className="error-message">{error}</div>}
         <form onSubmit={handleSubmit}>
           <div className="input-field">
@@ -93,7 +101,30 @@ const LoginForm = () => {
               <option value="designer">Secretary</option>
             </select>
           </div>
-          <button type="submit" className="login-button" disabled={loading}>
+          <button 
+            type="submit" 
+            className="login-button" 
+            disabled={loading}
+            style={{
+              background: "linear-gradient(135deg, #921940 0%, #915969 100%)",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              fontSize: "16px",
+              cursor: loading ? "not-allowed" : "pointer",
+              transition: "all 0.3s ease"
+            }}
+            onMouseEnter={(e) => {
+              if (!loading) {
+                e.target.style.background = "linear-gradient(135deg, #921940 0%, #C75B7A 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!loading) {
+                e.target.style.background = "linear-gradient(135deg, #921940 0%, #915969 100%)";
+              }
+            }}
+          >
             {loading ? 'Logging in...' : 'Login'}
           </button>
           <a href="/forgot_password" className="forgot-password-link">

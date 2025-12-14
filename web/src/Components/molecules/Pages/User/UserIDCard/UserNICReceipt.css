@@ -1,8 +1,13 @@
 .nic-receipts-container {
   padding: 20px;
-  max-width: 1000px;
+  width: 100%;
   margin: 0 auto;
   text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 
 .nic-receipts-container h1 {

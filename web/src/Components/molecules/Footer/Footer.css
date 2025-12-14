@@ -1,10 +1,23 @@
 .footer-container {
-    margin-top: 20px;
-  }
-  footer a {
-    text-decoration: none;
-  }
-  footer a:hover {
-    color: #ddd;
-  }
-  
+  margin-top: 20px;
+  width: 100%;
+  height: 100%;
+}
+
+footer {
+  background: linear-gradient(135deg, #4A2C4E, #8A2B3A, #2A4066);
+  color: white; /* Ensure text is white to match sidebar */
+}
+
+footer a {
+  text-decoration: none;
+  color: white; /* Match sidebar link color */
+}
+
+footer a:hover {
+  color: #ddd; /* Slightly lighter shade on hover, consistent with sidebar hover effect */
+}
+
+footer hr {
+  background-color: rgba(255, 255, 255, 0.2); /* Match sidebar's subtle hover background */
+}

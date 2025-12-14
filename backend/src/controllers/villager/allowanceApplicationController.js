@@ -2,6 +2,7 @@ const AllowanceApplication = require("../../models/villager/allowanceApplication
 const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const { registerFonts } = require("../../utills/registerFonts");
 
 const createAllowanceApplication = async (req, res) => {
   try {
@@ -62,30 +63,9 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
     const stream = fs.createWriteStream(receiptPath);
     doc.pipe(stream);
 
+    const { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath } = registerFonts(doc);
+    console.log('registerFonts result:', { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath });
     const baseDir = path.join(__dirname, '../../../');
-    const robotoPath = path.join(baseDir, 'fonts/Roboto-Regular.ttf');
-    const notoSinhalaPath = path.join(baseDir, 'fonts/NotoSansSinhala-Regular.ttf');
-    let sinhalaFontAvailable = false;
-
-    try {
-      if (fs.existsSync(robotoPath)) {
-        doc.registerFont('Roboto', robotoPath);
-      } else {
-        console.warn(`Font not found: ${robotoPath}. Using Helvetica.`);
-        doc.registerFont('Roboto', 'Helvetica');
-      }
-      if (fs.existsSync(notoSinhalaPath)) {
-        doc.registerFont('NotoSansSinhala', notoSinhalaPath);
-        sinhalaFontAvailable = true;
-      } else {
-        console.warn(`Font not found: ${notoSinhalaPath}. Using Helvetica.`);
-        doc.registerFont('NotoSansSinhala', 'Helvetica');
-      }
-    } catch (error) {
-      console.error(`Error registering fonts: ${error.message}`);
-      doc.registerFont('Roboto', 'Helvetica');
-      doc.registerFont('NotoSansSinhala', 'Helvetica');
-    }
 
     doc.lineWidth(2)
        .strokeColor('#D4A017')
@@ -114,7 +94,7 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
 
     doc.font('Roboto').fontSize(24).fillColor('#921940')
        .text('Allowance Receipt', 0, 120, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(22)
          .text('ආධාර ලදුපත', 0, 150, { align: 'center' });
     } else {
@@ -124,20 +104,20 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text(`Receipt Number: ${villager.Villager_ID}-${allowance.Allowances_ID}`, 0, 190, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`ලදුපත් අංකය: ${villager.Villager_ID}-${allowance.Allowances_ID}`, 0, 210, { align: 'center' });
     }
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Issued To:', 40, 250, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('නිකුත් කරන ලද්දේ:', 40, 270, { underline: true });
     }
 
     const address = villager.Address && !villager.Address.includes('@') ? villager.Address : 'Not Provided';
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
@@ -155,14 +135,14 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Allowance Details:', 40, 380, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('ආධාර විස්තර:', 40, 400, { underline: true });
     }
 
     const formattedApplyDate = applyDate ? new Date(applyDate).toISOString().split('T')[0] : 'N/A';
     const confirmationDate = new Date().toISOString().split('T')[0];
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Allowance Type: ${allowance.Allowances_Type || 'N/A'}`, 40, 430)
          .text(`Allowance ID: ${allowance.Allowances_ID || 'N/A'}`, 40, 450)
@@ -183,7 +163,7 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text('This receipt confirms that the above-named individual has been approved for the specified allowance.', 40, 530, { width: 515, align: 'justify' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('මෙම ලදුපත ඉහත නම් කරන ලද පුද්ගලයා නිශ්චිත ආධාරය සඳහා අනුමත කර ඇති බව තහවුරු කරයි.', 40, 560, { width: 515, align: 'justify' });
     }
@@ -191,7 +171,7 @@ const generateAllowanceReceipt = async (villager, allowance, applyDate) => {
     doc.font('Roboto').fontSize(12)
        .text('Issued by: Village Authority', 40, 620)
        .text(`Date: ${confirmationDate}`, 40, 640);
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('නිකුත් කළේ: ගම්මාන අධිකාරිය', 300, 620)
          .text(`දිනය: ${confirmationDate}`, 300, 640);

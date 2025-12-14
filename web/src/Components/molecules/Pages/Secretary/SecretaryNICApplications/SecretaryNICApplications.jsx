@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { TbMail } from "react-icons/tb";
 import { FaEye } from "react-icons/fa";
@@ -35,12 +35,11 @@ const SecretaryNICApplications = () => {
         });
         setError(err.error || "Failed to fetch NIC applications");
         setLoading(false);
-        toast.error(err.error || "Failed to fetch NIC applications", {
-          style: {
-            background: "#f43f3f",
-            color: "#fff",
-            borderRadius: "4px",
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || "Failed to fetch NIC applications",
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -57,12 +56,11 @@ const SecretaryNICApplications = () => {
   const handleSend = async (villagerId, nicId, nicType, fullName) => {
     const newStatus = statusUpdates[`${villagerId}-${nicId}`];
     if (!newStatus) {
-      toast.error("Please select a status", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'warning',
+        title: 'Status Required',
+        text: 'Please select a status',
+        confirmButtonColor: '#f43f3f',
       });
       return;
     }
@@ -85,12 +83,14 @@ const SecretaryNICApplications = () => {
       });
       setSentNotifications((prev) => new Set(prev).add(`${villagerId}-${nicId}`));
 
-      toast.success(`Status updated and notification sent to ${fullName}`, {
-        style: {
-          background: "#4caf50",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: `Status updated and notification sent to ${fullName}`,
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error("Error in handleSend:", {
@@ -98,16 +98,12 @@ const SecretaryNICApplications = () => {
         response: err.response ? err.response.data : null,
         status: err.response ? err.response.status : null,
       });
-      toast.error(
-        err.response?.data?.error || err.message || "Failed to update status or send notification",
-        {
-          style: {
-            background: "#f43f3f",
-            color: "#fff",
-            borderRadius: "4px",
-          },
-        }
-      );
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: err.response?.data?.error || err.message || "Failed to update status or send notification",
+        confirmButtonColor: '#f43f3f',
+      });
     }
   };
 
@@ -127,16 +123,12 @@ const SecretaryNICApplications = () => {
         message: err.message,
         response: err.response ? err.response.data : null,
       });
-      toast.error(
-        err.response?.data?.error || err.message || "Failed to download document",
-        {
-          style: {
-            background: "#f43f3f",
-            color: "#fff",
-            borderRadius: "4px",
-          },
-        }
-      );
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: err.response?.data?.error || err.message || "Failed to download document",
+        confirmButtonColor: '#f43f3f',
+      });
     }
   };
 
@@ -236,7 +228,6 @@ const SecretaryNICApplications = () => {
       <div className="villagerss-container">
         <h1>NIC Applications (Status: Send)</h1>
         <div>Loading...</div>
-        <Toaster />
       </div>
     );
   }
@@ -247,9 +238,7 @@ const SecretaryNICApplications = () => {
         <h1>NIC Applications (Status: Send)</h1>
         <p className="error-message">{error}</p>
         <div className="villagers-actions">
-       
         </div>
-        <Toaster />
       </div>
     );
   }
@@ -304,9 +293,7 @@ const SecretaryNICApplications = () => {
         }}
       />
       <div className="villagers-actions">
-     
       </div>
-      <Toaster />
     </div>
   );
 };

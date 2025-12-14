@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import DataTable from 'react-data-table-component';
 import * as certificateApi from '../../../../../api/certificateApplication';
 import './RequestsForCertificate.css';
@@ -24,12 +24,11 @@ const RequestsForCertificate = () => {
         console.error('Fetch error:', err);
         setError(err?.response?.data?.error || err.message || 'Failed to fetch certificate applications');
         setLoading(false);
-        toast.error(err?.response?.data?.error || err.message || 'Failed to fetch certificate applications', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: err?.response?.data?.error || err.message || 'Failed to fetch certificate applications',
+          confirmButtonColor: '#f43f3f'
         });
       }
     };
@@ -39,12 +38,11 @@ const RequestsForCertificate = () => {
 
   const handleStatusSelect = (villagerId, applicationId, newStatus) => {
     if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
-      toast.error('Invalid status selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Invalid status selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -58,24 +56,22 @@ const RequestsForCertificate = () => {
 
   const handleStatusConfirm = async (villagerId, applicationId) => {
     if (!applicationId) {
-      toast.error('Application ID is missing.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Application ID is missing.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
 
     const newStatus = pendingStatuses[`${villagerId}-${applicationId}`];
     if (!newStatus) {
-      toast.error('No status change selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No status change selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -98,30 +94,27 @@ const RequestsForCertificate = () => {
         return updated;
       });
       
-      toast.success('Status updated successfully', {
-        style: {
-          background: '#6ac476',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Status updated successfully',
+        confirmButtonColor: '#6ac476'
       });
       if (response.warning) {
-        toast.warn(response.warning, {
-          style: {
-            background: '#f1c40f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'warning',
+          title: 'Warning',
+          text: response.warning,
+          confirmButtonColor: '#f1c40f'
         });
       }
     } catch (err) {
       console.error('Status update error for application ID:', applicationId, err);
-      toast.error(err?.response?.data?.error || err.message || 'Failed to update status', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err?.response?.data?.error || err.message || 'Failed to update status',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
@@ -130,21 +123,19 @@ const RequestsForCertificate = () => {
     try {
       console.log(`Downloading document: ${filename}`);
       await certificateApi.downloadDocument(filename);
-      toast.success('Document download initiated', {
-        style: {
-          background: '#6ac476',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Document download initiated',
+        confirmButtonColor: '#6ac476'
       });
     } catch (err) {
       console.error('Download error:', err);
-      toast.error(err?.response?.data?.error || err.message || 'Failed to download document', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err?.response?.data?.error || err.message || 'Failed to download document',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
@@ -199,21 +190,6 @@ const RequestsForCertificate = () => {
       sortable: true,
     },
     {
-      name: 'Document',
-      cell: row => (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleDownload(row.document_path);
-          }}
-          className="download-link"
-        >
-          Download
-        </a>
-      ),
-    },
-    {
       name: 'Status',
       cell: row => (
         <select
@@ -222,7 +198,6 @@ const RequestsForCertificate = () => {
           className="status-select"
         >
           <option value="Pending">Pending</option>
-          <option value="Send">Send</option>
           <option value="Rejected">Rejected</option>
           <option value="Confirm">Confirm</option>
         </select>
@@ -277,7 +252,6 @@ const RequestsForCertificate = () => {
             Back to Dashboard
           </button>
         </div>
-        <Toaster />
       </div>
     );
   }
@@ -330,7 +304,6 @@ const RequestsForCertificate = () => {
           Back to Dashboard
         </button>
       </div>
-      <Toaster />
     </div>
   );
 };

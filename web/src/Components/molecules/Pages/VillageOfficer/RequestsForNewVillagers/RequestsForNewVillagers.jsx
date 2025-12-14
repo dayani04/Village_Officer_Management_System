@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import DataTable from 'react-data-table-component';
 import * as villagerApi from '../../../../../api/villager';
+import { getToken } from '../../../../../utils/auth';
 import './RequestsForNewVillagers.css';
 
 const RequestsForNewVillagers = () => {
@@ -29,8 +30,20 @@ const RequestsForNewVillagers = () => {
 
   const handleDownload = async (filename) => {
     try {
-      const blob = await villagerApi.downloadDocument(filename);
-      const url = window.URL.createObjectURL(new Blob([blob]));
+      const response = await fetch(`http://localhost:5000/api/villagers/new-family-member-request/download/${filename}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${getToken()}`,
+        },
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to download document');
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', filename);

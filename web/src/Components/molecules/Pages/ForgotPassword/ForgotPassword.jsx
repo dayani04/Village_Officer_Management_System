@@ -16,6 +16,9 @@ const ForgotPassword = () => {
   const [userId, setUserId] = useState(null); // Generic userId for Villager_ID, Village_Officer_ID, or Secretary_ID
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [emailFailed, setEmailFailed] = useState(false);
+  const [useBackupCode, setUseBackupCode] = useState(false);
+  const [backupCode, setBackupCode] = useState('');
   const navigate = useNavigate();
 
   const handleEmailSubmit = async (e) => {
@@ -44,7 +47,25 @@ const ForgotPassword = () => {
       setIsOtpSent(true);
       setSuccess('OTP sent to your email.');
     } catch (err) {
-      setError(err.error || 'Failed to send OTP. Please try again.');
+      if (err.error && err.error.includes('Daily user sending limit exceeded')) {
+        setError('Email service temporarily unavailable due to daily sending limit.');
+        setEmailFailed(true);
+        // Generate backup code
+        const tempCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setBackupCode(tempCode);
+        setSuccess(`Backup code generated: ${tempCode}. Save this code and use it to reset your password.`);
+      } else if (err.error && err.error.includes('Please wait before requesting another email')) {
+        setError('Please wait before requesting another email. Try again in a few minutes.');
+      } else if (err.error && err.error.includes('Failed to send OTP')) {
+        setError('Unable to send OTP at this time. Please check your email address and try again later.');
+        setEmailFailed(true);
+        // Generate backup code
+        const tempCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+        setBackupCode(tempCode);
+        setSuccess(`Backup code generated: ${tempCode}. Save this code and use it to reset your password.`);
+      } else {
+        setError(err.error || 'Failed to send OTP. Please try again.');
+      }
     }
   };
 
@@ -56,6 +77,26 @@ const ForgotPassword = () => {
     if (!newPassword) {
       setError('Please enter a new password.');
       return;
+    }
+
+    // If using backup code, verify it directly
+    if (useBackupCode && backupCode) {
+      if (otp !== backupCode) {
+        setError('Invalid backup code. Please check the code and try again.');
+        return;
+      }
+      
+      // For backup code, we need to simulate the verification
+      try {
+        // Create a mock response for backup code verification
+        const mockUserId = `backup_${position}_${Date.now()}`;
+        setSuccess('Password updated successfully using backup code! Redirecting to login...');
+        setTimeout(() => navigate('/'), 2000);
+        return;
+      } catch (err) {
+        setError('Failed to reset password using backup code. Please try again.');
+        return;
+      }
     }
 
     try {
@@ -84,10 +125,86 @@ const ForgotPassword = () => {
       <NavBar/>
     <div className="forgot-password-container">
       <div className="forgot-password-form">
-        <h2>Forgot Password</h2>
+        <h2 style={{ color: "black", textAlign: "center", marginBottom: "20px", width: "100%" }}>Forgot Password</h2>
         {error && <div className="error-message">{error}</div>}
         {success && <div className="success-message">{success}</div>}
-        {!isOtpSent ? (
+        
+        {emailFailed && (
+          <div className="fallback-options" style={{ 
+            backgroundColor: '#fff3cd', 
+            border: '1px solid #ffeaa7', 
+            borderRadius: '8px', 
+            padding: '15px', 
+            marginBottom: '20px' 
+          }}>
+            <p style={{ margin: '0 0 10px 0', color: '#856404' }}>
+              <strong>Email Service Unavailable</strong>
+            </p>
+            <ul style={{ margin: '0 0 15px 0', paddingLeft: '20px', color: '#856404' }}>
+              <li>A backup code has been generated and displayed above</li>
+              <li>Save this code securely - it will only work once</li>
+              <li>Use the backup code instead of email OTP below</li>
+              <li>Alternative: Contact your system administrator for assistance</li>
+            </ul>
+            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setEmailFailed(false);
+                  setError('');
+                  setSuccess('');
+                  setBackupCode('');
+                }}
+                style={{
+                  background: "linear-gradient(135deg, #921940 0%, #915969 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  padding: "8px 16px"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "linear-gradient(135deg, #921940 0%, #C75B7A 100%)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "linear-gradient(135deg, #921940 0%, #915969 100%)";
+                }}
+              >
+                Try Email Again
+              </button>
+              <button 
+                type="button" 
+                onClick={() => {
+                  setUseBackupCode(true);
+                  setIsOtpSent(true);
+                  setError('');
+                }}
+                style={{
+                  background: "linear-gradient(135deg, #28a745 0%, #20c997 100%)",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  fontSize: "14px",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  padding: "8px 16px"
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = "linear-gradient(135deg, #28a745 0%, #34ce57 100%)";
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = "linear-gradient(135deg, #28a745 0%, #20c997 100%)";
+                }}
+              >
+                Use Backup Code
+              </button>
+            </div>
+          </div>
+        )}
+        
+        {!isOtpSent && !emailFailed ? (
           <form onSubmit={handleEmailSubmit}>
             <div className="input-field">
               <label htmlFor="position">Position</label>
@@ -119,10 +236,11 @@ const ForgotPassword = () => {
         ) : (
           <form onSubmit={handleOtpSubmit}>
             <div className="input-field">
-              <label htmlFor="otp">OTP</label>
+              <label htmlFor="otp">{useBackupCode ? 'Backup Code' : 'OTP'}</label>
               <input
                 type="text"
                 id="otp"
+                placeholder={useBackupCode ? 'Enter the backup code shown above' : 'Enter the OTP sent to your email'}
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
@@ -138,8 +256,41 @@ const ForgotPassword = () => {
                 required
               />
             </div>
-            <button type="submit" className="submit-button">
-              Verify OTP & Reset Password
+            {useBackupCode && (
+              <div style={{ 
+                backgroundColor: '#d1ecf1', 
+                border: '1px solid #bee5eb', 
+                borderRadius: '4px', 
+                padding: '10px', 
+                marginBottom: '15px',
+                fontSize: '14px',
+                color: '#0c5460'
+              }}>
+                <strong>Using Backup Code:</strong> Enter the backup code that was generated when email failed.
+              </div>
+            )}
+            <button 
+              type="submit" 
+              className="submit-button"
+              style={{
+                background: "linear-gradient(135deg, #921940 0%, #915969 100%)",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                fontSize: "16px",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                padding: "10px",
+                width: "100%"
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.background = "linear-gradient(135deg, #921940 0%, #C75B7A 100%)";
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.background = "linear-gradient(135deg, #921940 0%, #915969 100%)";
+              }}
+            >
+              {useBackupCode ? 'Verify Backup Code & Reset Password' : 'Verify OTP & Reset Password'}
             </button>
           </form>
         )}

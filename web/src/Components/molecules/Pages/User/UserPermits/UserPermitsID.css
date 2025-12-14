@@ -85,7 +85,7 @@
   .submit-permit-id-btn,
   .back-permit-id-btn,
   .next-permit-id-btn {
-    background-color: #921940;
+background: linear-gradient(135deg, #921940 0%, #915969 100%); 
     color: white;
     padding: 10px 20px;
     border: none;
@@ -101,7 +101,7 @@
   .back-permit-id-btn:hover,
   .submit-permit-id-btn:hover,
   .next-permit-id-btn:hover {
-    background-color: #7a1632;
+   background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
   }
   
   .navigation-permit-id-buttons {

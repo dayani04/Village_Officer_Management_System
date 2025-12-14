@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import DataTable from 'react-data-table-component';
 import * as allowanceApi from '../../../../../api/allowanceApplication';
 import './RequestsForAllowances.css';
@@ -32,12 +32,11 @@ const RequestsForAllowances = () => {
 
   const handleStatusSelect = (villagerId, allowancesId, newStatus) => {
     if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
-      toast.error('Invalid status selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Invalid status selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -50,24 +49,22 @@ const RequestsForAllowances = () => {
 
   const handleStatusConfirm = async (villagerId, allowancesId) => {
     if (!allowancesId) {
-      toast.error('Allowance ID is missing.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Allowance ID is missing.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
 
     const newStatus = pendingStatuses[`${villagerId}-${allowancesId}`];
     if (!newStatus) {
-      toast.error('No status change selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No status change selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -82,21 +79,19 @@ const RequestsForAllowances = () => {
         delete updated[`${villagerId}-${allowancesId}`];
         return updated;
       });
-      toast.success('Status updated successfully', {
-        style: {
-          background: '#6ac476',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Status updated successfully',
+        confirmButtonColor: '#6ac476'
       });
     } catch (err) {
       console.error('Status update error:', err);
-      toast.error(err.error || 'Failed to update status', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.error || 'Failed to update status',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
@@ -113,12 +108,11 @@ const RequestsForAllowances = () => {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err.error || 'Failed to download document', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.error || 'Failed to download document',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
@@ -153,21 +147,7 @@ const RequestsForAllowances = () => {
       selector: row => new Date(row.apply_date).toLocaleDateString(),
       sortable: true,
     },
-    {
-      name: 'Document',
-      cell: row => (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleDownload(row.document_path);
-          }}
-          className="download-link"
-        >
-          Download
-        </a>
-      ),
-    },
+   
     {
       name: 'Status',
       cell: row => (
@@ -258,7 +238,6 @@ const RequestsForAllowances = () => {
         }}
       />
      
-      <Toaster />
     </div>
   );
 };

@@ -46,6 +46,7 @@ import UserPermitsPR from './Components/molecules/Pages/User/UserPermits/UserPer
 import UserPermits from './Components/molecules/Pages/User/UserPermits/UserPermits';
 import UserPermitCertificates from './Components/molecules/Pages/User/UserPermits/UserPermitCertificates';
 import DownloadCertificate from './Components/molecules/Pages/User/UserCertificates/DownloadCertificate';
+import UserCertificateDownloads from './Components/molecules/Pages/User/UserCertificates/UserCertificateDownloads';
 
 // User Certificates Download
 import UserCertificatesDownload from './Components/molecules/Pages/User/UserCertificatesDownload/UserCertificatesDownload';
@@ -187,6 +188,8 @@ function App() {
           <Route path="/user_certificates" element={<UserCertificates />} />
           <Route path="/view-certificate" element={<ViewCertificate />} />
           <Route path="/download-certificate" element={<DownloadCertificate />} />
+          <Route path="/user_certificate_downloads" element={<UserCertificateDownloads />} />
+        
 
           {/* User Permits */}
           <Route path="/user_permits_pr" element={<UserPermitsPR />} />

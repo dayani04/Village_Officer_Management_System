@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import * as villagerApi from '../../../../../api/villager';
 import './FamilyDetails.css';
 import NavBar from "../../../NavBar/NavBar";
@@ -36,6 +37,7 @@ const FamilyDetails = () => {
   }, []);
 
   const handleBack = () => navigate('/user_dashboard');
+
   const handleNewBornRequest = () => navigate('/family-new-born-request');
   const handleNewFamilyMemberRequest = () => navigate('/family-new-family-member-request');
 
@@ -44,9 +46,23 @@ const FamilyDetails = () => {
 
   return (
     <section>
-      <NavBar/>
+      <NavBar />
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Dashboard">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">Family Members</h1>
+          </div>
+        </div>
+      </div>
+      <br/>
+
       <div className="family-details-container">
-        <h2>Family Members</h2>
+
         {familyMembers.length === 0 ? (
           <p>No family members found at your address.</p>
         ) : (
@@ -65,18 +81,16 @@ const FamilyDetails = () => {
           </div>
         )}
         <div className="family-details-actions">
-          <button className="back-button" onClick={handleNewBornRequest}>
+          <button className="back-buttonf" onClick={handleNewBornRequest}>
             Request For New Born
           </button>
-          <button className="back-button" onClick={handleNewFamilyMemberRequest}>
+          <button className="back-buttonf" onClick={handleNewFamilyMemberRequest}>
             Request For New Family Member
           </button>
-          <button className="back-button" onClick={handleBack}>
-            Back to Dashboard
-          </button>
+
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </section>
   );
 };

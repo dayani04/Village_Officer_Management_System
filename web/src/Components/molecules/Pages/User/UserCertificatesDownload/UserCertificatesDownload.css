@@ -1,104 +1,342 @@
 /* Remove background from body */
 body {
-    margin: 0;
-    padding: 0;
-    font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.dashboardcd-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 60px 40px;
+  background: linear-gradient(135deg, #fff 0%, #fff 50%, #fff 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated background pattern */
+.dashboardcd-container::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(146, 25, 64, 0.1) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: moveBackground 20s linear infinite;
+  z-index: 0;
+}
+
+@keyframes moveBackground {
+  0% {
+    transform: translate(0, 0);
   }
-  
+
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+.dashboardcd-container>* {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboardcd-header {
+  text-align: center;
+  margin-bottom: 60px;
+  animation: fadeInDown 0.8s ease;
+}
+
+.dashboardcd-header h1 {
+  background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 3.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: 2px;
+  text-align: center;
+  position: relative;
+}
+
+.dashboardcd-header h1::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #C75B7A, transparent);
+  border-radius: 2px;
+}
+
+
+
+/* Grid Layout Instead of Cards */
+.dashboardcd-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+  max-width: 1000px;
+  width: 100%;
+  animation: fadeInUp 0.8s ease;
+  padding: 20px;
+}
+
+.optioncd-card {
+  background: linear-gradient(135deg, rgba(26, 10, 30, 0.8) 0%, rgba(45, 27, 61, 0.8) 100%);
+  backdrop-filter: blur(10px);
+  padding: 30px;
+  border-radius: 25px;
+  border: 2px solid rgba(199, 91, 122, 0.3);
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 25px;
+  align-items: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  min-height: 140px;
+}
+
+/* Animated gradient border effect */
+.optioncd-card::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, #921940, #C75B7A, #921940);
+  border-radius: 25px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  z-index: -1;
+}
+
+.optioncd-card:hover::before {
+  opacity: 1;
+  animation: rotateBorder 3s linear infinite;
+}
+
+@keyframes rotateBorder {
+  0% {
+    filter: hue-rotate(0deg);
+  }
+
+  100% {
+    filter: hue-rotate(360deg);
+  }
+}
+
+.optioncd-card:hover {
+  transform: translateX(10px) scale(1.02);
+  border-color: rgba(199, 91, 122, 0.8);
+  box-shadow:
+    0 20px 60px rgba(146, 25, 64, 0.4),
+    inset 0 0 20px rgba(199, 91, 122, 0.1);
+}
+
+.cardcd-image {
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 20px;
+  border: 3px solid rgba(199, 91, 122, 0.3);
+  transition: all 0.4s ease;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.optioncd-card:hover .cardcd-image {
+  transform: scale(1.1) rotate(-5deg);
+  border-color: #C75B7A;
+  box-shadow: 0 12px 30px rgba(146, 25, 64, 0.5);
+}
+
+.optioncd-button {
+  padding: 16px 24px;
+  background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
+  color: white;
+  border: none;
+  border-radius: 15px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 6px 20px rgba(146, 25, 64, 0.4);
+  text-align: left;
+  width: 100%;
+}
+
+.optioncd-button::before {
+  content: '→';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  transition: all 0.3s ease;
+}
+
+.optioncd-button:hover::before {
+  right: 15px;
+}
+
+.optioncd-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.optioncd-button:hover::after {
+  width: 300px;
+  height: 300px;
+}
+
+.optioncd-button:hover {
+  background: linear-gradient(135deg, #7a1632 0%, #a8445e 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(146, 25, 64, 0.6);
+}
+
+.optioncd-button:active {
+  transform: translateY(0);
+}
+
+.verticalcd-line {
+  display: none;
+}
+
+.villagercd-section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 60px;
+}
+
+/* Animations */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered card animations */
+.optioncd-card {
+  animation: slideInLeft 0.6s ease forwards;
+  opacity: 0;
+}
+
+.optioncd-card:nth-child(1) {
+  animation-delay: 0.1s;
+}
+
+.optioncd-card:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.optioncd-card:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+.optioncd-card:nth-child(4) {
+  animation-delay: 0.4s;
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .dashboardcd-header h1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (max-width: 768px) {
   .dashboardcd-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 150vh;
-    padding: 20px;
-    backdrop-filter: blur(5px); /* Adds a subtle blur effect */
-    
-    /* Apply background image specifically to the dashboard */
-    background: url('background.jpg') no-repeat center center fixed;
-    background-size: cover;
+    padding: 40px 20px;
   }
-  
-  .dashboardcd-header {
-    text-align: center;
-    margin-bottom: 30px;
+
+  .dashboardcd-header h1 {
+    font-size: 2rem;
   }
-  
-  h1 {
-    color: whitesmoke;
-    font-size: 48px;
-    font-weight: bold;
-    text-align: left; /* Aligns the text to the right */
-    width: 100%; /* Ensures it spans the full width of the container */
-   
+
+  .dashboardcd-options {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 10px;
   }
+
   .optioncd-card {
-    background-color: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    transition: transform 0.2s, box-shadow 0.2s;
-    width: 200px; 
-    height: 200px; 
-    overflow: hidden; 
+    grid-template-columns: 100px 1fr;
+    gap: 20px;
+    padding: 20px;
+    min-height: 120px;
   }
-  
-  .optioncd-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-  }
-  
+
   .cardcd-image {
     width: 100px;
     height: 100px;
-    object-fit: contain;
-    margin-bottom: auto; 
   }
-  
+
   .optioncd-button {
-    padding: 12px;
-    background-color: #921940;
-    color: white;
-    border: none;
-    border-radius: 6px;
-    font-size: 14px;
-    cursor: pointer;
-    width: 100%;
-    font-weight: bold;
-    transition: background-color 0.3s;
-    margin-top: auto; /* Ensures the button stays at the bottom */
+    font-size: 13px;
+    padding: 14px 20px;
   }
-  
-  .optioncd-button:hover {
-    background-color: #7a1632;
+
+
+
+  .optioncd-card:hover {
+    transform: translateY(-5px) scale(1.02);
   }
-  
-  .dashboardcd-options {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Ensures cards align at the top */
-    gap: 20px;
-  }
-  
-  .verticalcd-line {
-    width: 2px;
-    height: 100px;
-    background-color: #dadacd;
-    margin: 0 10px;
-    align-self: center;
-  }
-   
- 
-.villagercd-section {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    margin-top: 40px;
-  }
-  
- 
-  
+}
+
+/* Add glow effect to header */
+.dashboardcd-header h1 {
+  text-shadow: 0 0 30px rgba(199, 91, 122, 0.5);
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import DataTable from 'react-data-table-component';
 import * as electionApi from '../../../../../api/electionApplication';
 import './RequestsForElections.css';
@@ -32,12 +32,11 @@ const RequestsForElections = () => {
 
   const handleStatusSelect = (villagerId, electionrecodeID, newStatus) => {
     if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
-      toast.error('Invalid status selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Invalid status selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -50,24 +49,22 @@ const RequestsForElections = () => {
 
   const handleStatusConfirm = async (villagerId, electionrecodeID) => {
     if (!electionrecodeID) {
-      toast.error('Election ID is missing.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Election ID is missing.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
 
     const newStatus = pendingStatuses[`${villagerId}-${electionrecodeID}`];
     if (!newStatus) {
-      toast.error('No status change selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No status change selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -82,46 +79,24 @@ const RequestsForElections = () => {
         delete updated[`${villagerId}-${electionrecodeID}`];
         return updated;
       });
-      toast.success('Status updated successfully', {
-        style: {
-          background: '#6ac476',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Status updated successfully',
+        confirmButtonColor: '#6ac476'
       });
     } catch (err) {
       console.error('Status update error:', err);
-      toast.error(err.error || 'Failed to update status', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.error || 'Failed to update status',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
 
-  const handleDownload = async (filename) => {
-    try {
-      const blob = await electionApi.downloadDocument(filename);
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error(err.error || 'Failed to download document', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-    }
-  };
+ 
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
@@ -153,21 +128,7 @@ const RequestsForElections = () => {
       selector: row => new Date(row.apply_date).toLocaleDateString(),
       sortable: true,
     },
-    {
-      name: 'Document',
-      cell: row => (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleDownload(row.document_path);
-          }}
-          className="download-link"
-        >
-          Download
-        </a>
-      ),
-    },
+ 
     {
       name: 'Status',
       cell: row => (
@@ -258,7 +219,6 @@ const RequestsForElections = () => {
         }}
       />
    
-      <Toaster />
     </div>
   );
 };

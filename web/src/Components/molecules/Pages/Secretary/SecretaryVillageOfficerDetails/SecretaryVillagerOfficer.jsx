@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
-import { TbEdit, TbEye, TbTrash, TbDotsVertical } from "react-icons/tb";
-import { FaPlus } from "react-icons/fa";
+import { FaPlus, FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaEye } from "react-icons/fa";
 import * as villagerOfficerApi from "../../../../../api/villageOfficer";
 import "./SecretaryVillagerOfficer.css";
 
@@ -25,16 +24,12 @@ const SecretaryVillagerOfficer = () => {
           err.response?.data?.error || err.message || "Failed to fetch village officers"
         );
         setLoading(false);
-        toast.error(
-          err.response?.data?.error || "Failed to fetch village officers",
-          {
-            style: {
-              background: "#f43f3f",
-              color: "#fff",
-              borderRadius: "4px",
-            },
-          }
-        );
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.response?.data?.error || "Failed to fetch village officers",
+          confirmButtonColor: '#f43f3f',
+        });
       }
     };
 
@@ -42,25 +37,68 @@ const SecretaryVillagerOfficer = () => {
   }, []);
 
   const handleDeleteOfficer = async (id, fullName) => {
-    if (!window.confirm(`Are you sure you want to delete ${fullName}?`)) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `You won't be able to revert this! This will delete ${fullName}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+    
     try {
       await villagerOfficerApi.deleteVillageOfficer(id);
       setOfficers(officers.filter((officer) => officer.Villager_Officer_ID !== id));
-      toast.success(`Officer ${fullName} deleted successfully`, {
-        style: {
-          background: "#4caf50",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: `Officer ${fullName} deleted successfully`,
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error("Error deleting village officer:", err);
-      toast.error(err.response?.data?.error || "Failed to delete officer", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Delete Failed',
+        text: err.response?.data?.error || "Failed to delete officer",
+        confirmButtonColor: '#f43f3f',
+      });
+    }
+  };
+
+  const handleToggleStatus = async (id, currentStatus, fullName) => {
+    const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
+    try {
+      await villagerOfficerApi.updateVillageOfficerStatus(id, newStatus);
+      setOfficers(
+        officers.map((officer) =>
+          officer.Villager_Officer_ID === id ? { ...officer, Status: newStatus } : officer
+        )
+      );
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: `Status updated for ${fullName}`,
+        confirmButtonColor: '#4caf50',
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false
+      });
+    } catch (err) {
+      console.error('Error updating officer status:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Status Update Failed',
+        text: err.response?.data?.error || 'Failed to update status',
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -77,17 +115,7 @@ const SecretaryVillagerOfficer = () => {
     navigate(`/secretary-villager-officers/view/${id}`);
   };
 
-  const [dropdownOpen, setDropdownOpen] = useState({});
-
-  const toggleDropdown = (id) => {
-    setDropdownOpen((prev) => ({
-      ...prev,
-      [id]: !prev[id],
-    }));
-  };
-
   const handleAction = (action, id, fullName) => {
-    setDropdownOpen((prev) => ({ ...prev, [id]: false }));
     switch (action) {
       case "edit":
         handleEditOfficer(id);
@@ -97,6 +125,9 @@ const SecretaryVillagerOfficer = () => {
         break;
       case "view":
         handleViewOfficer(id);
+        break;
+      case "toggleStatus":
+        handleToggleStatus(id, officers.find(o => o.Villager_Officer_ID === id).Status, fullName);
         break;
       default:
         break;
@@ -133,38 +164,34 @@ const SecretaryVillagerOfficer = () => {
       name: "Actions",
       cell: (row) => (
         <div className="villager-officer-action-buttons">
+          {/* <button
+            className="villager-officer-action-btn villager-officer-view-btn"
+            onClick={() => handleAction("view", row.Villager_Officer_ID)}
+            title="View"
+          >
+            <FaEye />
+          </button> */}
           <button
-            className="villager-officer-action-btn"
-            onClick={() => toggleDropdown(row.Villager_Officer_ID)}
+            className="villager-officer-action-btn villager-officer-edit-btn"
+            onClick={() => handleAction("edit", row.Villager_Officer_ID)}
+            title="Edit"
           >
-            Action <TbDotsVertical />
+            <FaEdit />
           </button>
-          <div
-            className={`villager-officer-dropdown ${
-              dropdownOpen[row.Villager_Officer_ID] ? "active" : ""
-            }`}
+          <button
+            className="villager-officer-action-btn villager-officer-delete-btn"
+            onClick={() => handleAction("delete", row.Villager_Officer_ID, row.Full_Name)}
+            title="Delete"
           >
-            <button
-              className="villager-officer-dropdown-item villager-officer-edit-item"
-              onClick={() => handleAction("edit", row.Villager_Officer_ID)}
-            >
-              <TbEdit style={{ marginRight: "8px" }} /> Edit
-            </button>
-            <button
-              className="villager-officer-dropdown-item villager-officer-view-item"
-              onClick={() => handleAction("view", row.Villager_Officer_ID)}
-            >
-              <TbEye style={{ marginRight: "8px" }} /> View
-            </button>
-            <button
-              className="villager-officer-dropdown-item villager-officer-delete-item"
-              onClick={() =>
-                handleAction("delete", row.Villager_Officer_ID, row.Full_Name)
-              }
-            >
-              <TbTrash style={{ marginRight: "8px" }} /> Delete
-            </button>
-          </div>
+            <FaTrash />
+          </button>
+          <button
+            className="villager-officer-action-btn villager-officer-status-btn"
+            onClick={() => handleAction("toggleStatus", row.Villager_Officer_ID, row.Full_Name)}
+            title={row.Status === 'Active' ? 'Deactivate' : 'Activate'}
+          >
+            {row.Status === 'Active' ? <FaToggleOff /> : <FaToggleOn />}
+          </button>
         </div>
       ),
     },
@@ -172,9 +199,13 @@ const SecretaryVillagerOfficer = () => {
 
   if (loading) {
     return (
-      <div className="page-layout">
-        <div className="villager-list-container">
-          <div className="villagerss-container">Loading...</div>
+      <div className="villager-officers-container">
+        <h1>Villager Officers</h1>
+        <div>Loading...</div>
+        <div className="villager-officer-actions">
+          <button className="villager-officer-back-btn" onClick={() => navigate('/SecretaryDashBoard')}>
+            Back to Dashboard
+          </button>
         </div>
       </div>
     );
@@ -182,73 +213,68 @@ const SecretaryVillagerOfficer = () => {
 
   if (error) {
     return (
-      <div className="page-layout">
-        <div className="villager-list-container">
-          <div className="villagerss-container">
-            <h1>Villager Officers</h1>
-            <p className="error-message">{error}</p>
-            <Toaster />
-          </div>
+      <div className="villager-officers-container">
+        <h1>Villager Officers</h1>
+        <p className="error-message">Error: {error}</p>
+        <div className="villager-officer-actions">
+          <button className="villager-officer-back-btn" onClick={() => navigate('/SecretaryDashBoard')}>
+            Back to Dashboard
+          </button>
         </div>
       </div>
     );
   }
 
   return (
-  
-        <div className="villagerss-container">
-          <h1>Villager Officers</h1>
-          <div className="villagers-actions">
-            <button className="villagers-add-btn" onClick={handleAddOfficer}>
-              <FaPlus /> Add Officer
-            </button>
-          </div>
-          <div className="villager-officer-table-wrapper">
-            <DataTable
-              columns={columns}
-              data={officers}
-              pagination
-              paginationPerPage={10}
-              paginationRowsPerPageOptions={[10, 25, 50]}
-              highlightOnHover
-              striped
-              noDataComponent={
-                <div className="villagers-no-data">No villager officers found</div>
-              }
-              customStyles={{
-                table: {
-                  style: {
-                    marginBottom: "90px",
-                    borderCollapse: "collapse",
-                    backgroundColor: "#fff",
-                  },
-                },
-                headCells: {
-                  style: {
-                    backgroundColor: "#9ca3af",
-                    color: "white",
-                    padding: "0.75rem",
-                  },
-                },
-                cells: {
-                  style: {
-                    padding: "0.75rem",
-                    borderBottom: "1px solid #ddd",
-                  },
-                },
-                rows: {
-                  style: {
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
-                  },
-                },
-              }}
-            />
-          </div>
-          <Toaster />
-        </div>
-   
+    <div className="villager-officers-container">
+      <h1>Villager Officers</h1>
+      <div className="villager-officer-actions">
+        <button className="villager-officers-add-btn" onClick={handleAddOfficer}>
+          <FaPlus /> Add Officer
+        </button>
+      </div>
+      <DataTable 
+        columns={columns}
+        data={officers}
+        pagination
+        paginationPerPage={10}
+        paginationRowsPerPageOptions={[10, 25, 50]}
+        highlightOnHover
+        striped
+        noDataComponent={<div className="villager-officer-no-data">No villager officers found</div>}
+        customStyles={{
+          table: {
+            style: {
+              border: '1px solid #ddd',
+              borderRadius: '4px',
+              backgroundColor: 'white',
+              marginBottom: '10px',
+            },
+          },
+          headCells: {
+            style: {
+              backgroundColor: '#9ca3af',
+              color: 'white',
+              fontWeight: 'bold',
+              padding: '12px',
+            },
+          },
+          cells: {
+            style: {
+              padding: '12px',
+              borderBottom: '1px solid #ddd',
+            },
+          },
+          rows: {
+            style: { 
+              '&:hover': {
+                backgroundColor: '#f1f1f1',
+              },
+            },
+          },
+        }}
+      />
+    </div>
   );
 };
 

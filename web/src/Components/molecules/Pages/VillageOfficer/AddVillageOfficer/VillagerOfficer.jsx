@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import DataTable from 'react-data-table-component';
 import * as villagerOfficerApi from '../../../../../api/villageOfficer';
-import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaPlus } from 'react-icons/fa'; // Font Awesome icons
-import { TbDotsVertical } from 'react-icons/tb'; // Tabler Icon for dropdown
+import { FaEdit, FaTrash, FaToggleOn, FaToggleOff, FaPlus, FaEye } from 'react-icons/fa'; // Font Awesome icons
 import './VillagerOfficer.css';
 
 const VillagerOfficer = () => {
@@ -12,7 +11,6 @@ const VillagerOfficer = () => {
   const [officers, setOfficers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [dropdownOpen, setDropdownOpen] = useState({});
 
   useEffect(() => {
     const fetchOfficers = async () => {
@@ -24,12 +22,11 @@ const VillagerOfficer = () => {
         console.error('Error fetching village officers:', err);
         setError(err.error || 'Failed to fetch village officers');
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch village officers', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || 'Failed to fetch village officers',
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -38,25 +35,38 @@ const VillagerOfficer = () => {
   }, []);
 
   const handleDeleteOfficer = async (id, fullName) => {
-    if (!window.confirm(`Are you sure you want to delete ${fullName}?`)) return;
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: `You won't be able to revert this! This will delete ${fullName}.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    });
+
+    if (!result.isConfirmed) return;
+    
     try {
       await villagerOfficerApi.deleteVillageOfficer(id);
       setOfficers(officers.filter((officer) => officer.Villager_Officer_ID !== id));
-      toast.success(`Officer ${fullName} deleted successfully`, {
-        style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Deleted!',
+        text: `Officer ${fullName} deleted successfully`,
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error('Error deleting village officer:', err);
-      toast.error(err.error || 'Failed to delete officer', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Delete Failed',
+        text: err.error || 'Failed to delete officer',
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -70,21 +80,23 @@ const VillagerOfficer = () => {
           officer.Villager_Officer_ID === id ? { ...officer, Status: newStatus } : officer
         )
       );
-      toast.success(`Status updated for ${fullName}`, {
-        style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Status Updated',
+        text: `Status updated for ${fullName}`,
+        confirmButtonColor: '#4caf50',
+        timer: 1500,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error('Error updating officer status:', err);
-      toast.error(err.error || 'Failed to update status', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Status Update Failed',
+        text: err.error || 'Failed to update status',
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -101,16 +113,15 @@ const VillagerOfficer = () => {
     navigate(`/villager-officers/edit/${id}`);
   };
 
-  const toggleDropdown = (officerId) => {
-    setDropdownOpen(prev => ({
-      ...prev,
-      [officerId]: !prev[officerId]
-    }));
+  const handleViewOfficer = (id) => {
+    navigate(`/villager-officers/view/${id}`);
   };
 
   const handleAction = (action, officerId, fullName) => {
-    setDropdownOpen(prev => ({ ...prev, [officerId]: false }));
     switch (action) {
+      case 'view':
+        handleViewOfficer(officerId);
+        break;
       case 'edit':
         handleEditOfficer(officerId);
         break;
@@ -155,35 +166,35 @@ const VillagerOfficer = () => {
       name: 'Actions',
       cell: row => (
         <div className="villager-officer-action-buttons">
-          <button
-            className="villager-officer-action-btn"
-            onClick={() => toggleDropdown(row.Villager_Officer_ID)}
+          {/* <button
+            className="villager-officer-action-btn villager-officer-view-btn"
+            onClick={() => handleAction('view', row.Villager_Officer_ID)}
+            title="View"
           >
-             Action <TbDotsVertical />
+            <FaEye />
+          </button> */}
+          <button
+            className="villager-officer-action-btn villager-officer-edit-btn"
+            onClick={() => handleAction('edit', row.Villager_Officer_ID)}
+            title="Edit"
+          >
+            <FaEdit />
           </button>
-          <div className={`villager-officer-dropdown ${dropdownOpen[row.Villager_Officer_ID] ? 'active' : ''}`}>
-            <button
-              className="villager-officer-dropdown-item villager-officer-edit-item"
-              onClick={() => handleAction('edit', row.Villager_Officer_ID, row.Full_Name)}
-            >
-              <FaEdit style={{ marginRight: '8px' }} /> Edit
-            </button>
-            <button
-              className="villager-officer-dropdown-item villager-officer-delete-item"
-              onClick={() => handleAction('delete', row.Villager_Officer_ID, row.Full_Name)}
-            >
-              <FaTrash style={{ marginRight: '8px' }} /> Delete
-            </button>
-            <button
-              className="villager-officer-dropdown-item villager-officer-status-item"
-              onClick={() => handleAction('toggleStatus', row.Villager_Officer_ID, row.Full_Name)}
-            >
-              {row.Status === 'Active' ? <FaToggleOff style={{ marginRight: '8px' }} /> : <FaToggleOn style={{ marginRight: '8px' }} />} 
-              {row.Status === 'Active' ? 'Deactivate' : 'Activate'}
-            </button>
-          </div>
+          <button
+            className="villager-officer-action-btn villager-officer-delete-btn"
+            onClick={() => handleAction('delete', row.Villager_Officer_ID, row.Full_Name)}
+            title="Delete"
+          >
+            <FaTrash />
+          </button>
+          <button
+            className="villager-officer-action-btn villager-officer-status-btn"
+            onClick={() => handleAction('toggleStatus', row.Villager_Officer_ID, row.Full_Name)}
+            title={row.Status === 'Active' ? 'Deactivate' : 'Activate'}
+          >
+            {row.Status === 'Active' ? <FaToggleOff /> : <FaToggleOn />}
+          </button>
         </div>
-        
       ),
     },
   ];
@@ -198,7 +209,6 @@ const VillagerOfficer = () => {
             Back to Dashboard
           </button>
         </div>
-        <Toaster />
       </div> 
     );
   }
@@ -208,8 +218,6 @@ const VillagerOfficer = () => {
       <div className="villager-officers-container">
         <h1>Villager Officers</h1>
         <p className="error-message">Error: {error}</p>
-       
-        <Toaster />
       </div>
     );
   }
@@ -239,7 +247,7 @@ const VillagerOfficer = () => {
               border: '1px solid #ddd',
               borderRadius: '4px',
               backgroundColor: 'white',
-                 marginBottom: '60px',
+                 marginBottom: '10px',
               
             },
           },
@@ -268,7 +276,6 @@ const VillagerOfficer = () => {
           },
         }}
       />
-      <Toaster />
     </div>
   );
 };

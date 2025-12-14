@@ -1,57 +1,62 @@
-.certificates-container {
+.allowance-receipts-container {
   padding: 20px;
-  max-width: 1000px;
+  width: 100%;
   margin: 0 auto;
   text-align: center;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-top: 50px;
+  margin-bottom: 50px;
 }
 
-.certificates-container h1 {
+.allowance-receipts-container h1 {
   font-size: 24px;
   color: #333;
   margin-bottom: 20px;
 }
 
-.certificates-table-wrapper {
+.allowance-receipts-table-wrapper {
   overflow-x: auto;
 }
 
-.certificates-table {
+.allowance-receipts-table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 20px;
 }
 
-.certificates-table th,
-.certificates-table td {
+.allowance-receipts-table th,
+.allowance-receipts-table td {
   padding: 12px;
   border: 1px solid #ddd;
   text-align: left;
 }
 
-.certificates-table th {
+.allowance-receipts-table th {
   background-color: #f4f4f4;
   font-weight: bold;
 }
 
-.certificates-table tr:nth-child(even) {
+.allowance-receipts-table tr:nth-child(even) {
   background-color: #f9f9f9;
 }
 
-.certificates-table tr:hover {
+.allowance-receipts-table tr:hover {
   background-color: #f1f1f1;
 }
 
-.certificates-download-link {
+.allowance-receipts-download-link {
   color: #007bff;
   text-decoration: none;
   font-weight: 500;
 }
 
-.certificates-download-link:hover {
+.allowance-receipts-download-link:hover {
   text-decoration: underline;
 }
 
-.certificates-no-data {
+.allowance-receipts-no-data {
   text-align: center;
   color: #666;
   font-style: italic;
@@ -62,11 +67,11 @@
   margin-bottom: 20px;
 }
 
-.certificates-actions {
+.allowance-receipts-actions {
   margin-top: 20px;
 }
 
-.certificates-back-btn {
+.allowance-receipts-back-btn {
   padding: 10px 20px;
   background-color: #6c757d;
   color: white;
@@ -76,6 +81,22 @@
   font-size: 16px;
 }
 
-.certificates-back-btn:hover {
+.allowance-receipts-back-btn:hover {
   background-color: #5a6268;
+}
+
+/* Download button styling to match UserAllowanceReceipt */
+.allowance-receipts-download-btn {
+ background: linear-gradient(135deg, #921940 0%, #915969 100%);  
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background-color 0.2s;
+}
+
+.allowance-receipts-download-btn:hover {
+  background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
 }

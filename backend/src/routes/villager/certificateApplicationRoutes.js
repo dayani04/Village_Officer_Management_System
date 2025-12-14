@@ -65,10 +65,23 @@ router.post(
   handleMulterError,
   certificateApplicationController.saveCertificate
 );
+
 router.get(
   "/user-application",
   authenticate,
   certificateApplicationController.getUserCertificateApplication
+);
+
+router.post(
+  "/check-recent",
+  authenticate,
+  certificateApplicationController.checkRecentApplication
+);
+
+router.get(
+  "/user-confirmed-certificates",
+  authenticate,
+  certificateApplicationController.getUserConfirmedCertificates
 );
 
 module.exports = router;

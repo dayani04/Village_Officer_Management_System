@@ -56,53 +56,61 @@ const CertificateVillagerDetails = () => {
   }, [villagerId]);
 
   const handleBack = () => {
-    navigate('/requests-for-certificates');
+    navigate('/requests_for_certificate');
   };
 
   if (loading) {
-    return <div className="villager-details-container">Loading...</div>;
+    return (
+      <section className="view-villager-page">
+        <div className="view-villager-container">Loading...</div>
+        <Toaster />
+      </section>
+    );
   }
 
   if (error) {
     return (
-      <div className="villager-details-container">
-        <h1>Villager Details</h1>
+      <section className="view-villager-page">
+        <button className="view-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <h1>Certificate Villager Details</h1>
         <p>Error: {error}</p>
-        <div className="villager-details-actions">
-          <button className="back-button" onClick={handleBack}>
-            Back to Certificate Applications
-          </button>
-        </div>
         <Toaster />
-      </div>
+      </section>
     );
   }
 
   if (!villager) {
     return (
-      <div className="villager-details-container">
-        <h1>Villager Details</h1>
+      <section className="view-villager-page">
+        <button className="view-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <h1>Certificate Villager Details</h1>
         <p>Villager not found</p>
-        <div className="villager-details-actions">
-          <button className="back-button" onClick={handleBack}>
-            Back to Certificate Applications
-          </button>
-        </div>
         <Toaster />
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="villager-details-container">
-      <h1>Villager Details</h1>
-      <div className="villager-details">
+    <section className="view-villager-page">
+      <button className="view-villager-back-btn" onClick={handleBack}>
+        ←
+      </button>
+      <h1>Certificate Applicat Details</h1>
+
+      <div className="view-villager-info">
         <p><strong>Villager ID:</strong> {villager.Villager_ID || 'N/A'}</p>
         <p><strong>Full Name:</strong> {villager.Full_Name || 'N/A'}</p>
         <p><strong>Email:</strong> {villager.Email || 'N/A'}</p>
         <p><strong>Phone Number:</strong> {villager.Phone_No || 'N/A'}</p>
         <p><strong>NIC:</strong> {villager.NIC || 'N/A'}</p>
-        <p><strong>Date of Birth:</strong> {villager.DOB ? new Date(villager.DOB).toLocaleDateString() : 'N/A'}</p>
+        <p>
+          <strong>Date of Birth:</strong>{' '}
+          {villager.DOB ? new Date(villager.DOB).toLocaleDateString('en-GB') : 'N/A'}
+        </p>
         <p><strong>Address:</strong> {villager.Address || 'N/A'}</p>
         <p><strong>Regional Division:</strong> {villager.RegionalDivision || 'N/A'}</p>
         <p><strong>Status:</strong> {villager.Status || 'N/A'}</p>
@@ -111,15 +119,13 @@ const CertificateVillagerDetails = () => {
         <p><strong>Longitude:</strong> {villager.Longitude ?? 'N/A'}</p>
         <p><strong>Election Participant:</strong> {villager.IsParticipant ? 'Yes' : 'No'}</p>
         <p><strong>Alive Status:</strong> {villager.Alive_Status || 'N/A'}</p>
-        
       </div>
-      <div className="villager-details-actions">
-        <button className="back-button" onClick={handleBack}>
-          Back to Certificate Applications
-        </button>
+
+      <div className="view-villager-actions">
       </div>
+
       <Toaster />
-    </div>
+    </section>
   );
 };
 

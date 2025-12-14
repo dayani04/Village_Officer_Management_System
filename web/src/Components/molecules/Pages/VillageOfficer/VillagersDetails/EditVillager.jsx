@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import * as villagerApi from '../../../../../api/villager';
 import './EditVillager.css';
 
@@ -40,12 +40,11 @@ const EditVillager = () => {
         console.error('Error fetching villager:', err);
         setFetchError(err.error || 'Failed to fetch villager data');
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch villager data', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || 'Failed to fetch villager data',
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -76,34 +75,36 @@ const EditVillager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) {
-      toast.error('Please fix the errors in the form', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please fix the errors in the form',
+        confirmButtonColor: '#f43f3f',
       });
       return;
     }
 
     try {
       await villagerApi.updateVillager(villagerId, formData);
-      toast.success('Villager updated successfully', {
-        style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Villager updated successfully',
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      }).then(() => {
+        navigate('/Villagers');
       });
-      setTimeout(() => navigate('/Villagers'), 1500);
     } catch (err) {
       console.error('Error updating villager:', err);
-      toast.error(err.error || 'Failed to update villager', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: err.error || 'Failed to update villager',
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -114,7 +115,11 @@ const EditVillager = () => {
 
   if (loading) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
+       <section className="edit-villager-page">
+        <button className="edit-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <h1>Edit Villager</h1>
         <div className="edit-villager-container">Loading...</div>
       </section>
     );
@@ -122,25 +127,25 @@ const EditVillager = () => {
 
   if (fetchError) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
+     <section className="edit-villager-page">
+        <button className="edit-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+           <h1>Edit Villager</h1>
         <div className="edit-villager-container">
-          <h1>Edit Villager</h1>
           <p>Error: {fetchError}</p>
-          <div className="edit-villager-actions">
-            <button className="edit-villager-back-btn" onClick={handleBack}>
-              Back to Villagers
-            </button>
-          </div>
-          <Toaster />
         </div>
       </section>
     );
   }
 
   return (
-    <section className="w-full h-full flex items-center justify-center">
+    <section className="edit-villager-page">
+      <button className="edit-villager-back-btn" onClick={handleBack}>
+        ←
+      </button>
+         <h1>Edit Villager</h1>
       <div className="edit-villager-container">
-        <h1>Edit Villager</h1>
         <form className="edit-villager-form" onSubmit={handleSubmit}>
           <div className="edit-villager-field">
             <label htmlFor="full_name">Full Name:</label>
@@ -226,10 +231,8 @@ const EditVillager = () => {
           </div>
           <div className="edit-villager-actions">
             <button type="submit" className="edit-villager-submit-btn">Update Villager</button>
-            <button type="button" className="edit-villager-back-btn" onClick={handleBack}>Back</button>
           </div>
         </form>
-        <Toaster />
       </div>
     </section>
   );

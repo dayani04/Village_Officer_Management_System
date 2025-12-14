@@ -115,13 +115,16 @@ const AddVillager = () => {
   };
 
   const handleBack = () => {
-    navigate('/VillageOfficerDashBoard');
+    navigate('/villagers');
   };
 
   return (
-    <section className="w-full h-full flex items-center justify-center">
+    <section className="add-villager-page">
+      <button className="add-villager-back-btn" onClick={handleBack}>
+        ←
+      </button>
+      <h1>Add New Villager</h1>
       <div className="add-villager-container">
-        <h1>Add New Villager</h1>
         <form className="add-villager-form" onSubmit={handleSubmit}>
           <div className="add-villager-field">
             <label htmlFor="villager_id">Villager ID:</label>
@@ -319,7 +322,6 @@ const AddVillager = () => {
           <div className="add-villager-actions">
             <button type="submit" className="add-villager-submit-btn">Add Villager</button>
             <button type="button" className="add-villager-cancel-btn" onClick={handleCancel}>Cancel</button>
-            <button type="button" className="add-villager-back-btn" onClick={handleBack}>Back</button>
           </div>
         </form>
         <Toaster />

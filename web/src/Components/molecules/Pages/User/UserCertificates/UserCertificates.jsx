@@ -3,9 +3,10 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
-import { getProfile,} from "../../../../../api/villager"; // Import submitCertificateApplication
-import { submitCertificateApplication, fetchVillagerDetails } from "../../../../../api/certificateApplication";
-import "./UserCertificates.css";
+import { FaArrowLeft } from 'react-icons/fa';
+import { getProfile, } from "../../../../../api/villager"; // Import submitCertificateApplication
+import { submitCertificateApplication, fetchVillagerDetails, checkRecentApplication } from "../../../../../api/certificateApplication";
+import "../../../../../index.css";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
 
@@ -91,6 +92,20 @@ const UserCertificates = () => {
 
     setLoading(true);
     try {
+      // Check for recent applications within the last 6 months
+      const recentApplicationCheck = await checkRecentApplication(formData.email);
+      
+      if (recentApplicationCheck.hasRecentApplication) {
+        setLoading(false);
+        Swal.fire({
+          icon: "warning",
+          title: "Application Restriction",
+          text: `You have already applied for a certificate on ${new Date(recentApplicationCheck.applicationDate).toLocaleDateString()}. You can only apply once every 6 months. Please try again after ${6 - recentApplicationCheck.monthsSinceApplication} month(s).`,
+          confirmButtonText: t("ok"),
+        });
+        return;
+      }
+
       const formDataToSend = new FormData();
       formDataToSend.append("email", formData.email);
       formDataToSend.append("reason", formData.reason);
@@ -129,19 +144,30 @@ const UserCertificates = () => {
     changeLanguage(lang);
   };
 
+  const handleBack = () => {
+    navigate('/user_dashboard');
+  };
+
   return (
     <section>
       <NavBar />
-      <div>
-        <br />
-        <br />
-        <h1 className="form-title">{t("certificatesFormTitle")}</h1>
-        <br />
-        <div className="user-certificates-container">
-          <div className="language-certificates-switch">
-            <button onClick={() => handleLanguageChange("en")}>English</button>
-            <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Dashboard">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">{t("certificatesFormTitle")}</h1>
           </div>
+        </div>
+      </div>
+      <br/>
+
+      <div>
+        <div className="user-certificates-container">
+
 
           <form className="certificates-form" onSubmit={handleSubmit}>
             <div className="form-certificates-group">
@@ -174,7 +200,7 @@ const UserCertificates = () => {
             <div className="form-certificates-group">
               <button
                 type="submit"
-                className="upload-certificates-button"
+                className="submit-permit-button"
                 disabled={loading || !!error || !formData.email || !formData.reason}
               >
                 {loading ? t("submitting") : t("submit")}
