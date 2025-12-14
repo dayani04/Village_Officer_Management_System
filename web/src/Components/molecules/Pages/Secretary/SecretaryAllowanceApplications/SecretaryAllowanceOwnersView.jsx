@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
+import Swal from 'sweetalert2';
 import * as villagerApi from '../../../../../api/villager';
-import './SecretaryAllowanceOwnersView.css';
+import './SecretaryAllowanceApplicationsVillagerView.css';
 
 const SecretaryAllowanceOwnersView = () => {
   const { id } = useParams();
@@ -22,12 +21,11 @@ const SecretaryAllowanceOwnersView = () => {
         console.error('Error fetching villager:', err);
         setError(err.error || 'Failed to fetch villager');
         setLoading(false);
-        toast.error(err.error || 'Failed to fetch villager', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || 'Failed to fetch villager',
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -41,82 +39,72 @@ const SecretaryAllowanceOwnersView = () => {
 
   if (loading) {
     return (
-      <div className="page-layout">
-       
-        <div className="villager-list-container">
-          <div className="profile-container">Loading...</div>
-        </div>
-      </div>
+      <section className="view-villager-page">
+        <div className="view-villager-container">Loading...</div>
+      </section>
     );
   }
 
-  if (error || !villager) {
+  if (error) {
     return (
-      <div className="page-layout">
-       
-        <div className="villager-list-container">
-          <div className="profile-container">
-            <h1>Villager Details</h1>
-            <div className="error-message">{error || 'Villager not found'}</div>
-            <div className="profile-actions">
-              <button className="profile-back-btn" onClick={handleBack}>
-                Back to Allowance Recipients
-              </button>
-            </div>
-            <Toaster />
-          </div>
+      <section className="view-villager-page">
+        <button className="view-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <div className="view-villager-container">
+          <h1>Villager Details</h1>
+          <p>Error: {error}</p>
         </div>
-      </div>
+      </section>
+    );
+  }
+
+  if (!villager) {
+    return (
+      <section className="view-villager-page">
+        <button className="view-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <div className="view-villager-container">
+          <h1>Villager Details</h1>
+          <p>Villager not found</p>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div className="page-layout">
-    
-      <div className="villager-list-container">
-        <div className="profile-container">
-          <h1>Villager Details</h1>
-          <div className="profile-details">
-            <p className="profile-field">
-              <strong>Villager ID:</strong> <span>{villager.Villager_ID || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Full Name:</strong> <span>{villager.Full_Name || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Email:</strong> <span>{villager.Email || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Phone:</strong> <span>{villager.Phone_No || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Address:</strong> <span>{villager.Address || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Date of Birth:</strong> <span>{villager.DOB ? new Date(villager.DOB).toLocaleDateString() : 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>NIC:</strong> <span>{villager.NIC || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Regional Division:</strong> <span>{villager.RegionalDivision || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Status:</strong> <span>{villager.Status || 'N/A'}</span>
-            </p>
-            <p className="profile-field">
-              <strong>Area ID:</strong> <span>{villager.Area_ID || 'N/A'}</span>
-            </p>
-          </div>
-          <div className="profile-actions">
-            <button className="profile-back-btn" onClick={handleBack}>
-              Back to Allowance Recipients
-            </button>
-          </div>
-          <Toaster />
+    <section className="view-villager-page">
+      <button className="view-villager-back-btn" onClick={handleBack}>
+        ←
+      </button>
+ 
+        <h1>Allowance Owner Details</h1>
+
+        <div className="view-villager-info">
+          <p><strong>Villager ID:</strong> {villager.Villager_ID || 'N/A'}</p>
+          <p><strong>Full Name:</strong> {villager.Full_Name || 'N/A'}</p>
+          <p><strong>Email:</strong> {villager.Email || 'N/A'}</p>
+          <p><strong>Phone Number:</strong> {villager.Phone_No || 'N/A'}</p>
+          <p><strong>NIC:</strong> {villager.NIC || 'N/A'}</p>
+          <p>
+            <strong>Date of Birth:</strong>{' '}
+            {villager.DOB ? new Date(villager.DOB).toLocaleDateString('en-GB') : 'N/A'}
+          </p>
+          <p><strong>Address:</strong> {villager.Address || 'N/A'}</p>
+          <p><strong>Regional Division:</strong> {villager.RegionalDivision || 'N/A'}</p>
+          <p><strong>Status:</strong> {villager.Status || 'N/A'}</p>
+          <p><strong>Area ID:</strong> {villager.Area_ID || 'N/A'}</p>
+          <p><strong>Latitude:</strong> {villager.Latitude ?? 'N/A'}</p>
+          <p><strong>Longitude:</strong> {villager.Longitude ?? 'N/A'}</p>
+          <p><strong>Election Participant:</strong> {villager.IsElectionParticipant ? 'Yes' : 'No'}</p>
+          <p><strong>Alive Status:</strong> {villager.AliveStatus || 'N/A'}</p>
         </div>
-      </div>
-    </div>
+
+        <div className="view-villager-actions">
+        </div>
+
+    </section>
   );
 };
 

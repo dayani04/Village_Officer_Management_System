@@ -264,6 +264,88 @@ const getUserCertificateApplication = async (req, res) => {
     res.status(500).json({ error: "Server error", details: error.message });
   }
 };
+
+const checkRecentApplication = async (req, res) => {
+try {
+const { email } = req.body;
+console.log(`Checking recent applications for email: ${email}`);
+
+if (!email) {
+return res.status(400).json({ error: "Email is required" });
+}
+
+// Get villager by email
+const villager = await Villager.getVillagerByEmail(email);
+if (!villager) {
+return res.status(404).json({ error: "Villager not found" });
+}
+
+// Check for applications within the last 6 months
+const [recentApplications] = await pool.query(
+`SELECT apply_date 
+FROM villager_has_certificate_recode 
+WHERE Villager_ID = ? 
+AND apply_date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+ORDER BY apply_date DESC 
+LIMIT 1`,
+[villager.Villager_ID]
+);
+
+if (recentApplications.length > 0) {
+const lastApplicationDate = recentApplications[0].apply_date;
+const monthsSinceApplication = Math.floor(
+(new Date() - new Date(lastApplicationDate)) / (1000 * 60 * 60 * 24 * 30)
+);
+
+return res.json({
+hasRecentApplication: true,
+applicationDate: lastApplicationDate,
+monthsSinceApplication: monthsSinceApplication
+});
+}
+
+res.json({ hasRecentApplication: false });
+} catch (error) {
+console.error("Error in checkRecentApplication:", error);
+res.status(500).json({ error: "Server error", details: error.message });
+}
+};
+
+const getUserConfirmedCertificates = async (req, res) => {
+  try {
+    const { email } = req.user;
+    console.log(`Fetching confirmed certificates for user email: ${email}`);
+
+    if (!email) {
+      console.error("No email found in JWT token");
+      return res.status(401).json({ error: "No email provided in token" });
+    }
+
+    // Get villager by email
+    const villager = await Villager.getVillagerByEmail(email);
+    if (!villager) {
+      console.error(`Villager not found for email: ${email}`);
+      return res.status(404).json({ error: "Villager not found" });
+    }
+
+    // Fetch confirmed certificates for the villager
+    const [certificates] = await pool.query(
+      `SELECT application_id, apply_date, status, certificate_path, reason
+       FROM villager_has_certificate_recode 
+       WHERE Villager_ID = ? 
+       AND status IN ('Confirm', 'Send')
+       ORDER BY apply_date DESC`,
+      [villager.Villager_ID]
+    );
+
+    console.log(`Found ${certificates.length} confirmed certificates for Villager_ID: ${villager.Villager_ID}`);
+    res.json(certificates);
+  } catch (error) {
+    console.error("Error in getUserConfirmedCertificates:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
+  }
+};
+
 module.exports = {
   createCertificateApplication,
   getAllCertificateApplications,
@@ -272,5 +354,7 @@ module.exports = {
   getVillagerDetails,
   getApplicationDetails,
   saveCertificate,
- getUserCertificateApplication,
+  getUserCertificateApplication,
+  checkRecentApplication,
+  getUserConfirmedCertificates,
 };

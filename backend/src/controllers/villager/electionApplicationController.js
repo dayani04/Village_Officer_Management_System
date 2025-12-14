@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
 const { addWeeks, format } = require("date-fns");
+const { registerFonts } = require("../../utills/registerFonts");
 
 const createElectionApplication = async (req, res) => {
   try {
@@ -115,30 +116,9 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
     const stream = fs.createWriteStream(receiptPath);
     doc.pipe(stream);
 
+    const { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath } = registerFonts(doc);
+    console.log('registerFonts result:', { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath });
     const baseDir = path.join(__dirname, '../../../');
-    const robotoPath = path.join(baseDir, 'fonts/Roboto-Regular.ttf');
-    const notoSinhalaPath = path.join(baseDir, 'fonts/NotoSansSinhala-Regular.ttf');
-    let sinhalaFontAvailable = false;
-
-    try {
-      if (fs.existsSync(robotoPath)) {
-        doc.registerFont('Roboto', robotoPath);
-      } else {
-        console.warn(`Font not found: ${robotoPath}. Using Helvetica.`);
-        doc.registerFont('Roboto', 'Helvetica');
-      }
-      if (fs.existsSync(notoSinhalaPath)) {
-        doc.registerFont('NotoSansSinhala', notoSinhalaPath);
-        sinhalaFontAvailable = true;
-      } else {
-        console.warn(`Font not found: ${notoSinhalaPath}. Using Helvetica.`);
-        doc.registerFont('NotoSansSinhala', 'Helvetica');
-      }
-    } catch (error) {
-      console.error(`Error registering fonts: ${error.message}`);
-      doc.registerFont('Roboto', 'Helvetica');
-      doc.registerFont('NotoSansSinhala', 'Helvetica');
-    }
 
     doc.lineWidth(2)
        .strokeColor('#D4A017')
@@ -167,7 +147,7 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
 
     doc.font('Roboto').fontSize(24).fillColor('#921940')
        .text('Election Receipt', 0, 120, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(22)
          .text('ඡන්ද ලදුපත', 0, 150, { align: 'center' });
     } else {
@@ -177,21 +157,21 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text(`Receipt Number: ${villager.Villager_ID}-${election.ID}`, 0, 190, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`ලදුපත් අංකය: ${villager.Villager_ID}-${election.ID}`, 0, 210, { align: 'center' });
     }
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Issued To:', 40, 250, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('නිකුත් කරන ලද්දේ:', 40, 270, { underline: true });
     }
 
     const address = villager.Address && !villager.Address.includes('@') ? villager.Address : 'Not Provided';
     const votingPlace = getVotingPlace(address);
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
@@ -212,14 +192,14 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Election Details:', 40, 400, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('ඡන්ද විස්තර:', 40, 420, { underline: true });
     }
 
     const formattedApplyDate = applyDate ? new Date(applyDate).toISOString().split('T')[0] : 'N/A';
     const formattedElectionDate = electionDate ? format(new Date(electionDate), 'yyyy-MM-dd') : 'N/A';
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Election Type: ${election.Type || 'N/A'}`, 40, 450)
          .text(`Election ID: ${election.ID || 'N/A'}`, 40, 470)
@@ -240,7 +220,7 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text('This receipt confirms that the above-named individual has been registered for the specified election.', 40, 550, { width: 515, align: 'justify' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('මෙම ලදුපත ඉහත නම් කරන ලද පුද්ගලයා නිශ්චිත ඡන්දය සඳහා ලියාපදිංචි කර ඇති බව තහවුරු කරයි.', 40, 580, { width: 515, align: 'justify' });
     }
@@ -248,7 +228,7 @@ const generateElectionReceipt = async (villager, election, applyDate, electionDa
     doc.font('Roboto').fontSize(12)
        .text('Issued by: Village Authority', 40, 640)
        .text(`Date: ${new Date().toISOString().split('T')[0]}`, 40, 660);
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('නිකුත් කළේ: ගම්මාන අධිකාරිය', 300, 640)
          .text(`දිනය: ${new Date().toISOString().split('T')[0]}`, 300, 660);

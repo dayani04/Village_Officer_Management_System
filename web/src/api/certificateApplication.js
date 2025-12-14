@@ -160,3 +160,27 @@ export const saveCertificatePath = async (applicationId, formData) => {
     throw error.response?.data?.error || error.message;
   }
 };
+
+export const checkRecentApplication = async (email) => {
+  try {
+    console.log(`Checking recent applications for email: ${email}`);
+    const response = await api.post(`/check-recent`, { email });
+    console.log(`Recent application check response:`, response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Error checking recent applications for email ${email}:`, error.response?.data || error.message);
+    throw error.response?.data?.error || "An unexpected error occurred while checking recent applications.";
+  }
+};
+
+export const fetchUserConfirmedCertificates = async () => {
+  try {
+    console.log("Fetching user's confirmed certificates");
+    const response = await api.get("/user-confirmed-certificates");
+    console.log("Fetched user confirmed certificates:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching user confirmed certificates:", error.response?.data || error.message);
+    throw error.response?.data?.error || error.message;
+  }
+};

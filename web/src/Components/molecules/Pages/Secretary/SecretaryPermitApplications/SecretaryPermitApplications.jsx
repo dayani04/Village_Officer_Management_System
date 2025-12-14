@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { TbMail } from "react-icons/tb";
 import { FaEye } from "react-icons/fa";
@@ -32,12 +32,11 @@ const SecretaryPermitApplications = () => {
         console.error("Error fetching permit applications:", err);
         setError(err.error || "Failed to fetch permit applications");
         setLoading(false);
-        toast.error(err.error || "Failed to fetch permit applications", {
-          style: {
-            background: "#f43f3f",
-            color: "#fff",
-            borderRadius: "4px",
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || "Failed to fetch permit applications",
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -54,12 +53,11 @@ const SecretaryPermitApplications = () => {
   const handleSend = async (villagerId, permitsId, permitType, fullName) => {
     const newStatus = statusUpdates[`${villagerId}-${permitsId}`];
     if (!newStatus) {
-      toast.error("Please select a status", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'warning',
+        title: 'Status Required',
+        text: 'Please select a status',
+        confirmButtonColor: '#f43f3f',
       });
       return;
     }
@@ -82,21 +80,22 @@ const SecretaryPermitApplications = () => {
       });
       setSentNotifications((prev) => new Set(prev).add(`${villagerId}-${permitsId}`));
 
-      toast.success(`Status updated and notification sent to ${fullName}`, {
-        style: {
-          background: "#4caf50",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: `Status updated and notification sent to ${fullName}`,
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error("Error in handleSend:", err);
-      toast.error(err.error || "Failed to update status or send notification", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: err.error || "Failed to update status or send notification",
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -113,19 +112,18 @@ const SecretaryPermitApplications = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err.error || "Failed to download document", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: err.error || "Failed to download document",
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
 
   const handleViewDetails = (villagerId) => {
     console.log("Navigating to villager:", villagerId);
-    navigate(`/secretary_permit_applications_villager-view/${villagerId}`);
+    navigate(`/secretary_permit_applications_villager_view/${villagerId}`);
   };
 
   const handleBack = () => {
@@ -231,7 +229,6 @@ const SecretaryPermitApplications = () => {
       <div className="villagerss-container">
         <h1>Permit Applications (Status: Send)</h1>
         <div>Loading...</div>
-        <Toaster />
       </div>
     );
   }
@@ -242,9 +239,7 @@ const SecretaryPermitApplications = () => {
         <h1>Permit Applications (Status: Send)</h1>
         <p className="error-message">{error}</p>
         <div className="villagers-actions">
-         
         </div>
-        <Toaster />
       </div>
     );
   }
@@ -299,9 +294,7 @@ const SecretaryPermitApplications = () => {
         }}
       />
       <div className="villagers-actions">
-      
       </div>
-      <Toaster />
     </div>
   );
 };

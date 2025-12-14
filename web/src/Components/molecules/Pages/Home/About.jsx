@@ -39,9 +39,18 @@ export default function About() {
               Our website provides a convenient and fast solution for accessing village officer services. Register and fulfill your needs easily.
               </p>
              
-              <a className="btn" href="" style={{ backgroundColor: "#921940", color: "#fff", padding: "10px 20px", borderRadius: "5px" }}>
-                Explore More
-              </a>
+              <a
+  className="btn"
+  href=""
+  style={{
+    background: "linear-gradient(135deg, #4A2C4E, #8A2B3A, #2A4066)",
+    color: "#fff",
+    padding: "10px 20px",
+    borderRadius: "5px",
+  }}
+>
+  Explore More
+</a>
             </div>
             <div className="col-lg-6">
               <div className="row g-3">

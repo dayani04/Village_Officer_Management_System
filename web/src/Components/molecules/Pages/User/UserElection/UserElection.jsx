@@ -3,11 +3,12 @@ import { useTranslation } from "react-i18next";
 import { LanguageContext } from "../../context/LanguageContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { FaArrowLeft } from 'react-icons/fa';
 import { fetchElections, fetchElectionNotifications, checkVillagerElectionApplication, submitElectionApplication } from "../../../../../api/election";
 import { getProfile } from "../../../../../api/villager";
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
-import "./UserElection.css";
+import "../../../../../index.css";
 
 const UserElection = () => {
   const { t } = useTranslation();
@@ -190,6 +191,10 @@ const UserElection = () => {
     changeLanguage(lang);
   };
 
+  const handleBack = () => {
+    navigate('/user_dashboard');
+  };
+
   const getTranslationKey = (apiType) => {
     const translationMap = {
       "Presidential Election": "presidentialElection",
@@ -206,16 +211,23 @@ const UserElection = () => {
   return (
     <section>
       <NavBar />
-      <div>
-        <br />
-        <br />
-        <h1 className="form-title">{t("electionFormTitle")}</h1>
-        <br />
-        <div className="user-election-container">
-          <div className="language-switch">
-            <button onClick={() => handleLanguageChange("en")}>English</button>
-            <button onClick={() => handleLanguageChange("si")}>සිංහල</button>
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Dashboard">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">{t("electionFormTitle")}</h1>
           </div>
+        </div>
+      </div>
+      <br/>
+
+      <div>
+        <div className="user-election-container">
+
 
           <form className="election-form">
             <div className="form-group">
@@ -285,7 +297,7 @@ const UserElection = () => {
             <div className="form-group">
               <button
                 type="button"
-                className="submit-button"
+                className="submit-idcard-button"
                 onClick={handleSubmit}
                 disabled={loading || !!error || !formData.email || userAge === null || userAge < 17}
               >

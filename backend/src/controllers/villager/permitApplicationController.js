@@ -2,6 +2,7 @@ const PermitApplication = require("../../models/villager/permitApplicationModel"
 const path = require("path");
 const fs = require("fs");
 const PDFDocument = require("pdfkit");
+const { registerFonts } = require("../../utills/registerFonts");
 
 const createPermitApplication = async (req, res) => {
   try {
@@ -125,33 +126,9 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
     const stream = fs.createWriteStream(certificatePath);
     doc.pipe(stream);
 
-    const baseDir = path.join(__dirname, '../../../');
-    const robotoPath = path.join(baseDir, 'fonts/Roboto-Regular.ttf');
-    const notoSinhalaPath = path.join(baseDir, 'fonts/NotoSansSinhala-Regular.ttf');
-    let sinhalaFontAvailable = false;
-
-    console.log('Roboto Path:', robotoPath);
-    console.log('NotoSansSinhala Path:', notoSinhalaPath);
-
-    try {
-      if (fs.existsSync(robotoPath)) {
-        doc.registerFont('Roboto', robotoPath);
-      } else {
-        console.warn(`Font not found: ${robotoPath}. Using Helvetica.`);
-        doc.registerFont('Roboto', 'Helvetica');
-      }
-      if (fs.existsSync(notoSinhalaPath)) {
-        doc.registerFont('NotoSansSinhala', notoSinhalaPath);
-        sinhalaFontAvailable = true;
-      } else {
-        console.warn(`Font not found: ${notoSinhalaPath}. Using Helvetica (Sinhala will not render correctly).`);
-        doc.registerFont('NotoSansSinhala', 'Helvetica');
-      }
-    } catch (error) {
-      console.error(`Error registering fonts: ${error.message}`);
-      doc.registerFont('Roboto', 'Helvetica');
-      doc.registerFont('NotoSansSinhala', 'Helvetica');
-    }
+        const { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath } = registerFonts(doc);
+        console.log('registerFonts result:', { sinhalaAvailable, sinhalaFontAvailable, robotoPath, notoSinhalaPath });
+        const baseDir = path.join(__dirname, '../../../');
 
     doc.lineWidth(2)
        .strokeColor('#D4A017')
@@ -182,7 +159,7 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
 
     doc.font('Roboto').fontSize(24).fillColor('#921940')
        .text('Permit Certificate', 0, 120, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(22)
          .text('බලපත්‍ර සහතිකය', 0, 150, { align: 'center' });
     } else {
@@ -192,20 +169,20 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text(`Certificate Number: ${villager.Villager_ID}-${permit.Permits_ID}`, 0, 190, { align: 'center' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text(`සහතික අංකය: ${villager.Villager_ID}-${permit.Permits_ID}`, 0, 210, { align: 'center' });
     }
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Issued To:', 40, 250, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('නිකුත් කරන ලද්දේ:', 40, 270, { underline: true });
     }
 
     const address = villager.Address && !villager.Address.includes('@') ? villager.Address : 'Not Provided';
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Name: ${villager.Full_Name || 'N/A'}`, 40, 300)
          .text(`Villager ID: ${villager.Villager_ID || 'N/A'}`, 40, 320)
@@ -223,13 +200,13 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
 
     doc.font('Roboto').fontSize(16).fillColor('#921940')
        .text('Permit Details:', 40, 380, { underline: true });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(16)
          .text('බලපත්‍ර විස්තර:', 40, 400, { underline: true });
     }
 
     const formattedApplyDate = applyDate ? new Date(applyDate).toISOString().split('T')[0] : 'N/A';
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('Roboto').fontSize(12).fillColor('#333')
          .text(`Permit Type: ${permit.Permits_Type || 'N/A'}`, 40, 430)
          .text(`Permit ID: ${permit.Permits_ID || 'N/A'}`, 40, 450)
@@ -247,7 +224,7 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
 
     doc.font('Roboto').fontSize(12).fillColor('#333')
        .text('This certificate confirms that the above-named individual has been granted the specified permit.', 40, 510, { width: 515, align: 'justify' });
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('මෙම සහතිකය ඉහත නම් කරන ලද පුද්ගලයාට නිශ්චිත බලපත්‍රය ලබා දී ඇති බව තහවුරු කරයි.', 40, 540, { width: 515, align: 'justify' });
     }
@@ -255,7 +232,7 @@ const generatePermitCertificate = async (villager, permit, applyDate) => {
     doc.font('Roboto').fontSize(12)
        .text('Issued by: Village Authority', 40, 600)
        .text(`Date: ${new Date().toISOString().split('T')[0]}`, 40, 620);
-    if (sinhalaFontAvailable) {
+    if (sinhalaAvailable) {
       doc.font('NotoSansSinhala').fontSize(12)
          .text('නිකුත් කළේ: ගම්මාන අධිකාරිය', 300, 600)
          .text(`දිනය: ${new Date().toISOString().split('T')[0]}`, 300, 620);

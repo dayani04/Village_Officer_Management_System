@@ -7,9 +7,7 @@ import './ViewVillager.css';
 const DownloadCertificate = ({ filename, documentType, disabled }) => {
   const handleDownload = async () => {
     if (!filename) {
-      toast.error(`${documentType} not available`, {
-        style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
-      });
+      toast.error(`${documentType} not available`);
       return;
     }
 
@@ -24,14 +22,11 @@ const DownloadCertificate = ({ filename, documentType, disabled }) => {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-      toast.success(`${documentType} downloaded successfully`, {
-        style: { background: '#4caf50', color: '#fff', borderRadius: '4px' },
-      });
+
+      toast.success(`${documentType} downloaded successfully`);
     } catch (err) {
-      console.error(`Error downloading ${documentType}:`, err);
-      toast.error(err.error || `Failed to download ${documentType}`, {
-        style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
-      });
+      console.error(err);
+      toast.error(`Failed to download ${documentType}`);
     }
   };
 
@@ -51,49 +46,27 @@ const ViewVillager = () => {
   const navigate = useNavigate();
   const [villager, setVillager] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [downloading, setDownloading] = useState({ BirthCertificate: false, NICCopy: false });
   const [error, setError] = useState('');
 
   useEffect(() => {
     const fetchVillagerDetails = async () => {
-      if (!villagerId) {
-        const errorMessage = 'Invalid villager ID';
-        setError(errorMessage);
-        setLoading(false);
-        toast.error(errorMessage, {
-          style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
-        });
-        return;
-      }
-
       try {
         const data = await villagerApi.fetchVillager(villagerId);
-        if (!data) {
-          throw new Error('No villager data returned');
-        }
         setVillager(data);
-        setLoading(false);
       } catch (err) {
-        console.error('Fetch error:', err);
-        const errorMessage = err.error || err.message || 'Failed to fetch villager details';
-        setError(errorMessage);
-        setLoading(false);
-        toast.error(errorMessage, {
-          style: { background: '#f43f3f', color: '#fff', borderRadius: '4px' },
-        });
+        setError(err.message || 'Failed to fetch villager');
       }
+      setLoading(false);
     };
 
     fetchVillagerDetails();
   }, [villagerId]);
 
-  const handleBack = () => {
-    navigate('/Villagers');
-  };
+  const handleBack = () => navigate('/Villagers');
 
   if (loading) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
+      <section className="view-villager-page">
         <div className="view-villager-container">Loading...</div>
         <Toaster />
       </section>
@@ -102,42 +75,27 @@ const ViewVillager = () => {
 
   if (error) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
+      <section className="view-villager-page">
+        <button className="view-villager-back-btn" onClick={handleBack}>
+          ←
+        </button>
         <div className="view-villager-container">
           <h1>Villager Details</h1>
           <p>Error: {error}</p>
-          <div className="view-villager-actions">
-            <button className="view-villager-back-btn" onClick={handleBack}>
-              Back to Villagers
-            </button>
-          </div>
-          <Toaster />
         </div>
-      </section>
-    );
-  }
-
-  if (!villager) {
-    return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="view-villager-container">
-          <h1>Villager Details</h1>
-          <p>Villager not found</p>
-          <div className="view-villager-actions">
-            <button className="view-villager-back-btn" onClick={handleBack}>
-              Back to Villagers
-            </button>
-          </div>
-          <Toaster />
-        </div>
+        <Toaster />
       </section>
     );
   }
 
   return (
-    <section className="w-full h-full flex items-center justify-center">
-      <div className="view-villager-container">
+    <section className="view-villager-page">
+      <button className="view-villager-back-btn" onClick={handleBack}>
+        ←
+      </button>
+ 
         <h1>Villager Details</h1>
+
         <div className="view-villager-info">
           <p><strong>Villager ID:</strong> {villager.Villager_ID || 'N/A'}</p>
           <p><strong>Full Name:</strong> {villager.Full_Name || 'N/A'}</p>
@@ -146,7 +104,7 @@ const ViewVillager = () => {
           <p><strong>NIC:</strong> {villager.NIC || 'N/A'}</p>
           <p>
             <strong>Date of Birth:</strong>{' '}
-            {villager.DOB ? new Date(villager.DOB).toLocaleDateString('en-GB', { timeZone: 'UTC' }) : 'N/A'}
+            {villager.DOB ? new Date(villager.DOB).toLocaleDateString('en-GB') : 'N/A'}
           </p>
           <p><strong>Address:</strong> {villager.Address || 'N/A'}</p>
           <p><strong>Regional Division:</strong> {villager.RegionalDivision || 'N/A'}</p>
@@ -162,11 +120,8 @@ const ViewVillager = () => {
               <DownloadCertificate
                 filename={villager.BirthCertificate}
                 documentType="Birth Certificate"
-                disabled={downloading.BirthCertificate}
               />
-            ) : (
-              'N/A'
-            )}
+            ) : 'N/A'}
           </p>
           <p>
             <strong>NIC Copy:</strong>{' '}
@@ -174,20 +129,16 @@ const ViewVillager = () => {
               <DownloadCertificate
                 filename={villager.NICCopy}
                 documentType="NIC Copy"
-                disabled={downloading.NICCopy}
               />
-            ) : (
-              'N/A'
-            )}
+            ) : 'N/A'}
           </p>
         </div>
+
         <div className="view-villager-actions">
-          <button className="view-villager-back-btn" onClick={handleBack}>
-            Back to Villagers
-          </button>
         </div>
+
         <Toaster />
-      </div>
+
     </section>
   );
 };

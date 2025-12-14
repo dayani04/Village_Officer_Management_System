@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaArrowLeft, FaUser, FaEnvelope, FaPhone, FaCalendar, FaMapMarkerAlt, FaBriefcase, FaEdit, FaLock, FaCheck, FaTimes } from 'react-icons/fa';
 import * as villagerOfficerApi from '../../../../../api/villageOfficer';
 import './VillageOfficerProfile.css';
 
@@ -249,226 +250,304 @@ const VillageOfficerProfile = () => {
   };
 
   if (loading) {
-    return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="profile-container">Loading profile...</div>
-      </section>
-    );
+    return <div className="profile-container">Loading profile...</div>;
   }
 
   if (!profile) {
     return (
-      <section className="w-full h-full flex items-center justify-center">
-        <div className="profile-container">
-          <h1>My Profile</h1>
-          <div className="error-message">{error || 'Unable to load profile'}</div>
-          <div className="profile-actions">
-            <button className="back-button" onClick={handleBack}>
-              Back to Dashboard
-            </button>
-          </div>
-          <Toaster />
+      <div className="profile-container">
+        <h1>My Profile</h1>
+        <div className="error-message">{error || 'Unable to load profile'}</div>
+        <div className="profile-actions">
+          {/* <button className="back-button" onClick={handleBack}>
+            Back to Dashboard
+          </button> */}
         </div>
-      </section>
+        <Toaster />
+      </div>
     );
   }
 
   return (
-    <section className="w-full h-full flex flex-col p-4">
-      <div className="profile-container">
-        <h1>My Profile</h1>
+    <section className="profile-page">
+      <div className="profile-header-simple">
+        <h1 className="page-title">Village Officer Profile</h1>
+        <p className="officer-name">{profile.Full_Name}</p>
+       
+      </div>
+      
+      <div className="profiles-container">
         {error && <div className="error-message">{error}</div>}
 
         {editMode ? (
-          <form onSubmit={handleEditSubmit} className="profile-form">
-            <div className="profile-field">
-              <label>Officer ID:</label>
-              <input type="text" value={profile.Villager_Officer_ID || ''} disabled />
-            </div>
-            <div className="profile-field">
-              <label>Full Name:</label>
-              <input
-                type="text"
-                name="full_name"
-                value={formData.full_name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="profile-field">
-              <label>Email:</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="profile-field">
-              <label>Phone:</label>
-              <input
-                type="text"
-                name="phone_no"
-                value={formData.phone_no}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="profile-field">
-              <label>NIC:</label>
-              <input
-                type="text"
-                name="nic"
-                value={formData.nic}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="profile-field">
-              <label>Date of Birth:</label>
-              <input
-                type="date"
-                name="dob"
-                value={formData.dob}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="profile-field">
-              <label>Address:</label>
-              <input
-                type="text"
-                name="address"
-                value={formData.address}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="profile-field">
-              <label>Regional Division:</label>
-              <input
-                type="text"
-                name="regional_division"
-                value={formData.regional_division}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="profile-field">
-              <label>Area ID:</label>
-              <input
-                type="text"
-                name="area_id"
-                value={formData.area_id}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="form-buttons">
-              <button type="submit" className="save-button">
-                Save Changes
-              </button>
-              <button
-                type="button"
-                className="cancel-button"
-                onClick={() => setEditMode(false)}
-              >
-                Cancel
+          <div className="edit-mode-container">
+            <div className="edit-header">
+              <h2>Edit Profile Information</h2>
+              <button className="close-button" onClick={() => setEditMode(false)}>
+                <FaTimes />
               </button>
             </div>
-          </form>
+            
+            <form onSubmit={handleEditSubmit} className="profile-form">
+              <div className="form-section">
+                <h3>Basic Information</h3>
+                <div className="form-row">
+                  <div className="profile-field">
+                    <label><FaUser /> Full Name</label>
+                    <input 
+                      type="text"
+                      name="full_name"
+                      value={formData.full_name}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="Enter your full name"
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label><FaEnvelope /> Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="your.email@example.com"
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="profile-field">
+                    <label><FaPhone /> Phone Number</label>
+                    <input
+                      type="tel"
+                      name="phone_no"
+                      value={formData.phone_no}
+                      onChange={handleInputChange}
+                      required
+                      placeholder="+94 XX XXX XXXX"
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label><FaCalendar /> Date of Birth</label>
+                    <input
+                      type="date"
+                      name="dob"
+                      value={formData.dob}
+                      onChange={handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="form-section">
+                <h3>Location & Details</h3>
+                <div className="form-row">
+                  <div className="profile-field">
+                    <label><FaMapMarkerAlt /> Address</label>
+                    <input
+                      type="text"
+                      name="address"
+                      value={formData.address}
+                      onChange={handleInputChange}
+                      placeholder="Your residential address"
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label>Regional Division</label>
+                    <input
+                      type="text"
+                      name="regional_division"
+                      value={formData.regional_division}
+                      onChange={handleInputChange}
+                      placeholder="Your regional division"
+                    />
+                  </div>
+                </div>
+                
+                <div className="form-row">
+                  <div className="profile-field">
+                    <label>NIC</label>
+                    <input
+                      type="text"
+                      name="nic"
+                      value={formData.nic}
+                      onChange={handleInputChange}
+                      placeholder="Your NIC number"
+                    />
+                  </div>
+                  <div className="profile-field">
+                    <label>Area ID</label>
+                    <input
+                      type="text"
+                      name="area_id"
+                      value={formData.area_id}
+                      onChange={handleInputChange}
+                      placeholder="Your area ID"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="form-buttons">
+                <button type="submit" className="save-button">
+                  <FaCheck /> Save Changes
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setEditMode(false)}
+                >
+                  <FaTimes /> Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         ) : otpMode ? (
-          <form onSubmit={handlePasswordSubmit} className="otp-form">
-            <div className="profile-field">
-              <label>OTP (sent to {otpData.email}):</label>
-              <input
-                type="text"
-                name="otp"
-                value={otpData.otp}
-                onChange={handleOtpChange}
-                required
-              />
+          <div className="otp-mode-container">
+            <div className="otp-header">
+              <h2>Change Password</h2>
+              <p>Enter the OTP sent to your email and set a new password</p>
             </div>
-            <div className="profile-field">
-              <label>New Password:</label>
-              <input
-                type="password"
-                name="newPassword"
-                value={otpData.newPassword}
-                onChange={handleOtpChange}
-                required
-              />
-            </div>
-            <div className="form-buttons">
-              <button type="submit" className="save-button">
-                Verify & Update Password
-              </button>
-              <button
-                type="button"
-                className="cancel-button"
-                onClick={() => setOtpMode(false)}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
+            
+            <form onSubmit={handlePasswordSubmit} className="otp-form">
+              <div className="profile-field">
+                <label>OTP Verification Code</label>
+                <input
+                  type="text"
+                  name="otp"
+                  value={otpData.otp}
+                  onChange={handleOtpChange}
+                  required
+                  placeholder="Enter 6-digit OTP"
+                  maxLength="6"
+                />
+                <small>Sent to: {otpData.email}</small>
+              </div>
+              <div className="profile-field">
+                <label>New Password</label>
+                <input
+                  type="password"
+                  name="newPassword"
+                  value={otpData.newPassword}
+                  onChange={handleOtpChange}
+                  required
+                  placeholder="Enter new password"
+                />
+              </div>
+              <div className="form-buttons">
+                <button type="submit" className="save-button">
+                  <FaCheck /> Verify & Update Password
+                </button>
+                <button
+                  type="button"
+                  className="cancel-button"
+                  onClick={() => setOtpMode(false)}
+                >
+                  <FaTimes /> Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         ) : (
-          <>
-            <div className="profile-details">
-              <div className="profile-field">
-                <label>Officer ID:</label>
-                <span>{profile.Villager_Officer_ID || 'N/A'}</span>
+          <div className="profile-view-container">
+            <div className="info-cards-grid">
+              <div className="info-card primary">
+                <div className="card-header">
+                  <FaUser className="card-icon" />
+                  <h3>Personal Information</h3>
+                </div>
+                <div className="card-content">
+                  <div className="info-item">
+                    <label>Full Name</label>
+                    <span>{profile.Full_Name}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>NIC</label>
+                    <span>{profile.NIC || 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Date of Birth</label>
+                    <span>{profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Officer ID</label>
+                    <span>{profile.Villager_Officer_ID}</span>
+                  </div>
+                </div>
               </div>
-              <div className="profile-field">
-                <label>Full Name:</label>
-                <span>{profile.Full_Name || 'N/A'}</span>
+              
+              <div className="info-card secondary">
+                <div className="card-header">
+                  <FaEnvelope className="card-icon" />
+                  <h3>Contact Information</h3>
+                </div>
+                <div className="card-content">
+                  <div className="info-item">
+                    <label>Email</label>
+                    <span>{profile.Email}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Phone Number</label>
+                    <span>{profile.Phone_No}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Address</label>
+                    <span>{profile.Address || 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Regional Division</label>
+                    <span>{profile.RegionalDivision || 'N/A'}</span>
+                  </div>
+                </div>
               </div>
-              <div className="profile-field">
-                <label>Email:</label>
-                <span>{profile.Email || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>Phone:</label>
-                <span>{profile.Phone_No || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>NIC:</label>
-                <span>{profile.NIC || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>Date of Birth:</label>
-                <span>
-                  {profile.DOB ? new Date(profile.DOB).toLocaleDateString() : 'N/A'}
-                </span>
-              </div>
-              <div className="profile-field">
-                <label>Address:</label>
-                <span>{profile.Address || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>Regional Division:</label>
-                <span>{profile.RegionalDivision || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>Status:</label>
-                <span>{profile.Status || 'N/A'}</span>
-              </div>
-              <div className="profile-field">
-                <label>Area ID:</label>
-                <span>{profile.Area_ID || 'N/A'}</span>
+              
+              <div className="info-card tertiary">
+                <div className="card-header">
+                  <FaBriefcase className="card-icon" />
+                  <h3>Professional Details</h3>
+                </div>
+                <div className="card-content">
+                  <div className="info-item">
+                    <label>Status</label>
+                    <span className={`status-badge ${profile.Status === 'Active' ? 'status-active' : 'status-inactive'}`}>
+                      {profile.Status}
+                    </span>
+                  </div>
+                  <div className="info-item">
+                    <label>Area ID</label>
+                    <span>{profile.Area_ID || 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Registration Date</label>
+                    <span>{profile.Created_Date ? new Date(profile.Created_Date).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                  <div className="info-item">
+                    <label>Last Updated</label>
+                    <span>{profile.Updated_Date ? new Date(profile.Updated_Date).toLocaleDateString() : 'N/A'}</span>
+                  </div>
+                </div>
               </div>
             </div>
-            <div className="profile-actions">
-              <button className="edit-button" onClick={() => setEditMode(true)}>
-                Edit Profile
-              </button>
-              <button className="password-button" onClick={handleRequestOtp}>
-                Change Password
-              </button>
-              <button className="back-button" onClick={handleBack}>
-                Back to Dashboard
-              </button>
+            
+            <div className="action-panel">
+              <h3>Quick Actions</h3>
+              <div className="action-buttons-grid">
+                <button className="action-button" onClick={() => setEditMode(true)}>
+                  <FaEdit /> Edit Profile
+                </button>
+                <button className="action-button" onClick={handleRequestOtp}>
+                  <FaLock /> Change Password
+                </button>
+                {/* <button className="action-button" onClick={handleBack}>
+                  <FaArrowLeft /> Back to Dashboard
+                </button> */}
+              </div>
             </div>
-          </>
+          </div>
         )}
-        <Toaster />
       </div>
+      <Toaster />
     </section>
   );
 };

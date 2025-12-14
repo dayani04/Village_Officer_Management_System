@@ -1,18 +1,16 @@
 .villagerss-container {
-  padding: 20px;
-  width: 100%;
-  height: 100%;
-  margin: 0 auto;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-height: 100vh;
+   background: linear-gradient(135deg, #f5f7fa 0%, #cccdcf 100%);
+  position: relative;
+  overflow-x: hidden;
 }
 
 .villagerss-container h1 {
- text-align: left; /* Changed from center to left */
+ text-align: left;
   margin-bottom: 20px;
   color: #333;
-  font-size: 24px;
+  font-size: 2rem !important;
+
 }
 
 .villagers-no-data {
@@ -24,6 +22,33 @@
 .villagers-actions {
   text-align: center;
   margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.villagers-add-btn {
+ display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #921940 0%, #915969 100%);
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+  margin-top: -50px;
+ 
+}
+
+.villagers-add-btn svg {
+  margin-right: 8px;
+}
+
+.villagers-add-btn:hover {
+  background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
 }
 
 .villagers-back-btn {
@@ -41,70 +66,60 @@
 }
 
 .villagers-action-buttons {
-  position: relative;
-  display: inline-block;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  flex-direction: row !important;
+  height: auto !important; 
+  min-height: 40px !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  justify-content: flex-start !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+  
 }
 
 .villagers-action-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px; /* Adjusted padding for text */
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 14px; /* Adjusted font size for text */
-  color: white;
-  background-color: #000000; /* Changed to black */
-  gap: 6px; /* Space between icon and text */
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 8px !important;
+  border: none !important;
+  border-radius: 4px !important;
+  cursor: pointer !important;
+  font-size: 16px !important;
+  color: white !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  transition: background-color 0.2s ease !important;
+  flex-shrink: 0 !important;
+  float: left !important;
+  margin: 0 !important;
 }
 
-.villagers-action-btn:hover {
-  background-color: #464444; /* Changed to dark gray */
+.villagers-view-btn {
+  background-color: #2196f3;
 }
 
-.villagers-dropdown {
-  display: none;
-  position: absolute;
-  right: 0;
-  background-color: #fff;
-  min-width: 120px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-  z-index: 1;
+.villagers-view-btn:hover {
+  background-color: #1976d2;
 }
 
-.villagers-dropdown.active {
-  display: block;
+.villagers-edit-btn {
+  background-color: #4caf50;
 }
 
-.villagers-dropdown-item {
-  display: flex;
-  align-items: center;
-  padding: 8px 12px;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  font-size: 14px;
-  color: #333;
+.villagers-edit-btn:hover {
+  background-color: #45a049;
 }
 
-.villagers-dropdown-item:hover {
-  background-color: #f1f1f1;
+.villagers-delete-btn {
+  background-color: #f44336;
 }
 
-.villagers-edit-item {
-  color: #4caf50;
-}
-
-.villagers-view-item {
-  color: #2196f3;
-}
-
-.villagers-delete-item {
-  color: #f44336;
+.villagers-delete-btn:hover {
+  background-color: #d32f2f;
 }
 
 /* Styles for react-data-table-component */
@@ -114,8 +129,53 @@
   background-color: white;
 }
 
+.rdt_TableCell {
+  white-space: nowrap !important;
+}
+
+/* Specific styles for action column */
+.rdt_TableCell:nth-child(9) {
+  min-width: 150px !important;
+  width: 150px !important;
+  padding: 8px !important;
+  vertical-align: middle !important;
+}
+
+/* Force horizontal layout for action buttons */
+.rdt_TableCell .villagers-action-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 6px !important;
+  width: 100% !important;
+  white-space: nowrap !important;
+  flex-wrap: nowrap !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+.rdt_TableCell .villagers-action-btn {
+  flex-shrink: 0 !important;
+  min-width: 32px !important;
+  min-height: 32px !important;
+  display: inline-flex !important;
+  float: none !important;
+  position: relative !important;
+}
+
+/* Additional override for any conflicting styles */
+div.rdt_TableCell div.villagers-action-buttons {
+  display: flex !important;
+  flex-direction: row !important;
+}
+
+div.rdt_TableCell div.villagers-action-buttons button {
+  display: inline-flex !important;
+  float: none !important;
+}
+
 .rdt_TableHeadRow {
-  background-color: #9ca3af !important; /* Lighter gray for consistency */
+  background-color: #9ca3af !important;
   color: white !important;
   font-weight: bold;
 }

@@ -48,7 +48,7 @@ const UserDashboard = () => {
 
   return (
     <section>
-      <NavBar/>
+      <NavBar />
       <div className="dashboard-container">
         {/* Header Section */}
         <div className="dashboard-header">
@@ -69,14 +69,14 @@ const UserDashboard = () => {
             buttonText={t('editProfile')}
             linkTo="/user_profile"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://img.freepik.com/premium-photo/happy-young-sri-lankan-family-family-portrait_1106493-124766.jpg"
             altText={t('familyDetails')}
             buttonText={t('familyDetails')}
             linkTo="/family_details"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://www.shutterstock.com/image-photo/woman-holding-megaphone-speaker-on-600nw-2502342615.jpg"
             altText={t('notification')}
@@ -84,14 +84,14 @@ const UserDashboard = () => {
             linkTo="/notification"
             notificationCount={notificationCount}
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://cdn-icons-png.freepik.com/512/7132/7132557.png"
             altText={t('permitcertificates')}
             buttonText={t('permitcertificates')}
             linkTo="/user_certificates_download"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://www.cookieyes.com/wp-content/uploads/2022/05/Privacy-policy-01-1.png"
             altText={t('approvedvillageofficerceritificates')}
@@ -110,28 +110,28 @@ const UserDashboard = () => {
             buttonText={t('applyElection')}
             linkTo="/user_election"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://hermoney.com/wp-content/uploads/2021/10/cute-little-girl-holding-coin-of-money-and-put-in-pink-piggy-bank-with-blur-background-subject-is_t20_B8QV8K-840x487.jpg"
             altText={t('applyAllowance')}
             buttonText={t('applyAllowance')}
             linkTo="/user_allowances"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://www.cal-pacs.org/wp-content/uploads/2015/04/workpermit-scaled.jpeg"
             altText={t('applyPermit')}
             buttonText={t('applyPermit')}
             linkTo="/user_permits"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://memberclicks.com/wp-content/uploads/2021/12/membership-certificate-1-scaled.jpg"
             altText={t('applyCertificate')}
             buttonText={t('applyCertificate')}
             linkTo="/user_certificates"
           />
-          <div className="vertical-line"></div>
+
           <OptionCard
             imgSrc="https://colombotimes.lk/data/202308/1693292532_6126010NIC.jpg"
             altText={t('applyIDCard')}
@@ -140,7 +140,7 @@ const UserDashboard = () => {
           />
         </div>
       </div>
-      <Footer/>
+      <Footer />
     </section>
   );
 };

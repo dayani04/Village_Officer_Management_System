@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft, FaUpload, FaDownload, FaFileAlt, FaIdCard, FaCheck, FaTimes, FaSpinner } from 'react-icons/fa';
 import * as api from '../../../../../api/villager';
 import NavBar from "../../../NavBar/NavBar";
 import Footer from "../../../Footer/Footer";
+import './DocumentUpload.css';
 
 const DocumentUpload = () => {
   const [birthCertificate, setBirthCertificate] = useState(null);
@@ -111,71 +113,118 @@ const DocumentUpload = () => {
   }
 
   return (
-    <section>
+    <section className="document-upload-page">
       <NavBar />
-      <div className="document-upload-container">
-        <h1>Upload Birth Certificate and NIC Copy</h1>
-        {error && <div className="error-message">{error}</div>}
-        {success && <div className="success-message">{success}</div>}
-        <form onSubmit={handleSubmit} className="document-form">
-          <div className="document-field">
-            <label>Birth Certificate (PDF/PNG/JPG):</label>
-            <input
-              type="file"
-              name="birthCertificate"
-              accept=".pdf,.png,.jpg,.jpeg"
-              onChange={handleFileChange}
-            />
-            {documents.birthCertificate ? (
-              <div>
-                <p>Current Birth Certificate: {documents.birthCertificate}</p>
-                <button
-                  type="button"
-                  onClick={() => handleDownload(documents.birthCertificate, 'BirthCertificate')}
-                >
-                  Download Birth Certificate
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p>Current Birth Certificate: N/A</p>
-              </div>
-            )}
+
+      <div className="upload-container">
+
+
+        {error && (
+          <div className="error-message">
+            <FaTimes /> {error}
           </div>
-          <div className="document-field">
-            <label>NIC Copy (PDF/PNG/JPG):</label>
-            <input
-              type="file"
-              name="nicCopy"
-              accept=".pdf,.png,.jpg,.jpeg"
-              onChange={handleFileChange}
-            />
-            {documents.nicCopy ? (
-              <div>
-                <p>Current NIC Copy: {documents.nicCopy}</p>
-                <button
-                  type="button"
-                  onClick={() => handleDownload(documents.nicCopy, 'NICCopy')}
-                >
-                  Download NIC Copy
-                </button>
-              </div>
-            ) : (
-              <div>
-                <p>Current NIC Copy: N/A</p>
-              </div>
-            )}
+        )}
+
+        {success && (
+          <div className="success-message">
+            <FaCheck /> {success}
           </div>
-          <div className="form-buttons">
-            <button type="submit" className="upload-button" disabled={uploading}>
-              {uploading ? 'Uploading...' : 'Upload Documents'}
+        )}
+
+        <form onSubmit={handleSubmit} className="upload-form">
+          <div className="documents-grid">
+            <div className="document-card">
+              <div className="doc-header">
+                <FaFileAlt className="doc-icon" />
+                <h3>Birth Certificate</h3>
+              </div>
+
+              <div className="upload-zone">
+                <input
+                  type="file"
+                  id="birthCertificate"
+                  name="birthCertificate"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+                <label htmlFor="birthCertificate" className="upload-label">
+                  <FaUpload className="upload-icon" />
+                  <span>{birthCertificate ? birthCertificate.name : 'Choose file or drag here'}</span>
+                  <small>PDF, PNG, JPG up to 10MB</small>
+                </label>
+              </div>
+
+              {documents.birthCertificate && (
+                <div className="file-status">
+                  <div className="file-info">
+                    <FaFileAlt />
+                    <span>{documents.birthCertificate}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="download-btn"
+                    onClick={() => handleDownload(documents.birthCertificate, 'BirthCertificate')}
+                  >
+                    <FaDownload /> Download
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <div className="document-card">
+              <div className="doc-header">
+                <FaIdCard className="doc-icon" />
+                <h3>NIC Copy</h3>
+              </div>
+
+              <div className="upload-zone">
+                <input
+                  type="file"
+                  id="nicCopy"
+                  name="nicCopy"
+                  accept=".pdf,.png,.jpg,.jpeg"
+                  onChange={handleFileChange}
+                  className="file-input"
+                />
+                <label htmlFor="nicCopy" className="upload-label">
+                  <FaUpload className="upload-icon" />
+                  <span>{nicCopy ? nicCopy.name : 'Choose file or drag here'}</span>
+                  <small>PDF, PNG, JPG up to 10MB</small>
+                </label>
+              </div>
+
+              {documents.nicCopy && (
+                <div className="file-status">
+                  <div className="file-info">
+                    <FaIdCard />
+                    <span>{documents.nicCopy}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="download-btn"
+                    onClick={() => handleDownload(documents.nicCopy, 'NICCopy')}
+                  >
+                    <FaDownload /> Download
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="form-actions">
+            <button type="submit" className="submit-btn" disabled={uploading}>
+              {uploading ? <FaSpinner className="spin" /> : <FaUpload />}
+              {uploading ? ' Uploading...' : ' Upload Documents'}
             </button>
-            <button type="button" className="back-button" onClick={handleBack}>
-              Back to Profile
+
+            <button type="button" className="cancel-btn" onClick={handleBack}>
+              <FaArrowLeft /> Cancel
             </button>
           </div>
         </form>
       </div>
+
       <Footer />
     </section>
   );

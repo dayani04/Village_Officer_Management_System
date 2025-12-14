@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaArrowLeft } from 'react-icons/fa';
+import DataTable from 'react-data-table-component';
 import { fetchConfirmedPermitApplications, downloadDocument } from '../../../../../api/permitApplication';
 import './UserPermitCertificates.css';
 import NavBar from "../../../NavBar/NavBar";
@@ -76,15 +78,62 @@ const UserPermitCertificates = () => {
   };
 
   const handleBack = () => {
-    navigate('/user_dashboard');
+    navigate('/user_certificates_download');
   };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+  };
+
+  const columns = [
+    {
+      name: 'Permit Type',
+      selector: row => row.Permits_Type || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Application Date',
+      selector: row => formatDate(row.required_date),
+      sortable: true,
+    },
+    {
+      name: 'Certificate',
+      cell: row => (
+        row.certificate_path ? (
+          <button
+            className="allowance-receipts-download-btn"
+            onClick={() => handleDownload(row.certificate_path)}
+            title="Download Certificate"
+          >
+            Download Certificate
+          </button>
+        ) : (
+          <span className="not-available">Not Available</span>
+        )
+      ),
+    },
+  ];
 
   if (loading) {
     return (
       <section>
         <NavBar />
-        <div className="certificates-container">
-          <h1>My Permit Certificates</h1>
+        <br/>
+        <div className="profile-hero">
+          <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+            <FaArrowLeft />
+          </button>
+          
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="village-title">My Permit Certificates</h1>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div className="allowance-receipts-container">
           <p>Loading your certificates...</p>
         </div>
         <Footer />
@@ -96,12 +145,21 @@ const UserPermitCertificates = () => {
     return (
       <section>
         <NavBar />
-        <div className="certificates-container">
-          <h1>My Permit Certificates</h1>
-          <p className="error-message">{error}</p>
-          <button className="certificates-back-btn" onClick={handleBack}>
-            Back to Dashboard
+        <br/>
+        <div className="profile-hero">
+          <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+            <FaArrowLeft />
           </button>
+          
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="village-title">My Permit Certificates</h1>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div className="allowance-receipts-container">
+          <p className="error-message">{error}</p>
           <Toaster />
         </div>
         <Footer />
@@ -112,54 +170,61 @@ const UserPermitCertificates = () => {
   return (
     <section>
       <NavBar />
-      <div className="certificates-container">
-        <h1>My Permit Certificates</h1>
-        <div className="certificates-table-wrapper">
-          <table className="certificates-table">
-            <thead>
-              <tr>
-                <th>Permit Type</th>
-                <th>Application Date</th>
-                <th>Certificate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {certificates.length > 0 ? (
-                certificates.map((cert) => (
-                  <tr key={`${cert.Villager_ID}-${cert.Permits_ID}`}>
-                    <td>{cert.Permits_Type || 'N/A'}</td>
-                    <td>{cert.required_date ? new Date(cert.required_date).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                      {cert.certificate_path ? (
-                        <a
-                          href="#"
-                          onClick={() => handleDownload(cert.certificate_path)}
-                          className="certificates-download-link"
-                        >
-                          Download Certificate
-                        </a>
-                      ) : (
-                        'Not Available'
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="certificates-no-data">
-                    No certificates available for you
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">My Permit Certificates</h1>
+          </div>
         </div>
-        <div className="certificates-actions">
-          <button className="certificates-back-btn" onClick={handleBack}>
-            Back to Dashboard
-          </button>
-        </div>
-        <Toaster />
+      </div>
+      <br/>
+      <div className="allowance-receipts-container">
+          <DataTable
+            columns={columns}
+            data={certificates}
+            pagination
+            paginationPerPage={10}
+            paginationRowsPerPageOptions={[10, 25, 50]}
+            highlightOnHover
+            striped
+            noDataComponent={<div className="allowance-receipts-no-data">No certificates available for you</div>}
+            customStyles={{
+              table: {
+                style: {
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  backgroundColor: 'white',
+                },
+              },
+              headCells: {
+                style: {
+                  backgroundColor: '#9ca3af',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: '12px',
+                },
+              },
+              cells: {
+                style: {
+                  padding: '12px',
+                  borderBottom: '1px solid #ddd',
+                },
+              },
+              rows: {
+                style: {
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                },
+              },
+            }}
+          />
+          <Toaster />
       </div>
       <Footer />
     </section>

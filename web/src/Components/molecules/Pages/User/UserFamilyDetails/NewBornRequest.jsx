@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { FaArrowLeft } from 'react-icons/fa';
 import * as villagerApi from '../../../../../api/villager';
 import './FamilyDetails.css';
 import NavBar from "../../../NavBar/NavBar";
@@ -17,6 +18,8 @@ const NewBornRequest = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
+
+  const handleBack = () => navigate('/family_details');
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,9 +53,22 @@ const NewBornRequest = () => {
 
   return (
     <section>
-      <NavBar/>
+      <NavBar />
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Family Details">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">Request for New Born</h1>
+          </div>
+        </div>
+      </div>
+      <br/>
       <div className="family-details-container">
-        <h2>Request for New Born</h2>
+       
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
         <form onSubmit={handleSubmit} className="new-born-form">

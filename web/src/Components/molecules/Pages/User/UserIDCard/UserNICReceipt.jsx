@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
+import { FaArrowLeft } from 'react-icons/fa';
+import DataTable from 'react-data-table-component';
 import { fetchConfirmedNICApplications, downloadDocument } from "../../../../../api/nicApplication";
 import './UserNICReceipt.css';
 import NavBar from "../../../NavBar/NavBar";
@@ -75,15 +77,62 @@ const UserNICReceipt = () => {
   };
 
   const handleBack = () => {
-    navigate('/user_dashboard');
+    navigate('/user_certificates_download');
   };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return isNaN(date.getTime()) ? 'N/A' : date.toLocaleDateString();
+  };
+
+  const columns = [
+    {
+      name: 'NIC Type',
+      selector: row => row.NIC_Type || 'N/A',
+      sortable: true,
+    },
+    {
+      name: 'Application Date',
+      selector: row => formatDate(row.apply_date),
+      sortable: true,
+    },
+    {
+      name: 'Receipt',
+      cell: row => (
+        row.receipt_path ? (
+          <button
+            className="nic-receipts-download-btn"
+            onClick={() => handleDownload(row.receipt_path)}
+            title="Download Receipt"
+          >
+            Download Receipt
+          </button>
+        ) : (
+          <span className="not-available">Not Available</span>
+        )
+      ),
+    },
+  ];
 
   if (loading) {
     return (
       <section>
         <NavBar />
+        <br/>
+        <div className="profile-hero">
+          <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+            <FaArrowLeft />
+          </button>
+          
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="village-title">My NIC Receipts</h1>
+            </div>
+          </div>
+        </div>
+        <br/>
         <div className="nic-receipts-container">
-          <h1>My NIC Receipts</h1>
           <p>Loading your NIC receipts...</p>
         </div>
         <Footer />
@@ -95,12 +144,21 @@ const UserNICReceipt = () => {
     return (
       <section>
         <NavBar />
-        <div className="nic-receipts-container">
-          <h1>My NIC Receipts</h1>
-          <p className="error-message">{error}</p>
-          <button className="nic-receipts-back-btn" onClick={handleBack}>
-            Back to Dashboard
+        <br/>
+        <div className="profile-hero">
+          <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+            <FaArrowLeft />
           </button>
+          
+          <div className="hero-content">
+            <div className="hero-text">
+              <h1 className="village-title">My NIC Receipts</h1>
+            </div>
+          </div>
+        </div>
+        <br/>
+        <div className="nic-receipts-container">
+          <p className="error-message">{error}</p>
           <Toaster />
         </div>
         <Footer />
@@ -111,54 +169,61 @@ const UserNICReceipt = () => {
   return (
     <section>
       <NavBar />
+      <br/>
+      <div className="profile-hero">
+        <button className="back-button" onClick={handleBack} title="Back to Certificate Downloads">
+          <FaArrowLeft />
+        </button>
+        
+        <div className="hero-content">
+          <div className="hero-text">
+            <h1 className="village-title">My NIC Receipts</h1>
+          </div>
+        </div>
+      </div>
+      <br/>
       <div className="nic-receipts-container">
-        <h1>My NIC Receipts</h1>
-        <div className="nic-receipts-table-wrapper">
-          <table className="nic-receipts-table">
-            <thead>
-              <tr>
-                <th>NIC Type</th>
-                <th>Application Date</th>
-                <th>Receipt</th>
-              </tr>
-            </thead>
-            <tbody>
-              {receipts.length > 0 ? (
-                receipts.map((receipt, index) => (
-                  <tr key={`${receipt.Villager_ID}-${receipt.NIC_ID}-${index}`}>
-                    <td>{receipt.NIC_Type || 'N/A'}</td>
-                    <td>{receipt.apply_date ? new Date(receipt.apply_date).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                      {receipt.receipt_path ? (
-                        <a
-                          href="#"
-                          onClick={() => handleDownload(receipt.receipt_path)}
-                          className="nic-receipts-download-link"
-                        >
-                          Download Receipt
-                        </a>
-                      ) : (
-                        'Not Available'
-                      )}
-                    </td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="nic-receipts-no-data">
-                    No NIC receipts available for you
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="nic-receipts-actions">
-          <button className="nic-receipts-back-btn" onClick={handleBack}>
-            Back to Dashboard
-          </button>
-        </div>
-        <Toaster />
+          <DataTable
+            columns={columns}
+            data={receipts}
+            pagination
+            paginationPerPage={10}
+            paginationRowsPerPageOptions={[10, 25, 50]}
+            highlightOnHover
+            striped
+            noDataComponent={<div className="nic-receipts-no-data">No NIC receipts available for you</div>}
+            customStyles={{
+              table: {
+                style: {
+                  border: '1px solid #ddd',
+                  borderRadius: '4px',
+                  backgroundColor: 'white',
+                },
+              },
+              headCells: {
+                style: {
+                  backgroundColor: '#9ca3af',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  padding: '12px',
+                },
+              },
+              cells: {
+                style: {
+                  padding: '12px',
+                  borderBottom: '1px solid #ddd',
+                },
+              },
+              rows: {
+                style: {
+                  '&:hover': {
+                    backgroundColor: '#f5f5f5',
+                  },
+                },
+              },
+            }}
+          />
+          <Toaster />
       </div>
       <Footer />
     </section>

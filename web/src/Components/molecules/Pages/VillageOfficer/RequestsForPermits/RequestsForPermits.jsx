@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
+import Swal from 'sweetalert2';
 import DataTable from 'react-data-table-component';
 import * as permitApplicationApi from '../../../../../api/permitApplication';
 import './RequestsForPermits.css';
@@ -32,12 +32,11 @@ const RequestsForPermits = () => {
 
   const handleStatusSelect = (villagerId, permitsId, newStatus) => {
     if (!['Pending', 'Send', 'Rejected', 'Confirm'].includes(newStatus)) {
-      toast.error('Invalid status selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Invalid status selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -51,24 +50,22 @@ const RequestsForPermits = () => {
 
   const handleStatusConfirm = async (villagerId, permitsId) => {
     if (!permitsId) {
-      toast.error('Permit ID is missing. Please check the application data.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Permit ID is missing. Please check the application data.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
 
     const newStatus = pendingStatuses[`${villagerId}-${permitsId}`];
     if (!newStatus) {
-      toast.error('No status change selected.', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'No status change selected.',
+        confirmButtonColor: '#f43f3f'
       });
       return;
     }
@@ -85,46 +82,23 @@ const RequestsForPermits = () => {
         delete updated[`${villagerId}-${permitsId}`];
         return updated;
       });
-      toast.success('Status updated successfully', {
-        style: {
-          background: '#6ac476',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: 'Status updated successfully',
+        confirmButtonColor: '#6ac476'
       });
     } catch (err) {
       console.error('Status update error:', err);
-      toast.error(err.error || 'Failed to update status', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.error || 'Failed to update status',
+        confirmButtonColor: '#f43f3f'
       });
     }
   };
 
-  const handleDownload = async (filename) => {
-    try {
-      const blob = await permitApplicationApi.downloadDocument(filename);
-      const url = window.URL.createObjectURL(new Blob([blob]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-    } catch (err) {
-      toast.error(err.error || 'Failed to download document', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-    }
-  };
 
   const handleViewDetails = (villagerId) => {
     console.log('Navigating to villager:', villagerId);
@@ -156,36 +130,8 @@ const RequestsForPermits = () => {
       selector: row => new Date(row.apply_date).toLocaleDateString(),
       sortable: true,
     },
-    {
-      name: 'Document',
-      cell: row => (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleDownload(row.document_path);
-          }}
-          className="download-link"
-        >
-          Download
-        </a>
-      ),
-    },
-    {
-      name: 'Police Report',
-      cell: row => (
-        <a
-          href="#"
-          onClick={(e) => {
-            e.preventDefault();
-            handleDownload(row.police_report_path);
-          }}
-          className="download-link"
-        >
-          Download
-        </a>
-      ),
-    },
+
+   
     {
       name: 'Status',
       cell: row => (
@@ -276,7 +222,6 @@ const RequestsForPermits = () => {
         }}
       />
     
-      <Toaster />
     </div>
   );
 };

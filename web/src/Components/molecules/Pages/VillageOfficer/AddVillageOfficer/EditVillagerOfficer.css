@@ -1,68 +1,103 @@
+.edit-villager-officer-page{
+   width: 100%;
+  min-height: 100vh;
+  padding: 30px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #cccdcf 100%);
+  position: relative;
+}
 .edit-villager-officer-container {
   padding: 20px;
-  max-width: 600px;
+  max-width: 800px;
   margin: 0 auto;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.edit-villager-officer-container h1 {
-  text-align: center;
+.edit-villager-officer-page h1 {
+  text-align: left;
   margin-bottom: 20px;
   color: #333;
-  font-size: 24px;
+
 }
 
-.edit-villager-officer-form-group {
-  margin-bottom: 15px;
+.edit-villager-officer-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.edit-villager-officer-form-group label {
-  display: block;
-  margin-bottom: 5px;
+.edit-villager-officer-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.edit-villager-officer-field label {
+  font-weight: bold;
   color: #333;
 }
 
-.edit-villager-officer-form-group input,
-.edit-villager-officer-form-group select {
-  width: 100%;
-  padding: 8px;
+.edit-villager-officer-field input,
+.edit-villager-officer-field select {
+  padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 16px;
+}
+
+.edit-villager-officer-field input[type="checkbox"] {
+  width: auto;
+}
+
+.edit-villager-officer-error {
+  color: #f43f3f;
   font-size: 14px;
 }
 
 .edit-villager-officer-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 10px;
+  justify-content: center;
+  gap: 1rem;
   margin-top: 20px;
 }
 
-.edit-villager-officer-save-btn,
-.edit-villager-officer-cancel-btn {
+.edit-villager-officer-submit-btn,
+.edit-villager-officer-back-btn {
   padding: 10px 20px;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 16px;
-}
-
-.edit-villager-officer-save-btn {
-  background-color: #7a1632;
   color: white;
 }
 
-.edit-villager-officer-save-btn:hover {
-  background-color: #C75B7A;
+.edit-villager-officer-submit-btn {
+      background: linear-gradient(135deg, #921940 0%, #915969 100%);
 }
 
-.edit-villager-officer-cancel-btn {
-  background-color: #ccc;
-  color: #333;
+.edit-villager-officer-submit-btn:hover {
+ background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
 }
 
-.edit-villager-officer-cancel-btn:hover {
-  background-color: #bbb;
+.edit-villager-officer-back-btn {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+    background: linear-gradient(135deg, #921940 0%, #915969 100%);
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 45px;
+  min-height: 45px;
+}
+
+.edit-villager-officer-back-btn:hover {
+  background: linear-gradient(135deg, #921940 0%, #C75B7A 100%);
 }

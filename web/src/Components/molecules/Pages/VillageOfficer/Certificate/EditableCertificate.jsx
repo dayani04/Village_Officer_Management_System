@@ -264,10 +264,43 @@ const EditableCertificate = () => {
         </div>
       </div>
       <div className="text-center mt-4">
-        <button className="btn btn-primary px-4 py-2 me-2" onClick={downloadPDF}>
+        <button 
+          className="btn px-4 py-2 me-2" 
+          onClick={() => navigate('/requests_for_certificate')}
+          style={{
+            background: 'linear-gradient(135deg, #6c757d 0%, #868e96 100%)',
+            border: 'none',
+            color: '#fff',
+            borderRadius: '4px',
+            fontWeight: '500'
+          }}
+        >
+          Back
+        </button>
+        <button 
+          className="btn px-4 py-2 me-2" 
+          onClick={downloadPDF}
+          style={{
+            background: 'linear-gradient(135deg, #921940 0%, #915969 100%)',
+            border: 'none',
+            color: '#fff',
+            borderRadius: '4px',
+            fontWeight: '500'
+          }}
+        >
           Download as PDF
         </button>
-        <button className="btn btn-success px-4 py-2" onClick={sendPDF}>
+        <button 
+          className="btn px-4 py-2" 
+          onClick={sendPDF}
+          style={{
+            background: 'linear-gradient(135deg, #921940 0%, #C75B7A 100%)',
+            border: 'none',
+            color: '#fff',
+            borderRadius: '4px',
+            fontWeight: '500'
+          }}
+        >
           Send Certificate
         </button>
       </div>

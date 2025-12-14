@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import toast, { Toaster } from "react-hot-toast";
+import Swal from "sweetalert2";
 import DataTable from "react-data-table-component";
 import { TbMail } from "react-icons/tb";
 import { FaEye } from "react-icons/fa";
@@ -32,12 +32,11 @@ const SecretaryAllowanceApplications = () => {
         console.error("Error fetching applications:", err);
         setError(err.error || "Failed to fetch allowance applications");
         setLoading(false);
-        toast.error(err.error || "Failed to fetch allowance applications", {
-          style: {
-            background: "#f43f3f",
-            color: "#fff",
-            borderRadius: "4px",
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || "Failed to fetch allowance applications",
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -54,12 +53,11 @@ const SecretaryAllowanceApplications = () => {
   const handleSend = async (villagerId, allowancesId, allowanceType, fullName) => {
     const newStatus = statusUpdates[`${villagerId}-${allowancesId}`];
     if (!newStatus) {
-      toast.error("Please select a status", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'warning',
+        title: 'Status Required',
+        text: 'Please select a status',
+        confirmButtonColor: '#f43f3f',
       });
       return;
     }
@@ -82,21 +80,22 @@ const SecretaryAllowanceApplications = () => {
       });
       setSentNotifications((prev) => new Set(prev).add(`${villagerId}-${allowancesId}`));
 
-      toast.success(`Status updated and notification sent to ${fullName}`, {
-        style: {
-          background: "#4caf50",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: `Status updated and notification sent to ${fullName}`,
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
       });
     } catch (err) {
       console.error("Error in handleSend:", err);
-      toast.error(err.error || "Failed to update status or send notification", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: err.error || "Failed to update status or send notification",
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -113,12 +112,11 @@ const SecretaryAllowanceApplications = () => {
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error(err.error || "Failed to download document", {
-        style: {
-          background: "#f43f3f",
-          color: "#fff",
-          borderRadius: "4px",
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Download Failed',
+        text: err.error || "Failed to download document",
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
@@ -216,76 +214,70 @@ const SecretaryAllowanceApplications = () => {
       <div className="villagerss-container">
         <h1>Allowance Applications (Status: Send)</h1>
         <div>Loading...</div>
-        <Toaster />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="villagerss-container">
-        <h1>Allowance Applications (Status: Send)</h1>
-        <p className="error-message">{error}</p>
-        <div className="villagers-actions">
-        
-        </div>
-        <Toaster />
-      </div>
-    );
-  }
-
+if (error) {
   return (
     <div className="villagerss-container">
       <h1>Allowance Applications (Status: Send)</h1>
-      <DataTable
-        columns={columns}
-        data={applications}
-        pagination
-        paginationPerPage={10}
-        paginationRowsPerPageOptions={[10, 25, 50]}
-        highlightOnHover
-        striped
-        noDataComponent={
-          <div className="villagers-no-data">No applications with status "Send"</div>
-        }
-        customStyles={{
-          table: {
-            style: {
-            
-              border: "1px solid #ddd",
-              borderRadius: "4px",
-              backgroundColor: "white",
-            },
-          },
-          headCells: {
-            style: {
-              backgroundColor: "#9ca3af",
-              color: "white",
-              fontWeight: "bold",
-              padding: "12px",
-            },
-          },
-          cells: {
-            style: {
-              padding: "12px",
-              borderBottom: "1px solid #ddd",
-            },
-          },
-          rows: {
-            style: {
-              "&:hover": {
-                backgroundColor: "#f1f1f1",
-              },
-            },
-          },
-        }}
-      />
+      <p className="error-message">{error}</p>
       <div className="villagers-actions">
-     
       </div>
-      <Toaster />
     </div>
   );
+}
+
+return (
+  <div className="villagerss-container">
+    <h1>Allowance Applications (Status: Send)</h1>
+    <DataTable
+      columns={columns}
+      data={applications}
+      pagination
+      paginationPerPage={10}
+      paginationRowsPerPageOptions={[10, 25, 50]}
+      highlightOnHover
+      striped
+      noDataComponent={
+        <div className="villagers-no-data">No applications with status "Send"</div>
+      }
+      customStyles={{
+        table: {
+          style: {
+            border: "1px solid #ddd",
+            borderRadius: "4px",
+            backgroundColor: "white",
+          },
+        },
+        headCells: {
+          style: {
+            backgroundColor: "#9ca3af",
+            color: "white",
+            fontWeight: "bold",
+            padding: "12px",
+          },
+        },
+        cells: {
+          style: {
+            padding: "12px",
+            borderBottom: "1px solid #ddd",
+          },
+        },
+        rows: {
+          style: {
+            "&:hover": {
+              backgroundColor: "#f1f1f1",
+            },
+          },
+        },
+      }}
+    />
+    <div className="villagers-actions">
+    </div>
+  </div>
+);
 };
 
 export default SecretaryAllowanceApplications;

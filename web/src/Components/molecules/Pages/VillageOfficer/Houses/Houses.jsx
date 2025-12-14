@@ -143,7 +143,7 @@ const Houses = () => {
   return (
        <section className="w-full h-full flex items-center justify-center">
     <div className="location-search-container">
-      <h2>Villager Location Search</h2>
+      <h1>Villager Location Search</h1>
       <div className="search-bar">
         <label htmlFor="search-query">Search by Name or Address:</label>
         <input
