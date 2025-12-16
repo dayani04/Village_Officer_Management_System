@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaArrowLeft } from 'react-icons/fa';
+import Swal from 'sweetalert2';
 import * as villagerApi from '../../../../../api/villager';
 import './FamilyDetails.css';
 import NavBar from "../../../NavBar/NavBar";
@@ -15,8 +16,6 @@ const NewBornRequest = () => {
     marriageCertificate: null,
     residenceCertificate: null,
   });
-  const [error, setError] = useState('');
-  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
   const handleBack = () => navigate('/family_details');
@@ -31,8 +30,6 @@ const NewBornRequest = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-    setSuccess('');
 
     const data = new FormData();
     data.append('relationship', formData.relationship);
@@ -44,10 +41,25 @@ const NewBornRequest = () => {
 
     try {
       const response = await villagerApi.requestNewBorn(data);
-      setSuccess('New born request submitted successfully');
-      setTimeout(() => navigate('/family_details'), 2000);
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'New born request submitted successfully',
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      }).then(() => {
+        navigate('/family_details');
+      });
     } catch (err) {
-      setError(err.error || 'Failed to submit request');
+      Swal.fire({
+        icon: 'error',
+        title: 'Submission Failed',
+        text: err.error || 'Failed to submit request',
+        confirmButtonColor: '#f43f3f',
+      });
     }
   };
 
@@ -68,9 +80,6 @@ const NewBornRequest = () => {
       </div>
       <br/>
       <div className="family-details-container">
-       
-        {error && <p className="error">{error}</p>}
-        {success && <p className="success">{success}</p>}
         <form onSubmit={handleSubmit} className="new-born-form">
           <div>
             <label>Relationship to Newborn:</label>

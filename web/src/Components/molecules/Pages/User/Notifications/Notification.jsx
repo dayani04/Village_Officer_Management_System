@@ -75,24 +75,29 @@ const Notification = () => {
 
   const columns = [
     {
-      name: 'Notification ID',
+      name: 'ID',
       selector: row => row.Notification_ID || 'N/A',
       sortable: true,
+      width: '80px',
     },
     {
       name: 'Message',
       selector: row => row.Message || 'N/A',
       sortable: true,
+      grow: 2,
+      wrap: true,
     },
     {
-      name: 'Created At',
+      name: 'Date',
       selector: row => formatDate(row.Created_At),
       sortable: true,
+      width: '120px',
     },
     {
       name: 'Status',
       selector: row => (row.Is_Read ? 'Read' : 'Unread'),
       sortable: true,
+      width: '80px',
     },
     {
       name: 'Action',
@@ -105,6 +110,8 @@ const Notification = () => {
           <TbCheck />
         </button>
       ),
+      width: '80px',
+      center: true,
     },
   ];
 
@@ -181,6 +188,8 @@ const Notification = () => {
           highlightOnHover
           striped
           noDataComponent={<div className="notification-no-data">No unread notifications found</div>}
+          responsive={true}
+          compact={true}
           customStyles={{
             table: {
               style: {
@@ -195,12 +204,14 @@ const Notification = () => {
                 color: 'white',
                 fontWeight: 'bold',
                 padding: '12px',
+                fontSize: '14px',
               },
             },
             cells: {
               style: {
                 padding: '12px',
                 borderBottom: '1px solid #ddd',
+                fontSize: '14px',
               },
             },
             rows: {

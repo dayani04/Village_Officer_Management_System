@@ -7,6 +7,7 @@ const router = express.Router();
 router.post("/", secretaryController.createSecretary);
 router.post("/login", secretaryController.loginSecretary);
 router.post("/request-otp", secretaryController.requestPasswordOtp);
+router.post("/:id/verify-otp", secretaryController.verifyPasswordOtp);
 
 // Protected routes
 router.get("/", authenticate, secretaryController.getSecretaries);
@@ -16,6 +17,5 @@ router.put("/:id", authenticate, secretaryController.updateSecretary);
 router.delete("/:id", authenticate, secretaryController.deleteSecretary);
 router.put("/:id/status", authenticate, secretaryController.updateSecretaryStatus);
 router.put("/:id/password", authenticate, secretaryController.updateSecretaryPassword);
-router.post("/:id/verify-otp", authenticate, secretaryController.verifyPasswordOtp);
 
 module.exports = router;

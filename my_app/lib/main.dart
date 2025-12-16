@@ -4,6 +4,7 @@ import 'user_nic_receipt.dart';
 import 'user_election_receipt.dart';
 import 'user_allowance_receipt.dart';
 import 'package:flutter/material.dart';
+import 'theme/app_theme.dart';
 import 'package:my_app/secretary/secretary_allowance_owners.dart';
 import 'package:my_app/secretary/secretary_allowance_owners_view.dart'
     hide SecretaryAllowanceOwnersPage; // Ensure correct import
@@ -51,6 +52,10 @@ import 'secretary/secretary_permits_owner.dart';
 import 'secretary/secretary_permits_owner_view.dart';
 
 import 'user_certificates_download.dart';
+import 'theme/main_navigation.dart';
+import 'family_details.dart';
+import 'new_born_request.dart';
+import 'new_family_member_request.dart';
 
 void main() {
   runApp(const MyApp());
@@ -62,10 +67,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
+      title: 'Village Management System',
+      theme: AppTheme.lightTheme,
       home: const LoginPage(),
       routes: {
         '/login': (context) => const LoginPage(),
@@ -322,6 +325,9 @@ class MyApp extends StatelessWidget {
                 : null,
           );
         },
+        '/family_details': (context) => const FamilyDetailsPage(),
+        '/family-new-born-request': (context) => const NewBornRequestPage(),
+        '/family-new-family-member-request': (context) => const NewFamilyMemberRequestPage(),
       },
     );
   }

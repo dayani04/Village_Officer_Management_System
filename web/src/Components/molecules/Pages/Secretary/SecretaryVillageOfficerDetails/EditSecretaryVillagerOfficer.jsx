@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import toast, { Toaster } from 'react-hot-toast';
-import SecretaryDashBoard from '../SecretaryDashBoard/SecretaryDashBoard';
+import Swal from 'sweetalert2';
 import * as villagerOfficerApi from '../../../../../api/villageOfficer';
 import './EditSecretaryVillagerOfficer.css';
 
@@ -19,8 +18,9 @@ const EditSecretaryVillagerOfficer = () => {
     status: 'Active',
     area_id: '',
   });
+  const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     const fetchOfficer = async () => {
@@ -40,14 +40,13 @@ const EditSecretaryVillagerOfficer = () => {
         setLoading(false);
       } catch (err) {
         console.error('Error fetching officer:', err);
-        setError(err.response?.data?.error || err.message || 'Failed to fetch officer');
+        setFetchError(err.error || 'Failed to fetch officer');
         setLoading(false);
-        toast.error(err.response?.data?.error || 'Failed to fetch officer', {
-          style: {
-            background: '#f43f3f',
-            color: '#fff',
-            borderRadius: '4px',
-          },
+        Swal.fire({
+          icon: 'error',
+          title: 'Fetch Error',
+          text: err.error || 'Failed to fetch officer',
+          confirmButtonColor: '#f43f3f',
         });
       }
     };
@@ -55,222 +54,204 @@ const EditSecretaryVillagerOfficer = () => {
     fetchOfficer();
   }, [id]);
 
-  const handleInputChange = (e) => {
+  const validateForm = () => {
+    const newErrors = {};
+    if (!officer.full_name) newErrors.full_name = 'Full Name is required';
+    if (!officer.email) newErrors.email = 'Email is required';
+    else if (!/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/.test(officer.email)) {
+      newErrors.email = 'Invalid email format';
+    }
+    if (!officer.phone_no) newErrors.phone_no = 'Phone Number is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setOfficer((prev) => ({ ...prev, [name]: value }));
+    setOfficer({
+      ...officer,
+      [name]: value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const { full_name, email, phone_no } = officer;
-
-    // Required fields validation
-    if (!full_name || !email || !phone_no) {
-      toast.error('Full Name, Email, and Phone Number are required', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-      return;
-    }
-
-    // Email format validation
-    const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    if (!emailRegex.test(email)) {
-      toast.error('Invalid email format', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
-      });
-      return;
-    }
-
-    // Phone number format validation
-    const phoneRegex = /^\d{10}$/;
-    if (!phone_no || !phoneRegex.test(phone_no)) {
-      toast.error('Phone number must be 10 digits', {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+    if (!validateForm()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Validation Error',
+        text: 'Please fix the errors in the form',
+        confirmButtonColor: '#f43f3f',
       });
       return;
     }
 
     try {
       await villagerOfficerApi.updateVillageOfficer(id, officer);
-      toast.success('Officer updated successfully', {
-        style: {
-          background: '#4caf50',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: 'Officer updated successfully',
+        confirmButtonColor: '#4caf50',
+        timer: 2000,
+        timerProgressBar: true,
+        showConfirmButton: false
+      }).then(() => {
+        navigate('/secretary-villager-officers');
       });
-      navigate('/secretary-villager-officers');
     } catch (err) {
       console.error('Error updating officer:', err);
-      const errorMsg = err.response?.data?.error || err.message || 'Failed to update officer';
-      toast.error(errorMsg, {
-        style: {
-          background: '#f43f3f',
-          color: '#fff',
-          borderRadius: '4px',
-        },
+      Swal.fire({
+        icon: 'error',
+        title: 'Update Failed',
+        text: err.error || 'Failed to update officer',
+        confirmButtonColor: '#f43f3f',
       });
     }
   };
 
-  const handleCancel = () => {
+  const handleBack = () => {
     navigate('/secretary-villager-officers');
   };
 
   if (loading) {
     return (
-      <div className="page-layout">
-    
-        <div className="villager-list-container">
-          <div className="edit-villager-officer-container">Loading...</div>
-        </div>
-      </div>
+       <section className="edit-villager-officer-page">
+        <button className="edit-villager-officer-back-btn" onClick={handleBack}>
+          ←
+        </button>
+        <h1>Edit Village Officer</h1>
+        <div className="edit-villager-officer-container">Loading...</div>
+      </section>
     );
   }
 
-  if (error) {
+  if (fetchError) {
     return (
-      <div className="page-layout">
-      
-        <div className="villager-list-container">
-          <div className="edit-villager-officer-container">
-            <h1>Edit Villager Officer</h1>
-            <p className="error-message">{error}</p>
-            <div className="edit-villager-officer-actions">
-              <button className="edit-villager-officer-cancel-btn" onClick={handleCancel}>
-                Back to Officers
-              </button>
-            </div>
-            <Toaster />
-          </div>
+     <section className="edit-villager-officer-page">
+        <button className="edit-villager-officer-back-btn" onClick={handleBack}>
+          ←
+        </button>
+           <h1>Edit Village Officer</h1>
+        <div className="edit-villager-officer-container">
+          <p>Error: {fetchError}</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div className="page-layout">
-     
-      <div className="villager-list-container">
-        <div className="edit-villager-officer-container">
-          <h1>Edit Villager Officer</h1>
-          <form onSubmit={handleSubmit}>
-            <div className="edit-villager-officer-form-group">
-              <label>Full Name</label>
-              <input
-                type="text"
-                name="full_name"
-                value={officer.full_name}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Email</label>
-              <input
-                type="email"
-                name="email"
-                value={officer.email}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Phone Number</label>
-              <input
-                type="text"
-                name="phone_no"
-                value={officer.phone_no}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>NIC</label>
-              <input
-                type="text"
-                name="nic"
-                value={officer.nic}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Date of Birth</label>
-              <input
-                type="date"
-                name="dob"
-                value={officer.dob}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Address</label>
-              <input
-                type="text"
-                name="address"
-                value={officer.address}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Regional Division</label>
-              <input
-                type="text"
-                name="regional_division"
-                value={officer.regional_division}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Status</label>
-              <select
-                name="status"
-                value={officer.status}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
-              </select>
-            </div>
-            <div className="edit-villager-officer-form-group">
-              <label>Area ID</label>
-              <input
-                type="text"
-                name="area_id"
-                value={officer.area_id}
-                onChange={handleInputChange}
-              />
-            </div>
-            <div className="edit-villager-officer-actions">
-              <button type="submit" className="edit-villager-officer-save-btn">
-                Update Officer
-              </button>
-              <button
-                type="button"
-                className="edit-villager-officer-cancel-btn"
-                onClick={handleCancel}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-          <Toaster />
-        </div>
+    <section className="edit-villager-officer-page">
+      <button className="edit-villager-officer-back-btn" onClick={handleBack}>
+        ←
+      </button>
+      <h1>Edit Village Officer</h1>
+      <div className="edit-villager-officer-container">
+        <form className="edit-villager-officer-form" onSubmit={handleSubmit}>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="full_name">Full Name:</label>
+            <input
+              type="text"
+              id="full_name"
+              name="full_name"
+              value={officer.full_name}
+              onChange={handleChange}
+              placeholder="Enter Full Name"
+            />
+            {errors.full_name && <span className="edit-villager-officer-error">{errors.full_name}</span>}
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="email">Email:</label>
+            <input
+              type="email"
+              id="email"
+              name="email"
+              value={officer.email}
+              onChange={handleChange}
+              placeholder="Enter Email"
+            />
+            {errors.email && <span className="edit-villager-officer-error">{errors.email}</span>}
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="phone_no">Phone Number:</label>
+            <input
+              type="text"
+              id="phone_no"
+              name="phone_no"
+              value={officer.phone_no}
+              onChange={handleChange}
+              placeholder="Enter Phone Number"
+            />
+            {errors.phone_no && <span className="edit-villager-officer-error">{errors.phone_no}</span>}
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="nic">NIC:</label>
+            <input
+              type="text"
+              id="nic"
+              name="nic"
+              value={officer.nic}
+              onChange={handleChange}
+              placeholder="Enter NIC (optional)"
+            />
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="dob">Date of Birth:</label>
+            <input
+              type="date"
+              id="dob"
+              name="dob"
+              value={officer.dob}
+              onChange={handleChange}
+            />
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="address">Address:</label>
+            <input
+              type="text"
+              id="address"
+              name="address"
+              value={officer.address}
+              onChange={handleChange}
+              placeholder="Enter Address (optional)"
+            />
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="regional_division">Regional Division:</label>
+            <input
+              type="text"
+              id="regional_division"
+              name="regional_division"
+              value={officer.regional_division}
+              onChange={handleChange}
+              placeholder="Enter Regional Division (optional)"
+            />
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="status">Status:</label>
+            <select id="status" name="status" value={officer.status} onChange={handleChange}>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+          <div className="edit-villager-officer-field">
+            <label htmlFor="area_id">Area ID:</label>
+            <input
+              type="text"
+              id="area_id"
+              name="area_id"
+              value={officer.area_id}
+              onChange={handleChange}
+              placeholder="Enter Area ID (optional)"
+            />
+          </div>
+          <div className="edit-villager-officer-actions">
+            <button type="submit" className="edit-villager-officer-submit-btn">Update Officer</button>
+          </div>
+        </form>
       </div>
-    </div>
+    </section>
   );
 };
 

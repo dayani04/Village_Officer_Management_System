@@ -12,7 +12,7 @@ const sendConfirmationEmail = async (toEmail, subject, text) => {
     });
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: `"Sri Lanka Village Officer Management System" <${process.env.EMAIL_USER}>`,
       to: toEmail,
       subject: subject,
       text: text,

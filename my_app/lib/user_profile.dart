@@ -182,47 +182,207 @@ class _UserProfilePageState extends State<UserProfilePage> {
   Widget build(BuildContext context) {
     if (loading) {
       return Scaffold(
-        appBar: AppBar(title: Text('Villager Profile')),
-        body: Center(child: CircularProgressIndicator()),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF921940),
+                Color(0xFF6D1841),
+                Color(0xFF4A0F2E),
+              ],
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  'Loading Profile...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       );
     }
     if (profile == null) {
       return Scaffold(
-        appBar: AppBar(title: Text('Villager Profile')),
-        body: Center(child: Text(error ?? 'No profile found')),
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFF921940),
+                Color(0xFF6D1841),
+                Color(0xFF4A0F2E),
+              ],
+            ),
+          ),
+          child: Center(
+            child: Container(
+              padding: EdgeInsets.all(24),
+              margin: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Color(0xFF921940),
+                    size: 48,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    error ?? 'No profile found',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF2D2D2D),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color(0xFF921940),
+                    ),
+                    child: Text('Back', style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Villager Profile'),
-        backgroundColor: Color(0xFF921940),
-      ),
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.all(16),
-          padding: EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Color(0xFFF9F9F9),
-            borderRadius: BorderRadius.circular(8),
-            boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 4)],
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFF921940),
+              Color(0xFF6D1841),
+              Color(0xFF4A0F2E),
+            ],
           ),
+        ),
+        child: SafeArea(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (error != null)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Text(error!, style: TextStyle(color: Colors.red)),
+              // Header
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        'My Profile',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              if (editMode)
-                _buildEditForm()
-              else if (locationMode)
-                _buildLocationSection()
-              else
-                _buildProfileDetails(),
-              SizedBox(height: 16),
-              _buildActions(),
+              ),
+              
+              // Profile Content
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    child: Column(
+                      children: [
+                        // Profile Header Card
+                        _buildProfileHeader(),
+                        SizedBox(height: 24),
+                        
+                        // Error Message
+                        if (error != null)
+                          Container(
+                            padding: EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.red.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Row(
+                              children: [
+                                Icon(Icons.error_outline, color: Colors.red, size: 20),
+                                SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    error!,
+                                    style: TextStyle(color: Colors.red, fontSize: 14),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        
+                        if (error != null) SizedBox(height: 16),
+                        
+                        // Content based on mode
+                        if (editMode)
+                          _buildEditForm()
+                        else if (locationMode)
+                          _buildLocationSection()
+                        else
+                          _buildProfileDetails(),
+                        
+                        SizedBox(height: 24),
+                        
+                        // Action Buttons
+                        _buildActions(),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -230,267 +390,610 @@ class _UserProfilePageState extends State<UserProfilePage> {
     );
   }
 
+  Widget _buildProfileHeader() {
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Color(0xFF921940), Color(0xFF6D1841)],
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(
+              Icons.person,
+              size: 40,
+              color: Colors.white,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  profile!['Full_Name'] ?? 'Unknown',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Text(
+                  'ID: ${profile!['Villager_ID']}',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.8),
+                    fontSize: 14,
+                  ),
+                ),
+                SizedBox(height: 4),
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    profile!['Status'] ?? 'Unknown',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildProfileDetails() {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _profileField('Villager ID', profile!['Villager_ID'].toString()),
-        _profileField('Full Name', profile!['Full_Name']),
-        _profileField('Email', profile!['Email']),
-        _profileField('Phone Number', profile!['Phone_No']),
-        _profileField('NIC', profile!['NIC'] ?? 'N/A'),
-        _profileField('Date of Birth', profile!['DOB'] ?? 'N/A'),
-        _profileField('Address', profile!['Address'] ?? 'N/A'),
-        _profileField(
-          'Regional Division',
-          profile!['RegionalDivision'] ?? 'N/A',
-        ),
-        _profileField('Job', profile!['Job'] ?? 'N/A'),
-        _profileField('Gender', profile!['Gender'] ?? 'N/A'),
-        _profileField('Marital Status', profile!['Marital_Status'] ?? 'N/A'),
-        _profileField('Status', profile!['Status']),
-        _profileField('Area ID', profile!['Area_ID']?.toString() ?? 'N/A'),
-        _profileField(
-          'Location',
-          villagerLocation != null
-              ? 'Lat: ${villagerLocation!.latitude.toStringAsFixed(8)}, Lng: ${villagerLocation!.longitude.toStringAsFixed(8)}'
-              : 'Not set',
-        ),
-        _profileField(
-          'Upcoming Election Participant',
-          profile!['IsParticipant'] == true ? 'Yes' : 'No',
-        ),
-        _profileField('Alive Status', profile!['Alive_Status'] ?? 'N/A'),
+        _infoCard('Personal Information', [
+          _infoItem('Full Name', profile!['Full_Name']),
+          _infoItem('Email', profile!['Email']),
+          _infoItem('Phone Number', profile!['Phone_No']),
+          _infoItem('NIC', profile!['NIC'] ?? 'N/A'),
+          _infoItem('Date of Birth', profile!['DOB'] ?? 'N/A'),
+        ]),
+        
+        SizedBox(height: 16),
+        
+        _infoCard('Location Information', [
+          _infoItem('Address', profile!['Address'] ?? 'N/A'),
+          _infoItem('Regional Division', profile!['RegionalDivision'] ?? 'N/A'),
+          _infoItem('Area ID', profile!['Area_ID']?.toString() ?? 'N/A'),
+          _infoItem(
+            'Location',
+            villagerLocation != null
+                ? 'Lat: ${villagerLocation!.latitude.toStringAsFixed(4)}, Lng: ${villagerLocation!.longitude.toStringAsFixed(4)}'
+                : 'Not set',
+          ),
+        ]),
+        
+        SizedBox(height: 16),
+        
+        _infoCard('Additional Information', [
+          _infoItem('Job', profile!['Job'] ?? 'N/A'),
+          _infoItem('Gender', profile!['Gender'] ?? 'N/A'),
+          _infoItem('Marital Status', profile!['Marital_Status'] ?? 'N/A'),
+          _infoItem('Alive Status', profile!['Alive_Status'] ?? 'N/A'),
+          _infoItem(
+            'Election Participant',
+            profile!['IsParticipant'] == true ? 'Yes' : 'No',
+          ),
+        ]),
       ],
     );
   }
 
-  Widget _profileField(String label, String value) {
+  Widget _infoCard(String title, List<Widget> children) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Color(0xFF921940).withOpacity(0.1),
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(12),
+                topRight: Radius.circular(12),
+              ),
+            ),
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF921940),
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(children: children),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _infoItem(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
-            width: 120,
+            width: 100,
             child: Text(
               '$label:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF666666),
+                fontSize: 14,
+              ),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(
+                color: Color(0xFF2D2D2D),
+                fontSize: 14,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildEditForm() {
-    return Column(
-      children: [
-        _editTextField('Full Name', 'full_name'),
-        _editTextField('Email', 'email'),
-        _editTextField('Phone Number', 'phone_no'),
-        _editTextField('Address', 'address'),
-        _editTextField('Regional Division', 'regional_division'),
-        _editTextField('Job', 'job'),
-        _editDropdown('Gender', 'gender', ['Male', 'Female', 'Other']),
-        _editDropdown('Marital Status', 'marital_status', [
-          'Married',
-          'Unmarried',
-          'Divorced',
-          'Widowed',
-          'Separated',
-        ]),
-        _editDropdown('Alive Status', 'alive_status', ['Alive', 'Deceased']),
-        Row(
-          children: [
-            Text(
-              'Upcoming Election Participant:',
-              style: TextStyle(fontWeight: FontWeight.bold),
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Edit Profile',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF921940),
             ),
-            Checkbox(
-              value: formData['is_election_participant'] ?? false,
-              onChanged: (v) =>
-                  setState(() => formData['is_election_participant'] = v),
+          ),
+          SizedBox(height: 20),
+          
+          _editTextField('Full Name', 'full_name'),
+          _editTextField('Email', 'email'),
+          _editTextField('Phone Number', 'phone_no'),
+          _editTextField('Address', 'address'),
+          _editTextField('Regional Division', 'regional_division'),
+          _editTextField('Job', 'job'),
+          _editDropdown('Gender', 'gender', ['Male', 'Female', 'Other']),
+          _editDropdown('Marital Status', 'marital_status', [
+            'Married',
+            'Unmarried',
+            'Divorced',
+            'Widowed',
+            'Separated',
+          ]),
+          _editDropdown('Alive Status', 'alive_status', ['Alive', 'Deceased']),
+          
+          SizedBox(height: 16),
+          
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8),
             ),
-          ],
-        ),
-        // Add editable latitude/longitude fields
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Latitude'),
-                initialValue: latitude,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onChanged: (v) => setState(() => latitude = v),
+            child: Row(
+              children: [
+                Text(
+                  'Upcoming Election Participant:',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2D2D2D),
+                  ),
+                ),
+                Spacer(),
+                Switch(
+                  value: formData['is_election_participant'] ?? false,
+                  onChanged: (v) => setState(() => formData['is_election_participant'] = v),
+                  activeColor: Color(0xFF921940),
+                ),
+              ],
+            ),
+          ),
+          
+          SizedBox(height: 16),
+          
+          // Location coordinates
+          Text(
+            'Location Coordinates',
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF2D2D2D),
+            ),
+          ),
+          SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Latitude',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    initialValue: latitude,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (v) => setState(() => latitude = v),
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Longitude'),
-                initialValue: longitude,
-                keyboardType: TextInputType.numberWithOptions(decimal: true),
-                onChanged: (v) => setState(() => longitude = v),
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Longitude',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    initialValue: longitude,
+                    keyboardType: TextInputType.numberWithOptions(decimal: true),
+                    onChanged: (v) => setState(() => longitude = v),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
-        SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF921940),
+            ],
+          ),
+          
+          SizedBox(height: 24),
+          
+          // Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF921940),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: updateProfile,
+                  child: Text(
+                    'Save Changes',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              onPressed: updateProfile,
-              child: Text('Save Changes'),
-            ),
-            SizedBox(width: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF7a1632),
+              SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF6C757D),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () => setState(() => editMode = false),
+                  child: Text(
+                    'Cancel',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              onPressed: () => setState(() => editMode = false),
-              child: Text('Cancel'),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _editTextField(String label, String key) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: TextFormField(
-        decoration: InputDecoration(labelText: label),
-        initialValue: formData[key] ?? '',
-        onChanged: (v) => formData[key] = v,
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: TextFormField(
+          decoration: InputDecoration(
+            labelText: label,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(12),
+          ),
+          initialValue: formData[key] ?? '',
+          onChanged: (v) => formData[key] = v,
+        ),
       ),
     );
   }
 
   Widget _editDropdown(String label, String key, List<String> options) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: DropdownButtonFormField<String>(
-        value: formData[key],
-        decoration: InputDecoration(labelText: label),
-        items: options
-            .map((o) => DropdownMenuItem(value: o, child: Text(o)))
-            .toList(),
-        onChanged: (v) => setState(() => formData[key] = v),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: DropdownButtonFormField<String>(
+          value: formData[key],
+          decoration: InputDecoration(
+            labelText: label,
+            border: InputBorder.none,
+            contentPadding: EdgeInsets.all(12),
+          ),
+          items: options
+              .map((o) => DropdownMenuItem(value: o, child: Text(o)))
+              .toList(),
+          onChanged: (v) => setState(() => formData[key] = v),
+        ),
       ),
     );
   }
 
   Widget _buildLocationSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          villagerLocation != null ? 'Your Location' : 'Add Your Location',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 8),
-        SizedBox(
-          height: 300,
-          child: GoogleMap(
-            initialCameraPosition: CameraPosition(
-              target: villagerLocation ?? defaultCenter,
-              zoom: villagerLocation != null ? 15 : 10,
+    return Container(
+      padding: EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Color(0xFFF8F9FA),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            villagerLocation != null ? 'Update Location' : 'Add Location',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF921940),
             ),
-            onMapCreated: (controller) => mapController = controller,
-            markers: villagerLocation != null
-                ? {
-                    Marker(
-                      markerId: MarkerId('villager'),
-                      position: villagerLocation!,
-                    ),
-                  }
-                : {},
-            onTap: (latLng) {
-              setState(() {
-                latitude = latLng.latitude.toStringAsFixed(8);
-                longitude = latLng.longitude.toStringAsFixed(8);
-              });
-            },
           ),
-        ),
-        SizedBox(height: 8),
-        Text(
-          'Click on the map to select a location or enter coordinates manually:',
-        ),
-        Row(
-          children: [
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Latitude'),
-                initialValue: latitude,
-                onChanged: (v) => latitude = v,
+          SizedBox(height: 16),
+          
+          Container(
+            height: 300,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: GoogleMap(
+                initialCameraPosition: CameraPosition(
+                  target: villagerLocation ?? defaultCenter,
+                  zoom: villagerLocation != null ? 15 : 10,
+                ),
+                onMapCreated: (controller) => mapController = controller,
+                markers: villagerLocation != null
+                    ? {
+                        Marker(
+                          markerId: MarkerId('villager'),
+                          position: villagerLocation!,
+                        ),
+                      }
+                    : {},
+                onTap: (latLng) {
+                  setState(() {
+                    latitude = latLng.latitude.toStringAsFixed(8);
+                    longitude = latLng.longitude.toStringAsFixed(8);
+                  });
+                },
               ),
             ),
-            SizedBox(width: 8),
-            Expanded(
-              child: TextFormField(
-                decoration: InputDecoration(labelText: 'Longitude'),
-                initialValue: longitude,
-                onChanged: (v) => longitude = v,
-              ),
+          ),
+          
+          SizedBox(height: 16),
+          
+          Text(
+            'Click on the map to select a location or enter coordinates manually:',
+            style: TextStyle(
+              color: Color(0xFF666666),
+              fontSize: 14,
             ),
-          ],
-        ),
-        SizedBox(height: 12),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF921940),
+          ),
+          
+          SizedBox(height: 12),
+          
+          Row(
+            children: [
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Latitude',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    initialValue: latitude,
+                    onChanged: (v) => latitude = v,
+                  ),
+                ),
               ),
-              onPressed: updateLocation,
-              child: Text(
-                villagerLocation != null ? 'Update Location' : 'Save Location',
+              SizedBox(width: 8),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: TextFormField(
+                    decoration: InputDecoration(
+                      labelText: 'Longitude',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.all(12),
+                    ),
+                    initialValue: longitude,
+                    onChanged: (v) => longitude = v,
+                  ),
+                ),
               ),
-            ),
-            SizedBox(width: 12),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Color(0xFF7a1632),
+            ],
+          ),
+          
+          SizedBox(height: 24),
+          
+          // Action Buttons
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF921940),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: updateLocation,
+                  child: Text(
+                    villagerLocation != null ? 'Update Location' : 'Save Location',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-              onPressed: () => setState(() => locationMode = false),
-              child: Text('Back to Profile'),
-            ),
-          ],
-        ),
-      ],
+              SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color(0xFF6C757D),
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () => setState(() => locationMode = false),
+                  child: Text(
+                    'Back to Profile',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildActions() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF7a1632)),
-          onPressed: () => setState(() => editMode = true),
-          child: Text('Edit Profile'),
-        ),
-        SizedBox(width: 8),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF7a1632)),
-          onPressed: () => setState(() => locationMode = true),
-          child: Text(
-            villagerLocation != null ? 'View/Update Location' : 'Add Location',
+        Expanded(
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF921940), Color(0xFF6D1841)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () => setState(() => editMode = true),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.edit, size: 18, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Edit Profile',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ),
-        SizedBox(width: 8),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(backgroundColor: Color(0xFF7a1632)),
-          onPressed: () => Navigator.pop(context),
-          child: Text('Back to Dashboard'),
+        SizedBox(width: 12),
+        Expanded(
+          child: Container(
+            height: 50,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xFF2196F3), Color(0xFF1976D2)],
+              ),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              onPressed: () => setState(() => locationMode = true),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.location_on, size: 18, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    villagerLocation != null ? 'Update Location' : 'Add Location',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ],
     );

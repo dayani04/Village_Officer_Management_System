@@ -86,10 +86,21 @@ const ForgotPassword = () => {
         return;
       }
       
-      // For backup code, we need to simulate the verification
+      // For backup code, proceed directly to password update
       try {
-        // Create a mock response for backup code verification
-        const mockUserId = `backup_${position}_${Date.now()}`;
+        switch (position) {
+          case 'villager':
+            await verifyVillagerOtp(userId, otp, newPassword, true);
+            break;
+          case 'village_officer':
+            await verifyOfficerOtp(userId, otp, newPassword, true);
+            break;
+          case 'secretary':
+            await verifySecretaryOtp(userId, otp, newPassword, true);
+            break;
+          default:
+            throw new Error('Invalid position selected');
+        }
         setSuccess('Password updated successfully using backup code! Redirecting to login...');
         setTimeout(() => navigate('/'), 2000);
         return;

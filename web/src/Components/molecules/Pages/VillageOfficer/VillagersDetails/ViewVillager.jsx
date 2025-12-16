@@ -114,7 +114,7 @@ const ViewVillager = () => {
           <p><strong>Longitude:</strong> {villager.Longitude ?? 'N/A'}</p>
           <p><strong>Election Participant:</strong> {villager.IsParticipant ? 'Yes' : 'No'}</p>
           <p><strong>Alive Status:</strong> {villager.Alive_Status || 'N/A'}</p>
-          <p>
+          {/* <p>
             <strong>Birth Certificate:</strong>{' '}
             {villager.BirthCertificate ? (
               <DownloadCertificate
@@ -131,7 +131,7 @@ const ViewVillager = () => {
                 documentType="NIC Copy"
               />
             ) : 'N/A'}
-          </p>
+          </p> */}
         </div>
 
         <div className="view-villager-actions">

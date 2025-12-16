@@ -79,9 +79,18 @@ class _NotificationPageState extends State<NotificationPage> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Notification marked as read'),
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: Colors.white, size: 20),
+                SizedBox(width: 8),
+                Text('Notification marked as read'),
+              ],
+            ),
             backgroundColor: Color(0xFF4caf50),
             behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
           ),
         );
       } else {
@@ -90,9 +99,18 @@ class _NotificationPageState extends State<NotificationPage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to mark notification as read'),
+          content: Row(
+            children: [
+              Icon(Icons.error_outline, color: Colors.white, size: 20),
+              SizedBox(width: 8),
+              Text('Failed to mark notification as read'),
+            ],
+          ),
           backgroundColor: Color(0xFFf43f3f),
           behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -102,147 +120,401 @@ class _NotificationPageState extends State<NotificationPage> {
     if (dateString == null) return 'N/A';
     final date = DateTime.tryParse(dateString);
     if (date == null) return 'N/A';
-    return '${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    
+    final now = DateTime.now();
+    final difference = now.difference(date);
+    
+    if (difference.inDays == 0) {
+      if (difference.inHours == 0) {
+        if (difference.inMinutes == 0) {
+          return 'Just now';
+        }
+        return '${difference.inMinutes} min ago';
+      }
+      return '${difference.inHours} hour${difference.inHours > 1 ? 's' : ''} ago';
+    } else if (difference.inDays == 1) {
+      return 'Yesterday';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays} day${difference.inDays > 1 ? 's' : ''} ago';
+    } else {
+      return '${date.day}/${date.month}/${date.year}';
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (loading) {
-      return Scaffold(
-        body: Center(
-          child: Container(
-            padding: EdgeInsets.all(24),
-            child: Text('Loading...', style: TextStyle(fontSize: 18)),
-          ),
+  Widget _buildNotificationCard(Map<String, dynamic> notification) {
+    return Container(
+      margin: EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: LinearGradient(
+          colors: [
+            Colors.white,
+            Colors.grey.shade50,
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-      );
-    }
-    if (error != null && error!.isNotEmpty) {
-      return Scaffold(
-        body: Center(
-          child: Container(
-            padding: EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 10,
+            offset: Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: Color(0xFF921940).withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  'Notifications',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Error: $error',
-                  style: TextStyle(color: Color(0xFFF43F3F)),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF7a1632),
-                  ),
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Back to Dashboard'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Notifications',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Expanded(
-                child: Container(
+                Container(
+                  width: 48,
+                  height: 48,
                   decoration: BoxDecoration(
-                    color: Color(0xFFF9F9F9),
-                    borderRadius: BorderRadius.circular(8),
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF921940), Color(0xFF7a1632)],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Color(0xFF921940).withOpacity(0.3),
                         blurRadius: 8,
                         offset: Offset(0, 2),
                       ),
                     ],
                   ),
-                  child: notifications.isNotEmpty
-                      ? SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: DataTable(
-                            columns: const [
-                              DataColumn(label: Text('Notification ID')),
-                              DataColumn(label: Text('Message')),
-                              DataColumn(label: Text('Created At')),
-                              DataColumn(label: Text('Status')),
-                              DataColumn(label: Text('Action')),
-                            ],
-                            rows: notifications
-                                .map(
-                                  (notif) => DataRow(
-                                    cells: [
-                                      DataCell(
-                                        Text('${notif['Notification_ID']}'),
-                                      ),
-                                      DataCell(Text(notif['Message'] ?? 'N/A')),
-                                      DataCell(
-                                        Text(formatDate(notif['Created_At'])),
-                                      ),
-                                      DataCell(
-                                        Text(
-                                          (notif['Is_Read'] == true ||
-                                                  notif['Is_Read'] == 1)
-                                              ? 'Read'
-                                              : 'Unread',
-                                        ),
-                                      ),
-                                      DataCell(
-                                        IconButton(
-                                          icon: Icon(
-                                            Icons.check,
-                                            color: Colors.green,
-                                          ),
-                                          tooltip: 'Mark as Read',
-                                          onPressed: () => markAsRead(
-                                            notif['Notification_ID'],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                  child: Icon(
+                    Icons.notifications_active,
+                    color: Colors.white,
+                    size: 24,
+                  ),
+                ),
+                SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.orange.shade100,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              'New',
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Spacer(),
+                          Text(
+                            formatDate(notification['Created_At']),
+                            style: TextStyle(
+                              color: Colors.grey.shade600,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        notification['Message'] ?? 'No message',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF2D3748),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              height: 48,
+              child: ElevatedButton(
+                onPressed: () => markAsRead(notification['Notification_ID']),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Color(0xFF921940),
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.check_circle_outline, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Mark as Read',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.grey.shade100,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Color(0xFF921940),
+        foregroundColor: Colors.white,
+        title: Row(
+          children: [
+            Icon(Icons.notifications, size: 24),
+            SizedBox(width: 12),
+            Text(
+              'Notifications',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            onPressed: fetchNotifications,
+            icon: Icon(Icons.refresh),
+            tooltip: 'Refresh',
+          ),
+        ],
+      ),
+      body: loading
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF921940)),
+                    strokeWidth: 3,
+                  ),
+                  SizedBox(height: 16),
+                  Text(
+                    'Loading notifications...',
+                    style: TextStyle(
+                      color: Colors.grey.shade600,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          : error != null
+          ? Center(
+              child: Padding(
+                padding: EdgeInsets.all(24),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.error_outline,
+                      size: 64,
+                      color: Colors.red.shade400,
+                    ),
+                    SizedBox(height: 16),
+                    Text(
+                      'Something went wrong',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.red.shade600,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      error!,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.grey.shade600,
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    ElevatedButton(
+                      onPressed: fetchNotifications,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Color(0xFF921940),
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                      child: Text('Try Again'),
+                    ),
+                  ],
+                ),
+              ),
+            )
+          : Column(
+              children: [
+                // Header with count
+                Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.all(20),
+                  margin: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Color(0xFF921940), Color(0xFF7a1632)],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Color(0xFF921940).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.info_outline, color: Colors.white, size: 24),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Unread Notifications',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.8),
+                                    fontSize: 14,
                                   ),
-                                )
-                                .toList(),
+                                ),
+                                Text(
+                                  '${notifications.length} notification${notifications.length != 1 ? 's' : ''}',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                
+                // Notifications list
+                Expanded(
+                  child: notifications.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: EdgeInsets.all(24),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.notifications_none,
+                                  size: 80,
+                                  color: Colors.grey.shade400,
+                                ),
+                                SizedBox(height: 16),
+                                Text(
+                                  'All caught up!',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                                SizedBox(height: 8),
+                                Text(
+                                  'No unread notifications found',
+                                  style: TextStyle(
+                                    color: Colors.grey.shade500,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         )
-                      : Center(
-                          child: Text(
-                            'No unread notifications found',
-                            style: TextStyle(color: Colors.grey),
+                      : Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16),
+                          child: ListView.builder(
+                            physics: BouncingScrollPhysics(),
+                            itemCount: notifications.length,
+                            itemBuilder: (context, index) {
+                              return _buildNotificationCard(
+                                notifications[index] as Map<String, dynamic>,
+                              );
+                            },
                           ),
                         ),
                 ),
-              ),
-              SizedBox(height: 20),
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF7a1632),
+                
+                // Bottom action
+                Container(
+                  padding: EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 10,
+                        offset: Offset(0, -2),
+                      ),
+                    ],
                   ),
-                  onPressed: () => Navigator.pop(context),
-                  child: Text('Back to Dashboard'),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Color(0xFF921940)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.arrow_back, size: 20, color: Color(0xFF921940)),
+                          SizedBox(width: 8),
+                          Text(
+                            'Back to Dashboard',
+                            style: TextStyle(
+                              color: Color(0xFF921940),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
+              ],
+            ),
     );
   }
 }

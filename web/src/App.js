@@ -141,6 +141,9 @@ import SecretaryAllowanceOwnersView from './Components/molecules/Pages/Secretary
 import SecretaryAllowanceOwners from './Components/molecules/Pages/Secretary/SecretaryAllowanceApplications/SecretaryAllowanceOwners';
 import SecretaryAllowanceApplicationsVillagerView from './Components/molecules/Pages/Secretary/SecretaryAllowanceApplications/SecretaryAllowanceApplicationsVillagerView';
 
+// Add Secretary
+import AddSecretary from './Components/molecules/Pages/Secretary/AddSecretary/AddSecretary';
+
 function App() {
   return (
     <div className="App">
@@ -292,6 +295,9 @@ function App() {
             <Route path="/secretary_allowance_owners_view/:id" element={<SecretaryAllowanceOwnersView />} />
             <Route path="/secretary_allowance_applications_villager-view/:id" element={<SecretaryAllowanceApplicationsVillagerView />} />
             <Route path="/secretary_allowance_owners" element={<SecretaryAllowanceOwners />} />
+            
+            {/* Add Secretary */}
+            <Route path="/add-secretary" element={<AddSecretary />} />
             
           </Route>
         </Routes>

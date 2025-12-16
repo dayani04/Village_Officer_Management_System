@@ -224,9 +224,26 @@ const requestPasswordOtp = async (req, res) => {
 
 const verifyPasswordOtp = async (req, res) => {
   try {
-    const { otp, newPassword } = req.body;
+    const { otp, newPassword, isBackupCode } = req.body;
     const officerId = req.params.id;
 
+    // Handle backup code verification
+    if (isBackupCode) {
+      // For backup codes, we skip OTP verification and directly update password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updated = await VillagerOfficer.updatePassword(officerId, hashedPassword);
+      if (!updated) return res.status(404).json({ error: "Village Officer not found" });
+
+      await sendConfirmationEmail(
+        (await VillagerOfficer.getVillagerOfficerById(officerId)).Email,
+        "Password Updated",
+        "Your password has been updated successfully using backup code."
+      );
+
+      return res.json({ message: "Password updated successfully using backup code" });
+    }
+
+    // Regular OTP verification
     const storedOtp = otps.get(officerId);
     if (!storedOtp || storedOtp.expires < Date.now()) {
       return res.status(400).json({ error: "OTP expired or invalid" });
@@ -238,7 +255,7 @@ const verifyPasswordOtp = async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     const updated = await VillagerOfficer.updatePassword(officerId, hashedPassword);
-    if (!updated) return res.status(404).json({ error: "Villager Officer not found" });
+    if (!updated) return res.status(404).json({ error: "Village Officer not found" });
 
     otps.delete(officerId);
     await sendConfirmationEmail(
