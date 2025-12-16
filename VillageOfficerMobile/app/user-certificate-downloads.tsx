@@ -17,6 +17,8 @@ import { Spacing } from '../src/constants/spacing';
 import { Typography } from '../src/constants/typography';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchUserConfirmedCertificates } from '../src/api/certificateApplication';
 
 interface Certificate {
   id: string;
@@ -42,47 +44,23 @@ const UserCertificateDownloadsScreen: React.FC = () => {
       setLoading(true);
       setError('');
       
-      // Mock API call - replace with actual API call
-      // const data = await fetchUserConfirmedCertificates();
       console.log("Loading certificates...");
+      const data = await fetchUserConfirmedCertificates();
       
-      // Mock data for demonstration
-      const mockData: Certificate[] = [
-        {
-          id: '1',
-          certificate_type: 'birth',
-          apply_date: '2024-01-15',
-          status: 'Confirmed',
-          certificate_path: 'birth_certificate_001.pdf',
-        },
-        {
-          id: '2',
-          certificate_type: 'residence',
-          apply_date: '2024-02-20',
-          status: 'Confirmed',
-          certificate_path: 'residence_certificate_002.pdf',
-        },
-        {
-          id: '3',
-          certificate_type: 'marriage',
-          apply_date: '2024-03-10',
-          status: 'Pending',
-          certificate_path: '',
-        },
-        {
-          id: '4',
-          certificate_type: 'birth',
-          apply_date: '2024-04-05',
-          status: 'Confirmed',
-          certificate_path: 'birth_certificate_004.pdf',
-        },
-      ];
+      // Transform the data to match the interface
+      const transformedData = data.map((item: any, index: number) => ({
+        id: item.id || index.toString(),
+        certificate_type: item.certificate_type || 'N/A',
+        apply_date: item.apply_date || item.required_date || new Date().toISOString(),
+        status: item.status || 'Pending',
+        certificate_path: item.certificate_path || null,
+      }));
       
-      setCertificates(mockData);
+      setCertificates(transformedData);
       setLoading(false);
     } catch (err: any) {
       console.error('Error fetching certificates:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to fetch your certificates';
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to fetch your certificates';
       setError(errorMessage);
       setLoading(false);
       Alert.alert('Error', errorMessage);
@@ -102,45 +80,66 @@ const UserCertificateDownloadsScreen: React.FC = () => {
         return;
       }
 
-      // Mock download URL - replace with actual API endpoint
-      const downloadUrl = `https://your-api-url.com/api/download/${filename}`;
-      
       console.log('Downloading certificate:', filename);
       
-      // For now, create a mock PDF content (in real app, download from API)
-      const mockPdfContent = 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvTGFuZyhlbi1VUykgL1N0cnVjdFRyZWVSb290IDEgMCBSPj4KZW5kb2JqCjEgMCBvYmoKPDAvVHlwZS9TdHJ1Y3RUcmVlL1BhcmVudCAwIFIvS2lkcyBbMyAwIFJdPj4KZW5kb2JqCjIgMCBvYmoKPDwvVHlwZS9QYWdlL1BhcmVudCAxIDAgUi9NZWRpYUJveFswIDAgNjEyIDc5Ml0vQ29udGVudHMgMyAwIFIvUmVzb3VyY2VzIDw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4+PgplbmRvYmoKMyAwIG9iago8PC9MZW5ndGggNDQ+PnN0cmVhbQKQlQKL0YxIDEyIFRGCjcyIDcyMCBUZAooQ2VydGlmaWNhdGUpIFRqCkVUCjRFRgoKZW5kc3RyZWFtCmVuZG9iago0IDAgb2JqCjw8L1R5cGUvRm9udC9TdWJ0eXBlL1R5cGUxL0Jhc2VGb250L0hlbZ2V0aWNhPj4KZW5kb2JqCnhyZWYKNSAwIFIKJSVFT0YK';
+      // Get auth token
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) {
+        Alert.alert('Authentication Error', 'Please login again to download certificates');
+        return;
+      }
+      
+      // For React Native, we'll use a different approach
+      // Create a download URL and use FileSystem.downloadAsync
+      const API_URL = 'http://172.20.10.3:5000/api';
+      const downloadUrl = `${API_URL}/certificate-applications/download/${filename}`;
       
       // Get the document directory path
       const documentDir = FileSystem.documentDirectory || '';
       const fileUri = `${documentDir}${filename}`;
       
-      // Write file to device storage using base64 encoding
-      await FileSystem.writeAsStringAsync(fileUri, mockPdfContent, {
-        encoding: 'base64',
-      });
+      // Download the file directly with authentication headers
+      const downloadResumable = FileSystem.createDownloadResumable(
+        downloadUrl,
+        fileUri,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        },
+        (downloadProgressInfo) => {
+          const progress = downloadProgressInfo.totalBytesWritten / downloadProgressInfo.totalBytesExpectedToWrite;
+          console.log(`Download progress: ${Math.round(progress * 100)}%`);
+        }
+      );
       
-      console.log('File saved to:', fileUri);
-      
-      // Check if sharing is available and share the file
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Share Certificate',
-        });
-      } else {
-        // If sharing is not available, just show success message
-        Alert.alert(
-          'Download Complete',
-          `Certificate saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
-          [{ text: 'OK' }]
-        );
+      try {
+        const result = await downloadResumable.downloadAsync();
+        console.log('File downloaded to:', result?.uri);
+        
+        // Check if sharing is available and share the file
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(result!.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Share Certificate',
+          });
+        } else {
+          // If sharing is not available, just show success message
+          Alert.alert(
+            'Download Complete',
+            `Certificate saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
+            [{ text: 'OK' }]
+          );
+        }
+      } catch (downloadError) {
+        console.error('Download failed:', downloadError);
+        throw downloadError;
       }
       
     } catch (err: any) {
       console.error('Error downloading certificate:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to download certificate';
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to download certificate';
       setError(errorMessage);
-      setLoading(false);
       Alert.alert('Download Failed', errorMessage);
     }
   };

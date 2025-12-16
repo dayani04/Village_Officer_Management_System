@@ -26,7 +26,7 @@ api.interceptors.request.use(
 
 export const submitCertificateApplication = async (formData: FormData) => {
   try {
-    console.log('Submitting certificate application:', [...formData.entries()]);
+    console.log('Submitting certificate application');
     const response = await api.post('/', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -149,6 +149,20 @@ export const fetchUserConfirmedCertificates = async () => {
     return response.data;
   } catch (error: any) {
     console.error('Error fetching user confirmed certificates:', error.response?.data || error.message);
+    throw error.response?.data?.error || error.message;
+  }
+};
+
+export const downloadDocument = async (filename: string) => {
+  try {
+    console.log(`Downloading document: ${filename}`);
+    const response = await api.get(`/download/${filename}`, {
+      responseType: 'blob',
+    });
+    console.log('Document download response:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error(`Error downloading document ${filename}:`, error.response?.data || error.message);
     throw error.response?.data?.error || error.message;
   }
 };

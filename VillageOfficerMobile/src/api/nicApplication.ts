@@ -36,6 +36,18 @@ export const fetchNICApplications = async () => {
   }
 };
 
+export const fetchConfirmedNICApplications = async () => {
+  try {
+    console.log('Fetching confirmed NIC applications');
+    const response = await api.get('/confirmed');
+    console.log('Fetched confirmed NIC applications:', response.data);
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching confirmed NIC applications:', error.response?.data || error.message);
+    throw error.response?.data?.error || error.message;
+  }
+};
+
 export const updateNICApplicationStatus = async (villagerId: string, nicId: string, status: string) => {
   try {
     console.log(`Updating NIC application status for villager: ${villagerId}, NIC: ${nicId}, Status: ${status}`);
