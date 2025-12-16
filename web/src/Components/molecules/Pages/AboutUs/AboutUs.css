@@ -72,4 +72,71 @@
     color: #333;
   }
   
-  
+  /* ===== Mobile Responsive Styling ===== */
+  @media (max-width: 768px) {
+    .containerA {
+      flex-direction: column;
+      padding: 15px;
+    }
+    
+    .left-column {
+      width: 100%;
+      gap: 15px;
+    }
+    
+    .right-column {
+      width: 100%;
+      margin-top: 20px;
+    }
+    
+    .cardA {
+      height: auto;
+      padding: 15px;
+    }
+    
+    .cardB {
+      height: auto;
+      padding: 15px;
+    }
+    
+    .cardA h3, .cardB h3 {
+      font-size: 1.2em;
+    }
+    
+    .cardA p, .cardB p {
+      font-size: 13px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .containerA {
+      padding: 10px;
+    }
+    
+    .left-column {
+      gap: 10px;
+    }
+    
+    .right-column {
+      margin-top: 15px;
+    }
+    
+    .cardA, .cardB {
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .cardA h3, .cardB h3 {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+    
+    .cardA p, .cardB p {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .about-image {
+      border-radius: 8px;
+    }
+  }

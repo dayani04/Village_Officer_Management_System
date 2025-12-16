@@ -156,3 +156,126 @@ background: linear-gradient(135deg, #921940 0%, #915969 100%);
   justify-content: center;
   margin-top: 40px;
 }
+
+/* ===== Mobile Responsive Styling ===== */
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .language-switch {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .language-switch button {
+    width: 100px;
+    padding: 8px 15px;
+    font-size: 13px;
+  }
+  
+  h1 {
+    font-size: 32px;
+    padding-left: 20px;
+    margin-right: 0;
+  }
+  
+  h2 {
+    font-size: 22px;
+    padding-left: 20px;
+    margin-right: 0;
+  }
+  
+  .option-card {
+    width: 220px;
+    height: 220px;
+    padding: 12px;
+  }
+  
+  .card-image {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .option-button {
+    padding: 10px;
+    font-size: 13px;
+  }
+  
+  .dashboard-options {
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+  
+  .vertical-line {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-container {
+    padding: 10px;
+  }
+  
+  .language-switch {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .language-switch button {
+    width: 90px;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+  
+  h1 {
+    font-size: 28px;
+    padding-left: 15px;
+    text-align: center;
+  }
+  
+  h2 {
+    font-size: 20px;
+    padding-left: 15px;
+    text-align: center;
+  }
+  
+  .option-card {
+    width: 180px;
+    height: 180px;
+    padding: 10px;
+  }
+  
+  .card-image {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .option-button {
+    padding: 8px;
+    font-size: 12px;
+  }
+  
+  .dashboard-options {
+    gap: 10px;
+    justify-content: center;
+  }
+  
+  .villager-section {
+    margin-top: 20px;
+  }
+  
+  .notification-badge {
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    top: -6px;
+    right: -6px;
+  }
+}

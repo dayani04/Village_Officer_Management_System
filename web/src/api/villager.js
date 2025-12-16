@@ -1,7 +1,7 @@
 import axios from "axios";
 import { getToken, setToken } from "../utils/auth";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = "http://172.20.10.3:5000/api";
 
 const api = axios.create({
   baseURL: API_URL,
@@ -212,9 +212,9 @@ export const requestPasswordOtp = async (email) => {
   }
 };
 
-export const verifyPasswordOtp = async (villagerId, otp, newPassword) => {
+export const verifyPasswordOtp = async (villagerId, otp, newPassword, isBackupCode = false) => {
   try {
-    const response = await api.post(`/villagers/${villagerId}/verify-otp`, { otp, newPassword });
+    const response = await api.post(`/villagers/${villagerId}/verify-otp`, { otp, newPassword, isBackupCode });
     console.log(`Verified OTP for villager ${villagerId}:`, response.data);
     return response.data;
   } catch (error) {

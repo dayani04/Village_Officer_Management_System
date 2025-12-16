@@ -351,6 +351,26 @@ const SidebarS = () => {
             <TbUserPlus className="me-2" /> Village Officer
           </NavLink>
         </li>
+        <li className="nav-item">
+          <NavLink
+            to="/add-secretary"
+            className="nav-link d-flex align-items-center p-2 rounded"
+            style={{ color: "white", transition: "all 0.3s ease" }}
+            activeStyle={{ fontWeight: "bold", background: "linear-gradient(135deg, #d4a5a5 0%, #C75B7A 100%)" }}
+            onMouseEnter={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "linear-gradient(135deg, rgba(146, 25, 64, 0.3) 0%, rgba(145, 89, 105, 0.3) 100%)";
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!e.target.classList.contains('active')) {
+                e.target.style.background = "none";
+              }
+            }}
+          >
+            <TbUserPlus className="me-2" /> Add Secretary
+          </NavLink>
+        </li>
 
         {/* Notifications */}
         {/* <li className="nav-item">

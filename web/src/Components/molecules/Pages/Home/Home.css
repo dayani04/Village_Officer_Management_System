@@ -116,3 +116,75 @@ h1.heading {
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
   color: #C75B7A;
 }
+
+/* ===== Mobile Responsive Styling ===== */
+@media (max-width: 768px) {
+  .container-fostrap {
+    padding: 0.5em;
+  }
+  
+  .card {
+    height: auto;
+    min-height: 500px;
+    margin-bottom: 15px;
+  }
+  
+  .img-card {
+    height: 250px;
+  }
+  
+  .card-content {
+    padding: 10px;
+  }
+  
+  .card-title {
+    font-size: 1.4em;
+  }
+  
+  .card-title a {
+    font-size: 0.9em;
+  }
+  
+  .card-content p {
+    font-size: 0.9em;
+  }
+}
+
+@media (max-width: 480px) {
+  .wrapper {
+    display: block;
+    height: auto;
+  }
+  
+  .container-fostrap {
+    display: block;
+    padding: 0.3em;
+  }
+  
+  .card {
+    height: auto;
+    min-height: 450px;
+    margin-bottom: 10px;
+  }
+  
+  .img-card {
+    height: 200px;
+  }
+  
+  .card-content {
+    padding: 8px;
+  }
+  
+  .card-title {
+    font-size: 1.2em;
+  }
+  
+  .card-title a {
+    font-size: 0.8em;
+  }
+  
+  .card-content p {
+    font-size: 0.8em;
+    line-height: 1.3;
+  }
+}

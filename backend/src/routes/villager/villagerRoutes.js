@@ -52,6 +52,9 @@ router.get("/race-count", villagerController.getRaceCount);
 router.get("/monthly-growth", villagerController.getMonthlyVillagerGrowth);
 router.get("/new-born-requests", villagerController.getNewBornRequests);
 router.get("/documents/:filename", villagerController.downloadDocument);
+// New download routes for family member and new born requests
+router.get("/new-family-member-request/download/:filename", villagerController.downloadDocument);
+router.get("/new-born-request/download/:filename", villagerController.downloadDocument);
 router.get("/total", villagerController.getVillageTotal);
 router.get("/:villagerId", allowanceApplicationController.getVillagerById);
 router.put("/:id", upload.fields([
@@ -65,6 +68,7 @@ router.get("/:id/location", villagerController.getVillagerLocation);
 router.post("/:id/verify-otp", villagerController.verifyPasswordOtp);
 router.post("/:id/notification", villagerController.sendNotification);
 router.put("/notifications/:id/read", villagerController.markNotificationAsRead);
+
 
 // New route for uploading documents (Changed to POST)
 router.post("/documents", upload.fields([

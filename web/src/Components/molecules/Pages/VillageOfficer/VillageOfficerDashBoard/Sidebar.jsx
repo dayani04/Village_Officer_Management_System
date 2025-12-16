@@ -300,7 +300,7 @@ const Sidebar = () => {
                   Voter List
                 </NavLink>
               </li>
-              <li>
+              {/* <li>
                 <NavLink
                   to="/requests-for-new-villagers"
                   className="nav-link p-2 rounded"
@@ -319,8 +319,8 @@ const Sidebar = () => {
                 >
                   New Villager
                 </NavLink>
-              </li>
-              <li>
+              </li> */}
+              {/* <li>
                 <NavLink
                   to="/requests-for-new-born"
                   className="nav-link p-2 rounded"
@@ -339,7 +339,7 @@ const Sidebar = () => {
                 >
                   New Born
                 </NavLink>
-              </li>
+              </li> */}
             </ul>
           )}
         </li>
@@ -411,7 +411,7 @@ const Sidebar = () => {
           )}
         </li>
 
-        <li className="nav-item">
+        {/* <li className="nav-item">
           <NavLink
             to="/villager-officers"
             className="nav-link d-flex align-items-center p-2 rounded"
@@ -430,7 +430,7 @@ const Sidebar = () => {
           >
             <TbUserPlus className="me-2" /> Village Officer
           </NavLink>
-        </li>
+        </li> */}
 
         <li className="nav-item">
           <NavLink

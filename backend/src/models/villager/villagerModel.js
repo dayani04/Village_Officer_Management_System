@@ -397,5 +397,6 @@ module.exports = {
   getRaceCount,
   updateVillagerDocuments, 
   addVillagerDocuments,
-  upsertVillagerDocuments
+  upsertVillagerDocuments,
+  
 };

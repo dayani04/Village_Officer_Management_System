@@ -66,15 +66,104 @@
   .back-button {
     background-color:#7a1632;
     color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
   }
   
   .back-button:hover {
     background-color: #C75B7A;
   }
-  
+
+  /* ===== Mobile Responsive Styling ===== */
   @media (max-width: 768px) {
-    .left-column,
+    .containerA {
+      flex-direction: column;
+      padding: 15px;
+    }
+    
+    .left-column {
+      width: 100%;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
     .right-column {
       width: 100%;
+      margin-bottom: 20px;
+    }
+    
+    .card-english,
+    .card-sinhala,
+    .card-tamil {
+      height: auto;
+      min-height: 200px;
+      padding: 15px;
+    }
+    
+    .card-english h3,
+    .card-sinhala h3,
+    .card-tamil h3 {
+      font-size: 1.2em;
+    }
+    
+    .card-english p,
+    .card-sinhala p,
+    .card-tamil p {
+      font-size: 13px;
+    }
+    
+    .back-button {
+      font-size: 14px;
+      padding: 8px 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .containerA {
+      padding: 10px;
+    }
+    
+    .left-column {
+      gap: 10px;
+      margin-bottom: 15px;
+    }
+    
+    .right-column {
+      margin-bottom: 15px;
+    }
+    
+    .card-english,
+    .card-sinhala,
+    .card-tamil {
+      padding: 12px;
+      border-radius: 8px;
+    }
+    
+    .card-english h3,
+    .card-sinhala h3,
+    .card-tamil h3 {
+      font-size: 1.1em;
+      margin-bottom: 8px;
+    }
+    
+    .card-english p,
+    .card-sinhala p,
+    .card-tamil p {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    
+    .privacy-actions {
+      margin-top: 15px;
+    }
+    
+    .back-button {
+      font-size: 13px;
+      padding: 6px 12px;
+      width: 100%;
+      max-width: 300px;
     }
   }

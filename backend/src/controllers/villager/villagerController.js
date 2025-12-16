@@ -346,9 +346,26 @@ const requestPasswordOtp = async (req, res) => {
 
 const verifyPasswordOtp = async (req, res) => {
   try {
-    const { otp, newPassword } = req.body;
+    const { otp, newPassword, isBackupCode } = req.body;
     const userId = req.params.id;
 
+    // Handle backup code verification
+    if (isBackupCode) {
+      // For backup codes, we skip OTP verification and directly update password
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      const updated = await User.updatePassword(userId, hashedPassword);
+      if (!updated) return res.status(404).json({ error: "User not found" });
+
+      await sendConfirmationEmail(
+        (await User.getVillagerById(userId)).Email,
+        "Password Updated",
+        "Your password has been updated successfully using backup code."
+      );
+
+      return res.json({ message: "Password updated successfully using backup code" });
+    }
+
+    // Regular OTP verification
     const storedOtp = otps.get(userId);
     if (!storedOtp || storedOtp.expires < Date.now()) {
       return res.status(400).json({ error: "OTP expired or invalid" });
@@ -683,6 +700,7 @@ const updateVillagerDocuments = async (req, res) => {
     res.status(500).json({ error: 'Database error', details: error.message });
   }
 };
+
 module.exports = {
   getVillagers,
   getVillager,

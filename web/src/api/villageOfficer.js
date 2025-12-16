@@ -137,9 +137,9 @@ export const requestPasswordOtp = async (email) => {
   }
 };
 
-export const verifyPasswordOtp = async (villageOfficerId, otp, newPassword) => {
+export const verifyPasswordOtp = async (villageOfficerId, otp, newPassword, isBackupCode = false) => {
   try {
-    const response = await api.post(`/${villageOfficerId}/verify-otp`, { otp, newPassword });
+    const response = await api.post(`/${villageOfficerId}/verify-otp`, { otp, newPassword, isBackupCode });
     return response.data;
   } catch (error) {
     console.error(`Error verifying OTP for village officer ${villageOfficerId}:`, error);
