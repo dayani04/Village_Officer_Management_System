@@ -42,7 +42,7 @@ npx expo start # Scan the QR code with Expo Go app
 Plaintext
 ├── backend/          # Express API, Models, and Controllers
 ├── web/              # React.js web application
-└── mobile/           # React Native (Expo) application
+└── VillageOfficerMobile/           # React Native (Expo) application
 
 🔑 Key Features
 Unified API: Both Web and Mobile consume the same Express backend.
