@@ -1,70 +1,65 @@
-# Getting Started with Create React App
+🚀 Village Officer Management System 
+The Complete Full-Stack Solution
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This repository contains a unified ecosystem featuring a React web dashboard, a React Native mobile app (Expo), and a robust Node.js/Express backend.
 
-## Available Scripts
+🏗️ Architecture Overview
+The project is divided into three main pillars:
 
-In the project directory, you can run:
+🌐 Web Frontend: A responsive React application bootstrapped with CRA.
 
-### `npm start`
+📱 Mobile App: A cross-platform mobile experience built with React Native and Expo.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+⚙️ Backend API: A RESTful service built with Node.js and Express to handle data and logic.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+🛠️ Tech Stack
+Layer	Technologies
+Frontend (Web)	:   React, CSS Modules, Axios
+Mobile	        :   React Native, Expo, React Navigation
+Backend	        :   Node.js, Express, JWT (Auth)
+Database	    :   MySql
 
-### `npm test`
+🚀 Getting Started
+1. Backend Setup
+Bash
+cd backend
+npm install
+npm start # Runs on http://localhost:5000
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+2. Web Frontend Setup
+Bash
+cd web
+npm install
+npm start # Runs on http://localhost:3000
 
-### `npm run build`
+3. Mobile Setup
+Bash
+cd mobile
+npm install
+npx expo start # Scan the QR code with Expo Go app
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+📁 Project Structure
+Plaintext
+├── backend/          # Express API, Models, and Controllers
+├── web/              # React.js web application
+└── mobile/           # React Native (Expo) application
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+🔑 Key Features
+Unified API: Both Web and Mobile consume the same Express backend.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Cross-Platform: Mobile app runs seamlessly on both iOS and Android via Expo.
 
-### `npm run eject`
+Shared Logic: Consistent data structures across all platforms.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+📦 Available Scripts
+Web & Mobile
+npm start: Launches the development server.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+npm run build: Prepares the production bundle.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+Backend
+npm run dev: Starts the server with Nodemon for auto-reloading.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+npm test: Runs the backend test suite.
 
-## Learn More
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
