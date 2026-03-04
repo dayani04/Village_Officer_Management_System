@@ -34,7 +34,7 @@ npm start # Runs on http://localhost:3000
 
 3. Mobile Setup
 Bash
-cd mobile
+cd VillageOfficerMobile
 npm install
 npx expo start # Scan the QR code with Expo Go app
 
