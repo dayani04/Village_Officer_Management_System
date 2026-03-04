@@ -13,7 +13,7 @@ const resources = {
       editProfile: "Edit Profile",
       familyDetails: "Family Details",
       notification: "Notifications",
-      permitcertificates: "Approved Permit certificates",
+      permitcertificates: "Download Certificate",
       approvedvillageofficerceritificates: "Approved Village officer certificates",
       applicationProcesses: "Application Processes",
       applyElection: "Apply For Elections",

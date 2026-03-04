@@ -17,11 +17,13 @@ import { Spacing } from '../src/constants/spacing';
 import { Typography } from '../src/constants/typography';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchConfirmedPermitApplications } from '../src/api/permitApplication';
 
 interface PermitCertificate {
   id: string;
-  permit_type: string;
-  apply_date: string;
+  Permits_Type: string;
+  required_date: string;
   certificate_path: string;
 }
 
@@ -41,44 +43,23 @@ const UserPermitCertificatesScreen: React.FC = () => {
       setLoading(true);
       setError(null);
       
-      // Mock API call - replace with actual API call
-      // const data = await fetchConfirmedPermitApplications();
       console.log("Loading permit certificates...");
+      const data = await fetchConfirmedPermitApplications();
       
-      // Mock data for demonstration
-      const mockData: PermitCertificate[] = [
-        {
-          id: '1',
-          permit_type: 'Building Permit',
-          apply_date: '2024-01-15',
-          certificate_path: 'building_permit_001.pdf',
-        },
-        {
-          id: '2',
-          permit_type: 'Business Permit',
-          apply_date: '2024-02-20',
-          certificate_path: 'business_permit_002.pdf',
-        },
-        {
-          id: '3',
-          permit_type: 'Event Permit',
-          apply_date: '2024-03-10',
-          certificate_path: null,
-        },
-        {
-          id: '4',
-          permit_type: 'Construction Permit',
-          apply_date: '2024-04-05',
-          certificate_path: 'construction_permit_004.pdf',
-        },
-      ];
+      // Transform the data to match the interface
+      const transformedData = data.map((item: any, index: number) => ({
+        id: item.id || index.toString(),
+        Permits_Type: item.Permits_Type || item.permit_type || 'N/A',
+        required_date: item.required_date || item.apply_date || new Date().toISOString(),
+        certificate_path: item.certificate_path || null,
+      }));
       
-      setCertificates(mockData);
+      setCertificates(transformedData);
       setLoading(false);
     } catch (err: any) {
       console.error('Error fetching permit certificates:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to fetch your permit certificates';
-      setError(errorMessage || null);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to fetch your permit certificates';
+      setError(errorMessage);
       setLoading(false);
       Alert.alert('Error', errorMessage);
     }
@@ -97,45 +78,66 @@ const UserPermitCertificatesScreen: React.FC = () => {
         return;
       }
 
-      // Mock download URL - replace with actual API endpoint
-      const downloadUrl = `https://your-api-url.com/api/download/${filename}`;
-      
       console.log('Downloading certificate:', filename);
       
-      // For now, create a mock PDF content (in real app, download from API)
-      const mockPdfContent = 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvTGFuZyhlbi1VUykgL1N0cnVjdFRyZWVSb290IDEgMCBSPj4KZW5kb2JqCjEgMCBvYmoKPDAvVHlwZS9TdHJ1Y3RUcmVlL1BhcmVudCAwIFIvS2lkcyBbMyAwIFJdPj4KZW5kb2JqCjIgMCBvYmoKPDwvVHlwZS9QYWdlL1BhcmVudCAxIDAgUi9NZWRpYUJveFswIDAgNjEyIDc5Ml0vQ29udGVudHMgMyAwIFIvUmVzb3VyY2VzIDw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4+PgplbmRvYmoKMyAwIG9iago8PC9MZW5ndGggNDQ+PnN0cmVhbQKQlQKL0YxIDEyIFRGCjcyIDcyMCBUZAooUGVybWl0IENlcnRpZmljYXRlKSBUagpFVAo0RUYKZW5kc3RyZWFtCmVuZG9iago0IDAgb2JqCjw8L1R5cGUvRm9udC9TdWJ0eXBlL1R5cGUxL0Jhc2VGb250L0hlbZ2V0aWNhPj4KZW5kb2JqCnhyZWYKNSAwIFIKJSVFT0YK';
+      // Get auth token
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) {
+        Alert.alert('Authentication Error', 'Please login again to download certificates');
+        return;
+      }
+      
+      // For React Native, we'll use a different approach
+      // Create a download URL and use FileSystem.downloadAsync
+      const API_URL = 'http://172.20.10.3:5000/api';
+      const downloadUrl = `${API_URL}/permit-applications/download/${filename}`;
       
       // Get the document directory path
       const documentDir = FileSystem.documentDirectory || '';
       const fileUri = `${documentDir}${filename}`;
       
-      // Write file to device storage using base64 encoding
-      await FileSystem.writeAsStringAsync(fileUri, mockPdfContent, {
-        encoding: 'base64',
-      });
+      // Download the file directly with authentication headers
+      const downloadResumable = FileSystem.createDownloadResumable(
+        downloadUrl,
+        fileUri,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        },
+        (downloadProgressInfo) => {
+          const progress = downloadProgressInfo.totalBytesWritten / downloadProgressInfo.totalBytesExpectedToWrite;
+          console.log(`Download progress: ${Math.round(progress * 100)}%`);
+        }
+      );
       
-      console.log('File saved to:', fileUri);
-      
-      // Check if sharing is available and share the file
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Share Permit Certificate',
-        });
-      } else {
-        // If sharing is not available, just show success message
-        Alert.alert(
-          'Download Complete',
-          `Permit certificate saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
-          [{ text: 'OK' }]
-        );
+      try {
+        const result = await downloadResumable.downloadAsync();
+        console.log('File downloaded to:', result?.uri);
+        
+        // Check if sharing is available and share the file
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(result!.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Share Permit Certificate',
+          });
+        } else {
+          // If sharing is not available, just show success message
+          Alert.alert(
+            'Download Complete',
+            `Permit certificate saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
+            [{ text: 'OK' }]
+          );
+        }
+      } catch (downloadError) {
+        console.error('Download failed:', downloadError);
+        throw downloadError;
       }
       
     } catch (err: any) {
       console.error('Error downloading permit certificate:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to download certificate';
-      setError(errorMessage || null);
-      setLoading(false);
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to download certificate';
+      setError(errorMessage);
       Alert.alert('Download Failed', errorMessage);
     }
   };
@@ -153,9 +155,9 @@ const UserPermitCertificatesScreen: React.FC = () => {
   const renderCertificateItem = ({ item }: { item: PermitCertificate }) => (
     <View style={styles.certificateItem}>
       <View style={styles.certificateInfo}>
-        <Text style={styles.permitType}>{item.permit_type || 'N/A'}</Text>
+        <Text style={styles.permitType}>{item.Permits_Type || 'N/A'}</Text>
         <Text style={styles.applicationDate}>
-          Applied: {formatDate(item.apply_date)}
+          Applied: {formatDate(item.required_date)}
         </Text>
       </View>
       <View style={styles.downloadSection}>

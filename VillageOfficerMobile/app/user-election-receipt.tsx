@@ -17,6 +17,8 @@ import { Spacing } from '../src/constants/spacing';
 import { Typography } from '../src/constants/typography';
 import * as FileSystem from 'expo-file-system/legacy';
 import * as Sharing from 'expo-sharing';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchConfirmedElectionApplications } from '../src/api/electionApplication';
 
 interface ElectionReceipt {
   id: string;
@@ -42,47 +44,23 @@ const UserElectionReceiptScreen: React.FC = () => {
       setLoading(true);
       setError('');
       
-      // Mock API call - replace with actual API call
-      // const data = await fetchConfirmedElectionApplications();
       console.log("Loading election receipts...");
+      const data = await fetchConfirmedElectionApplications();
       
-      // Mock data for demonstration
-      const mockData: ElectionReceipt[] = [
-        {
-          id: '1',
-          Election_Type: 'Presidential Election',
-          electionDate: '2024-11-05',
-          votingPlace: 'Village Community Center',
-          receipt_path: 'election_presidential_001.pdf',
-        },
-        {
-          id: '2',
-          Election_Type: 'Parliamentary Election',
-          electionDate: '2024-03-15',
-          votingPlace: 'Primary School Hall',
-          receipt_path: 'election_parliamentary_002.pdf',
-        },
-        {
-          id: '3',
-          Election_Type: 'Local Government Election',
-          electionDate: '2024-08-20',
-          votingPlace: 'Not Assigned',
-          receipt_path: '',
-        },
-        {
-          id: '4',
-          Election_Type: 'Provincial Council Election',
-          electionDate: '2024-06-10',
-          votingPlace: 'Town Hall',
-          receipt_path: 'election_provincial_004.pdf',
-        },
-      ];
+      // Transform the data to match the interface
+      const transformedData = data.map((item: any, index: number) => ({
+        id: item.id || index.toString(),
+        Election_Type: item.Election_Type || item.election_type || 'N/A',
+        electionDate: item.electionDate || item.election_date || new Date().toISOString(),
+        votingPlace: item.votingPlace || item.voting_place || 'Not Assigned',
+        receipt_path: item.receipt_path || null,
+      }));
       
-      setReceipts(mockData);
+      setReceipts(transformedData);
       setLoading(false);
     } catch (err: any) {
       console.error('Error fetching election receipts:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to fetch your election receipts';
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to fetch your election receipts';
       setError(errorMessage);
       setLoading(false);
       Alert.alert('Error', errorMessage);
@@ -102,45 +80,66 @@ const UserElectionReceiptScreen: React.FC = () => {
         return;
       }
 
-      // Mock download URL - replace with actual API endpoint
-      const downloadUrl = `https://your-api-url.com/api/download/${filename}`;
-      
       console.log('Downloading receipt:', filename);
       
-      // For now, create a mock PDF content (in real app, download from API)
-      const mockPdfContent = 'JVBERi0xLjQKJeLjz9MKMSAwIG9iago8PC9UeXBlL0NhdGFsb2cvUGFnZXMgMiAwIFIvTGFuZyhlbi1VUykgL1N0cnVjdFRyZWVSb290IDEgMCBSPj4KZW5kb2JqCjEgMCBvYmoKPDAvVHlwZS9TdHJ1Y3RUcmVlL1BhcmVudCAwIFIvS2lkcyBbMyAwIFJdPj4KZW5kb2JqCjIgMCBvYmoKPDwvVHlwZS9QYWdlL1BhcmVudCAxIDAgUi9NZWRpYUJveFswIDAgNjEyIDc5Ml0vQ29udGVudHMgMyAwIFIvUmVzb3VyY2VzIDw8L0ZvbnQ8PC9GMSA0IDAgUj4+Pj4+PgplbmRvYmoKMyAwIG9iago8PC9MZW5ndGggNDQ+PnN0cmVhbQKQlQKL0YxIDEyIFRGCjcyIDcyMCBUZAooRWxlY3Rpb24gUmVjZWlwdCkgVGoKRVQKNEVGCgp lbmRzdHJlYW0KZW5kb2JqCjQgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFzZUZvbnQvSGVsdmV0aWNhPj4KZW5kb2JqCnhyZWYKNSAwIFIKJSVFT0YK';
+      // Get auth token
+      const token = await AsyncStorage.getItem('auth_token');
+      if (!token) {
+        Alert.alert('Authentication Error', 'Please login again to download receipts');
+        return;
+      }
+      
+      // For React Native, we'll use a different approach
+      // Create a download URL and use FileSystem.downloadAsync
+      const API_URL = 'http://172.20.10.3:5000/api';
+      const downloadUrl = `${API_URL}/election-applications/download/${filename}`;
       
       // Get the document directory path
       const documentDir = FileSystem.documentDirectory || '';
       const fileUri = `${documentDir}${filename}`;
       
-      // Write file to device storage using base64 encoding
-      await FileSystem.writeAsStringAsync(fileUri, mockPdfContent, {
-        encoding: 'base64',
-      });
+      // Download the file directly with authentication headers
+      const downloadResumable = FileSystem.createDownloadResumable(
+        downloadUrl,
+        fileUri,
+        {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        },
+        (downloadProgressInfo) => {
+          const progress = downloadProgressInfo.totalBytesWritten / downloadProgressInfo.totalBytesExpectedToWrite;
+          console.log(`Download progress: ${Math.round(progress * 100)}%`);
+        }
+      );
       
-      console.log('File saved to:', fileUri);
-      
-      // Check if sharing is available and share the file
-      if (await Sharing.isAvailableAsync()) {
-        await Sharing.shareAsync(fileUri, {
-          mimeType: 'application/pdf',
-          dialogTitle: 'Share Election Receipt',
-        });
-      } else {
-        // If sharing is not available, just show success message
-        Alert.alert(
-          'Download Complete',
-          `Election receipt saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
-          [{ text: 'OK' }]
-        );
+      try {
+        const result = await downloadResumable.downloadAsync();
+        console.log('File downloaded to:', result?.uri);
+        
+        // Check if sharing is available and share the file
+        if (await Sharing.isAvailableAsync()) {
+          await Sharing.shareAsync(result!.uri, {
+            mimeType: 'application/pdf',
+            dialogTitle: 'Share Election Receipt',
+          });
+        } else {
+          // If sharing is not available, just show success message
+          Alert.alert(
+            'Download Complete',
+            `Election receipt saved to device storage!\n\nFile: ${filename}\nLocation: Documents folder`,
+            [{ text: 'OK' }]
+          );
+        }
+      } catch (downloadError) {
+        console.error('Download failed:', downloadError);
+        throw downloadError;
       }
       
     } catch (err: any) {
       console.error('Error downloading election receipt:', err);
-      const errorMessage = (err as any).response?.data?.error || (err as any).message || 'Failed to download receipt';
+      const errorMessage = err.response?.data?.error || err.message || 'Failed to download receipt';
       setError(errorMessage);
-      setLoading(false);
       Alert.alert('Download Failed', errorMessage);
     }
   };

@@ -31,6 +31,16 @@ export const fetchElectionApplications = async () => {
   }
 };
 
+export const fetchConfirmedElectionApplications = async () => {
+  try {
+    const response = await api.get('/election-applications/confirmed');
+    return response.data;
+  } catch (error: any) {
+    console.error('Error fetching confirmed election applications:', error);
+    throw error.response?.data?.error || error.message;
+  }
+};
+
 export const updateElectionApplicationStatus = async (villagerId: string, electionrecodeID: string, status: string) => {
   try {
     if (!status) {
